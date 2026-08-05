@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "accueil": "Accueil",
+    "cours": "Cours",
+    "fiches": "Fiches de révision",
+    "recherche": "Recherche"
+  },
+  "theme": {
+    "bascule": "Changer de thème"
+  },
+  "footer": {
+    "droits": "Tous droits réservés."
+  },
+  "accueil": {
+    "titre": "Cybercursus",
+    "description": "Apprends la cybersécurité en pratiquant, directement dans ton navigateur."
+  }
+}

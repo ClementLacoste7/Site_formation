@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { locales, useTranslations } from '../../i18n/utils';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const t = useTranslations();
+---
+
+<BaseLayout titre={t.accueil.titre} description={t.accueil.description}>
+  <section class="mx-auto max-w-5xl px-4 py-16">
+    <h1 class="text-3xl font-bold">{t.accueil.titre}</h1>
+    <p class="mt-4" style="color: var(--couleur-texte-attenue);">
+      {t.accueil.description}
+    </p>
+  </section>
+</BaseLayout>

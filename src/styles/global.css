@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* Variante "dark" pilotée par l'attribut data-theme (posé par le script
+   inline anti-flash), et non par prefers-color-scheme seul. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --couleur-fond: #ffffff;
+  --couleur-fond-secondaire: #f3f4f6;
+  --couleur-bordure: #e5e7eb;
+  --couleur-texte: #111827;
+  --couleur-texte-attenue: #6b7280;
+  --couleur-accent: #2563eb;
+  --couleur-succes: #16a34a;
+  --couleur-attention: #d97706;
+  --couleur-danger: #dc2626;
+  --couleur-information: #0891b2;
+}
+
+[data-theme="dark"] {
+  --couleur-fond: #0f172a;
+  --couleur-fond-secondaire: #1e293b;
+  --couleur-bordure: #334155;
+  --couleur-texte: #f1f5f9;
+  --couleur-texte-attenue: #94a3b8;
+  --couleur-accent: #60a5fa;
+  --couleur-succes: #4ade80;
+  --couleur-attention: #fbbf24;
+  --couleur-danger: #f87171;
+  --couleur-information: #22d3ee;
+}
+
+body {
+  background-color: var(--couleur-fond);
+  color: var(--couleur-texte);
+}

@@ -1,0 +1,42 @@
+---
+import '../styles/global.css';
+import EnTete from '../components/nav/EnTete.astro';
+import PiedDePage from '../components/nav/PiedDePage.astro';
+
+interface Props {
+  titre: string;
+  description?: string;
+}
+
+const { titre, description } = Astro.props;
+const lang = Astro.currentLocale ?? 'fr';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Script bloquant : pose data-theme avant le premier rendu pour éviter le flash. -->
+    <script is:inline>
+      (function () {
+        const stocke = localStorage.getItem('theme');
+        const theme =
+          stocke ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{titre} · Cybercursus</title>
+    {description && <meta name="description" content={description} />}
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <EnTete />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <PiedDePage />
+  </body>
+</html>

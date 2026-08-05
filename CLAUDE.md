@@ -20,7 +20,9 @@ Astro 5 · Tailwind CSS · @tailwindcss/typography · MDX · React 19 (îlots un
 
 Astro pinné en 5.x — décision assumée, pas un oubli. Astro 7 n'apporte qu'un gain de vitesse de build, tandis que la chaîne Astro 6/7 + Tailwind 4 (rolldown-vite) a connu des builds cassés. Ne pas proposer de migration majeure avant la V2.
 
-Idem `@astrojs/mdx` en 4.x.
+Idem `@astrojs/mdx` en 4.x et `@astrojs/react` en 5.x (la 6.x dépend de Vite 8, incompatible avec Astro 5 qui embarque Vite 7).
+
+Pyodide est chargé depuis le CDN officiel jsDelivr (version figée dans `pyodide.worker.ts`), pas en paquet npm : la distribution complète pèse plusieurs dizaines de Mo, hors de propos pour ce dépôt/déploiement statique. sql.js est en dépendance npm classique, son `.wasm` servi depuis `/_astro/` (import Vite `?url`).
 
 ---
 

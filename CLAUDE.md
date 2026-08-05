@@ -18,6 +18,10 @@ Astro 5 · Tailwind CSS · MDX · React 19 (îlots uniquement) · CodeMirror 6 �
 
 **Ne jamais introduire une dépendance hors de cette liste sans le signaler et le justifier explicitement.**
 
+Astro pinné en 5.x — décision assumée, pas un oubli. Astro 7 n'apporte qu'un gain de vitesse de build, tandis que la chaîne Astro 6/7 + Tailwind 4 (rolldown-vite) a connu des builds cassés. Ne pas proposer de migration majeure avant la V2.
+
+Idem `@astrojs/mdx` en 4.x.
+
 ---
 
 ## Invariants — à ne jamais enfreindre

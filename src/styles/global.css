@@ -33,4 +33,53 @@
 body {
   background-color: var(--couleur-fond);
   color: var(--couleur-texte);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+/* Corps de chapitre : styles minimaux pour le contenu MDX rendu (pas de
+   dépendance à un plugin "typography", hors de la stack imposée). */
+.contenu-chapitre h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  scroll-margin-top: 1rem;
+}
+
+.contenu-chapitre h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.contenu-chapitre p {
+  margin-bottom: 1rem;
+}
+
+.contenu-chapitre ul,
+.contenu-chapitre ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.contenu-chapitre ul {
+  list-style: disc;
+}
+
+.contenu-chapitre ol {
+  list-style: decimal;
+}
+
+.contenu-chapitre a {
+  color: var(--couleur-accent);
+  text-decoration: underline;
+}
+
+.contenu-chapitre :not(pre) > code {
+  border-radius: 0.25em;
+  background-color: var(--couleur-fond-secondaire);
+  padding: 0.15em 0.4em;
+  font-size: 0.9em;
 }

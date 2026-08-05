@@ -1,0 +1,55 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { useTranslations } from '../../i18n/utils';
+import { urlChapitre } from '../../lib/contenu';
+
+interface ChapitreVoisin {
+  chapitre: CollectionEntry<'chapitres'>;
+  cours: CollectionEntry<'cours'>;
+  domaine: CollectionEntry<'domaines'>;
+}
+
+interface Props {
+  precedent?: ChapitreVoisin | null;
+  suivant?: ChapitreVoisin | null;
+}
+
+const { precedent = null, suivant = null } = Astro.props;
+const t = useTranslations();
+---
+
+<nav
+  class="mt-8 grid grid-cols-1 gap-4 border-t pt-6 sm:grid-cols-2"
+  style="border-color: var(--couleur-bordure);"
+>
+  {
+    precedent ? (
+      <a
+        href={urlChapitre(precedent.chapitre, precedent.cours, precedent.domaine)}
+        class="rounded-lg border p-3"
+        style="border-color: var(--couleur-bordure);"
+      >
+        <span class="text-xs" style="color: var(--couleur-texte-attenue);">
+          ← {t.chapitre.precedent}
+        </span>
+        <p class="font-medium">{precedent.chapitre.data.titreCourt}</p>
+      </a>
+    ) : (
+      <div />
+    )
+  }
+  {
+    suivant && (
+      <a
+        href={urlChapitre(suivant.chapitre, suivant.cours, suivant.domaine)}
+        class="rounded-lg border p-3 text-right"
+        style="border-color: var(--couleur-bordure);"
+      >
+        <span class="text-xs" style="color: var(--couleur-texte-attenue);">
+          {t.chapitre.suivant} →
+        </span>
+        <p class="font-medium">{suivant.chapitre.data.titreCourt}</p>
+      </a>
+    )
+  }
+</nav>

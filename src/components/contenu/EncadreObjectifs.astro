@@ -1,0 +1,20 @@
+---
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  objectifs: string[];
+}
+
+const { objectifs } = Astro.props;
+const t = useTranslations();
+---
+
+<aside
+  class="rounded-lg border p-4"
+  style="border-color: var(--couleur-bordure); background-color: var(--couleur-fond-secondaire);"
+>
+  <h2 class="font-semibold">{t.chapitre.objectifs}</h2>
+  <ul class="mt-2 list-inside list-disc space-y-1 text-sm">
+    {objectifs.map((objectif) => <li>{objectif}</li>)}
+  </ul>
+</aside>

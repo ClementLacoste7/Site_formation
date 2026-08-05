@@ -1,0 +1,30 @@
+---
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  type?: 'info' | 'attention' | 'danger' | 'astuce';
+}
+
+const { type = 'info' } = Astro.props;
+const t = useTranslations();
+
+const styles = {
+  info: { couleur: 'var(--couleur-information)', icone: 'ℹ️' },
+  attention: { couleur: 'var(--couleur-attention)', icone: '⚠️' },
+  danger: { couleur: 'var(--couleur-danger)', icone: '⛔' },
+  astuce: { couleur: 'var(--couleur-succes)', icone: '💡' }
+} as const;
+
+const { couleur, icone } = styles[type];
+const libelle = t.avertissement[type];
+---
+
+<div
+  class="my-4 rounded-lg border-l-4 p-4 text-sm"
+  style={`border-color: ${couleur}; background-color: var(--couleur-fond-secondaire);`}
+>
+  <p class="mb-1 font-semibold" style={`color: ${couleur};`}>{icone} {libelle}</p>
+  <div>
+    <slot />
+  </div>
+</div>

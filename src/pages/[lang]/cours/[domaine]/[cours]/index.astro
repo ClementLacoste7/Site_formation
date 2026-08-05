@@ -1,0 +1,29 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import CoursLayout from '../../../../../layouts/CoursLayout.astro';
+import { locales } from '../../../../../i18n/utils';
+
+export async function getStaticPaths() {
+  const tousLesCours = await getCollection('cours');
+  const paths = [];
+  for (const cours of tousLesCours) {
+    const domaine = await getEntry(cours.data.domaine);
+    if (!domaine) continue;
+    for (const lang of locales) {
+      paths.push({
+        params: { lang, domaine: domaine.data.slug, cours: cours.data.slug },
+        props: { cours, domaine }
+      });
+    }
+  }
+  return paths;
+}
+
+const { cours, domaine } = Astro.props;
+
+const chapitres = (await getCollection('chapitres'))
+  .filter((c) => c.data.cours.id === cours.id && c.data.publie)
+  .sort((a, b) => a.data.ordre - b.data.ordre);
+---
+
+<CoursLayout cours={cours} domaine={domaine} chapitres={chapitres} />

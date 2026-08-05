@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { useTranslations } from '../../i18n/utils';
+import { urlCours } from '../../lib/contenu';
+
+interface Props {
+  cours: CollectionEntry<'cours'>;
+  domaine: CollectionEntry<'domaines'>;
+}
+
+const { cours, domaine } = Astro.props;
+const t = useTranslations();
+---
+
+<a
+  href={urlCours(cours, domaine)}
+  class="block rounded-lg border p-4 transition hover:border-[var(--couleur-accent)]"
+  style="border-color: var(--couleur-bordure);"
+>
+  <h3 class="font-semibold">{cours.data.titre}</h3>
+  <p class="mt-1 text-sm" style="color: var(--couleur-texte-attenue);">{cours.data.description}</p>
+  <p class="mt-2 text-xs" style="color: var(--couleur-texte-attenue);">
+    {t.niveau[cours.data.niveau]} · {cours.data.dureeTotale} {t.cours.minutes}
+  </p>
+</a>

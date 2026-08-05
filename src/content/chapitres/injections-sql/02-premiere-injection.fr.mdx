@@ -1,0 +1,71 @@
+---
+titre: "Ta première injection SQL"
+titreCourt: "Ta première injection"
+description: "Construire pas à pas une valeur qui détourne le sens d'une requête de connexion."
+slug: "premiere-injection"
+cours: "injections-sql"
+ordre: 2
+duree: 10
+niveau: "debutant"
+objectifs:
+  - "Construire une valeur qui modifie la logique d'une requête WHERE"
+  - "Comprendre le rôle des commentaires SQL dans une charge d'injection"
+  - "Expliquer pourquoi cette technique contourne une vérification de mot de passe"
+prerequis: ["principe"]
+tags: ["injections-sql", "authentification"]
+quiz: []
+maj: 2026-08-05
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Une page de connexion vulnérable
+
+Prenons un formulaire de connexion classique. Le serveur reçoit un identifiant et un mot de passe, puis construit la requête suivante :
+
+<BlocCode
+  langue="sql"
+  code={`SELECT * FROM utilisateurs
+WHERE identifiant = 'ALICE' AND mot_de_passe = 'motdepasse123'`}
+/>
+
+Si un utilisateur correspondant existe, l'application considère la connexion réussie. Tant que les deux valeurs viennent directement d'un formulaire sans validation, elles peuvent contenir n'importe quel caractère — y compris une apostrophe, qui referme prématurément la chaîne de texte SQL.
+
+## Refermer la chaîne plus tôt que prévu
+
+Imaginons que le champ mot de passe contienne la valeur suivante :
+
+<BlocCode langue="text" code={`' OR '1'='1`} />
+
+Une fois insérée dans le gabarit de requête, elle produit :
+
+<BlocCode
+  langue="sql"
+  code={`SELECT * FROM utilisateurs
+WHERE identifiant = 'ALICE' AND mot_de_passe = '' OR '1'='1'`}
+/>
+
+La condition `'1'='1'` est toujours vraie, quel que soit l'identifiant. La clause `WHERE` devient donc systématiquement vraie, et la requête retourne un utilisateur — sans que le bon mot de passe ait été fourni.
+
+<Avertissement type="danger">
+  Cette charge fonctionne uniquement parce que la requête est reconstruite à chaque appel par concaténation. Une requête paramétrée, où la valeur est transmise séparément du texte SQL, neutralise complètement cette technique.
+</Avertissement>
+
+## Le rôle des commentaires SQL
+
+Une variante fréquente ajoute un commentaire SQL (`--` ou `#`) pour neutraliser le reste de la requête d'origine, notamment quand une seconde condition suit la vérification du mot de passe :
+
+<BlocCode langue="text" code={`ALICE'--`} />
+
+Tout ce qui suit `--` sur la ligne est ignoré par le moteur SQL. Le mot de passe attendu n'est alors même plus évalué.
+
+<EncadreARetenir
+  points={[
+    "Une simple apostrophe suffit à modifier la structure d'une requête concaténée",
+    "'1'='1' rend une condition WHERE toujours vraie, contournant l'authentification",
+    "Un commentaire SQL (--) permet d'ignorer le reste d'une requête d'origine"
+  ]}
+/>

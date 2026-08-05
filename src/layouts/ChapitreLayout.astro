@@ -1,0 +1,71 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import FilAriane from '../components/nav/FilAriane.astro';
+import NavChapitre from '../components/nav/NavChapitre.astro';
+import SommaireLateral from '../components/nav/SommaireLateral.astro';
+import EncadreObjectifs from '../components/contenu/EncadreObjectifs.astro';
+import EncadrePrerequis from '../components/contenu/EncadrePrerequis.astro';
+import { useTranslations } from '../i18n/utils';
+import { urlCours, urlDomaine } from '../lib/contenu';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface ChapitreVoisin {
+  chapitre: CollectionEntry<'chapitres'>;
+  cours: CollectionEntry<'cours'>;
+  domaine: CollectionEntry<'domaines'>;
+}
+
+interface Props {
+  chapitre: CollectionEntry<'chapitres'>;
+  cours: CollectionEntry<'cours'>;
+  domaine: CollectionEntry<'domaines'>;
+  headings: Heading[];
+  precedent?: ChapitreVoisin | null;
+  suivant?: ChapitreVoisin | null;
+}
+
+const { chapitre, cours, domaine, headings, precedent = null, suivant = null } = Astro.props;
+const t = useTranslations();
+const { titre, description, duree, niveau, objectifs, prerequis, maj } = chapitre.data;
+
+const dateMaj = maj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const fils = [
+  { label: t.nav.cours, href: '/fr/cours/' },
+  { label: domaine.data.titre, href: urlDomaine(domaine) },
+  { label: cours.data.titre, href: urlCours(cours, domaine) },
+  { label: chapitre.data.titreCourt }
+];
+---
+
+<BaseLayout titre={titre} description={description}>
+  <div class="mx-auto max-w-5xl px-4 py-8 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10">
+    <article class="max-w-[70ch]">
+      <FilAriane fils={fils} />
+
+      <h1 class="mt-3 text-3xl font-bold">{titre}</h1>
+      <p class="mt-2 text-sm" style="color: var(--couleur-texte-attenue);">
+        {duree} {t.cours.minutes} · {t.niveau[niveau]} · {dateMaj}
+      </p>
+
+      <div class="mt-6 space-y-4">
+        <EncadreObjectifs objectifs={objectifs} />
+        <EncadrePrerequis prerequis={prerequis} />
+      </div>
+
+      <div class="contenu-chapitre mt-8">
+        <slot />
+      </div>
+
+      <NavChapitre precedent={precedent} suivant={suivant} />
+    </article>
+
+    <SommaireLateral headings={headings} />
+  </div>
+</BaseLayout>

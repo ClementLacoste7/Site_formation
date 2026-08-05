@@ -1,0 +1,57 @@
+---
+titre: "Le principe des injections SQL"
+titreCourt: "Le principe"
+description: "Pourquoi construire une requête SQL par concaténation de texte permet à un attaquant d'en modifier le sens."
+slug: "principe"
+cours: "injections-sql"
+ordre: 1
+duree: 8
+niveau: "debutant"
+objectifs:
+  - "Distinguer une requête SQL paramétrée d'une requête construite par concaténation"
+  - "Comprendre comment une entrée utilisateur peut altérer la structure d'une requête"
+  - "Identifier les points d'entrée typiques d'une application vulnérable"
+prerequis: []
+tags: ["injections-sql", "http"]
+quiz: []
+maj: 2026-08-05
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Une requête, deux origines
+
+Une application web qui interroge une base de données construit presque toujours sa requête SQL à partir de deux sources : du texte fixe écrit par le développeur, et une valeur fournie par l'utilisateur (un champ de formulaire, un paramètre d'URL, un en-tête HTTP).
+
+Le problème apparaît quand ces deux sources sont assemblées par simple concaténation de chaînes de caractères, sans distinction entre « ce qui est du code » et « ce qui est une donnée ».
+
+<BlocCode
+  langue="sql"
+  code={`-- Requête construite par concaténation
+SELECT * FROM produits WHERE id = ' + idFourniParUtilisateur + '`}
+/>
+
+Tant que `idFourniParUtilisateur` contient un nombre, la requête se comporte comme prévu. Mais rien n'empêche cette valeur de contenir autre chose : du SQL.
+
+<Avertissement type="attention">
+  Une base de données ne fait aucune différence entre le SQL écrit par le développeur et le SQL introduit involontairement via une entrée utilisateur. Elle exécute tout ce qui lui est soumis.
+</Avertissement>
+
+## Où se cachent ces points d'entrée
+
+Toute donnée qui traverse la frontière entre l'utilisateur et la base de données est un point d'entrée potentiel :
+
+- **Champs de formulaire** — un champ de connexion, de recherche ou de commentaire, dès lors que sa valeur finit dans une requête.
+- **Paramètres d'URL** — un identifiant transmis en paramètre (`?id=42`) est aussi exposé qu'un champ de formulaire.
+- **En-têtes HTTP** — moins visibles, mais tout aussi exploitables si leur valeur est réutilisée dans une requête (`User-Agent`, cookies, etc.).
+
+<EncadreARetenir
+  points={[
+    "Une requête construite par concaténation mélange code et données",
+    "Toute entrée utilisateur qui atteint une requête SQL est un point d'entrée potentiel",
+    "Le prochain chapitre montre comment exploiter concrètement ce problème"
+  ]}
+/>

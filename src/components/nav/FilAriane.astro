@@ -1,0 +1,33 @@
+---
+import { useTranslations } from '../../i18n/utils';
+
+interface Fil {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  fils: Fil[];
+}
+
+const { fils } = Astro.props;
+const t = useTranslations();
+const tousLesFils: Fil[] = [{ label: t.filAriane.accueil, href: '/fr/' }, ...fils];
+---
+
+<nav aria-label={t.filAriane.accueil} class="text-xs" style="color: var(--couleur-texte-attenue);">
+  <ol class="flex flex-wrap items-center gap-1">
+    {tousLesFils.map((fil, index) => (
+      <li class="flex items-center gap-1">
+        {index > 0 && <span aria-hidden="true">/</span>}
+        {fil.href && index < tousLesFils.length - 1 ? (
+          <a href={fil.href} class="hover:underline">
+            {fil.label}
+          </a>
+        ) : (
+          <span aria-current="page">{fil.label}</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>

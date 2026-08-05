@@ -14,5 +14,42 @@
   "accueil": {
     "titre": "Cybercursus",
     "description": "Apprends la cybersécurité en pratiquant, directement dans ton navigateur."
+  },
+  "filAriane": {
+    "accueil": "Accueil"
+  },
+  "catalogue": {
+    "titre": "Catalogue des cours",
+    "description": "Tous les cours disponibles, classés par domaine."
+  },
+  "domaine": {
+    "coursDisponibles": "Cours disponibles"
+  },
+  "cours": {
+    "chapitres": "Chapitres du cours",
+    "minutes": "min"
+  },
+  "niveau": {
+    "debutant": "Débutant",
+    "intermediaire": "Intermédiaire",
+    "avance": "Avancé"
+  },
+  "chapitre": {
+    "objectifs": "Objectifs",
+    "prerequis": "Prérequis",
+    "aRetenir": "À retenir",
+    "precedent": "Chapitre précédent",
+    "suivant": "Chapitre suivant",
+    "sommaire": "Sommaire"
+  },
+  "code": {
+    "copier": "Copier",
+    "copie": "Copié !"
+  },
+  "avertissement": {
+    "info": "Info",
+    "attention": "Attention",
+    "danger": "Danger",
+    "astuce": "Astuce"
   }
 }

@@ -1,0 +1,49 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import ChapitreLayout from '../../../../../layouts/ChapitreLayout.astro';
+import { locales } from '../../../../../i18n/utils';
+
+export async function getStaticPaths() {
+  const chapitres = await getCollection('chapitres');
+  const paths = [];
+  for (const chapitre of chapitres) {
+    const cours = await getEntry(chapitre.data.cours);
+    if (!cours) continue;
+    const domaine = await getEntry(cours.data.domaine);
+    if (!domaine) continue;
+    for (const lang of locales) {
+      paths.push({
+        params: { lang, domaine: domaine.data.slug, cours: cours.data.slug, chapitre: chapitre.data.slug },
+        props: { chapitre, cours, domaine }
+      });
+    }
+  }
+  return paths;
+}
+
+const { chapitre, cours, domaine } = Astro.props;
+const { Content, headings } = await render(chapitre);
+
+const chapitresDuCours = (await getCollection('chapitres'))
+  .filter((c) => c.data.cours.id === chapitre.data.cours.id)
+  .sort((a, b) => a.data.ordre - b.data.ordre);
+
+const indexActuel = chapitresDuCours.findIndex((c) => c.id === chapitre.id);
+const chapitrePrecedent = indexActuel > 0 ? chapitresDuCours[indexActuel - 1] : null;
+const chapitreSuivant =
+  indexActuel < chapitresDuCours.length - 1 ? chapitresDuCours[indexActuel + 1] : null;
+
+const precedent = chapitrePrecedent ? { chapitre: chapitrePrecedent, cours, domaine } : null;
+const suivant = chapitreSuivant ? { chapitre: chapitreSuivant, cours, domaine } : null;
+---
+
+<ChapitreLayout
+  chapitre={chapitre}
+  cours={cours}
+  domaine={domaine}
+  headings={headings}
+  precedent={precedent}
+  suivant={suivant}
+>
+  <Content />
+</ChapitreLayout>

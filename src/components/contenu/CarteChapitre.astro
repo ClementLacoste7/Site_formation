@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { useTranslations } from '../../i18n/utils';
+import { urlChapitre } from '../../lib/contenu';
+
+interface Props {
+  chapitre: CollectionEntry<'chapitres'>;
+  cours: CollectionEntry<'cours'>;
+  domaine: CollectionEntry<'domaines'>;
+}
+
+const { chapitre, cours, domaine } = Astro.props;
+const t = useTranslations();
+---
+
+<a
+  href={urlChapitre(chapitre, cours, domaine)}
+  class="flex items-center justify-between rounded-lg border p-3 text-sm transition hover:border-[var(--couleur-accent)]"
+  style="border-color: var(--couleur-bordure);"
+>
+  <span>{chapitre.data.titreCourt}</span>
+  <span style="color: var(--couleur-texte-attenue);">
+    {t.niveau[chapitre.data.niveau]} · {chapitre.data.duree} {t.cours.minutes}
+  </span>
+</a>

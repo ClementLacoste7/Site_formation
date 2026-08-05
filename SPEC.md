@@ -94,6 +94,7 @@ Les éléments suivants doivent être **présents dans l'architecture** sans êt
 | Framework | Astro 5 | Rendu statique, zéro JS par défaut, îlots, i18n natif |
 | Contenu | Content Collections + MDX | Validation de schéma, composants dans le Markdown |
 | Style | Tailwind CSS | Rapidité de développement |
+| Typographie longue-forme | @tailwindcss/typography | Plugin officiel, 100 % build-time (aucun JS runtime), tokens surchargés avec nos variables CSS de thème |
 | Thème | Variables CSS | Bascule clair/sombre sans rechargement |
 | Îlots interactifs | React 19 | Uniquement éditeur et quiz |
 | Éditeur de code | CodeMirror 6 | Léger, coloration syntaxique, chargé à la demande |

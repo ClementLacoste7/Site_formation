@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Variante "dark" pilotée par l'attribut data-theme (posé par le script
    inline anti-flash), et non par prefers-color-scheme seul. */
@@ -37,49 +38,29 @@ body {
   line-height: 1.7;
 }
 
-/* Corps de chapitre : styles minimaux pour le contenu MDX rendu (pas de
-   dépendance à un plugin "typography", hors de la stack imposée). */
-.contenu-chapitre h2 {
-  margin-top: 2rem;
-  margin-bottom: 0.75rem;
-  font-size: 1.5rem;
-  font-weight: 700;
+/* Corps de chapitre et de fiche : typographie via @tailwindcss/typography
+   (classe .prose), tokens surchargés avec nos propres variables de thème.
+   Comme --couleur-* change déjà de valeur sous [data-theme="dark"], une
+   seule surcharge suffit : pas besoin de la variante prose-invert. */
+.prose {
+  --tw-prose-body: var(--couleur-texte);
+  --tw-prose-headings: var(--couleur-texte);
+  --tw-prose-lead: var(--couleur-texte-attenue);
+  --tw-prose-links: var(--couleur-accent);
+  --tw-prose-bold: var(--couleur-texte);
+  --tw-prose-counters: var(--couleur-texte-attenue);
+  --tw-prose-bullets: var(--couleur-texte-attenue);
+  --tw-prose-hr: var(--couleur-bordure);
+  --tw-prose-quotes: var(--couleur-texte);
+  --tw-prose-quote-borders: var(--couleur-bordure);
+  --tw-prose-captions: var(--couleur-texte-attenue);
+  --tw-prose-code: var(--couleur-texte);
+  --tw-prose-pre-code: var(--couleur-texte);
+  --tw-prose-pre-bg: var(--couleur-fond-secondaire);
+  --tw-prose-th-borders: var(--couleur-bordure);
+  --tw-prose-td-borders: var(--couleur-bordure);
+}
+
+.prose :where(h2, h3):not(:where([class~="not-prose"] *)) {
   scroll-margin-top: 1rem;
-}
-
-.contenu-chapitre h3 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.contenu-chapitre p {
-  margin-bottom: 1rem;
-}
-
-.contenu-chapitre ul,
-.contenu-chapitre ol {
-  margin-bottom: 1rem;
-  padding-left: 1.5rem;
-}
-
-.contenu-chapitre ul {
-  list-style: disc;
-}
-
-.contenu-chapitre ol {
-  list-style: decimal;
-}
-
-.contenu-chapitre a {
-  color: var(--couleur-accent);
-  text-decoration: underline;
-}
-
-.contenu-chapitre :not(pre) > code {
-  border-radius: 0.25em;
-  background-color: var(--couleur-fond-secondaire);
-  padding: 0.15em 0.4em;
-  font-size: 0.9em;
 }

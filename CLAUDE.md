@@ -14,7 +14,7 @@ Le trafic vient du SEO, les revenus viennent du trafic. **Performance et indexab
 
 ## Stack imposée
 
-Astro 5 · Tailwind CSS · MDX · React 19 (îlots uniquement) · CodeMirror 6 · Pyodide · sql.js · Pagefind · Giscus · Vercel (sortie statique)
+Astro 5 · Tailwind CSS · @tailwindcss/typography · MDX · React 19 (îlots uniquement) · CodeMirror 6 · Pyodide · sql.js · Pagefind · Giscus · Vercel (sortie statique)
 
 **Ne jamais introduire une dépendance hors de cette liste sans le signaler et le justifier explicitement.**
 

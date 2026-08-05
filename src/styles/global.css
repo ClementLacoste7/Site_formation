@@ -16,6 +16,13 @@
   --couleur-attention: #d97706;
   --couleur-danger: #dc2626;
   --couleur-information: #0891b2;
+
+  /* Palette de coloration syntaxique pour l'éditeur CodeMirror (EditeurCodeMirror). */
+  --code-mot-cle: #d73a49;
+  --code-chaine: #22863a;
+  --code-commentaire: #6a737d;
+  --code-nombre: #005cc5;
+  --code-fonction: #6f42c1;
 }
 
 [data-theme="dark"] {
@@ -29,6 +36,12 @@
   --couleur-attention: #fbbf24;
   --couleur-danger: #f87171;
   --couleur-information: #22d3ee;
+
+  --code-mot-cle: #ff7b72;
+  --code-chaine: #7ee787;
+  --code-commentaire: #8b949e;
+  --code-nombre: #79c0ff;
+  --code-fonction: #d2a8ff;
 }
 
 body {

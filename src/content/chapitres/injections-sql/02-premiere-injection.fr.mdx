@@ -13,7 +13,31 @@ objectifs:
   - "Expliquer pourquoi cette technique contourne une vérification de mot de passe"
 prerequis: ["principe"]
 tags: ["injections-sql", "authentification"]
-quiz: []
+quiz:
+  - question: "Que produit la valeur ' OR '1'='1 insérée dans un mot de passe concaténé ?"
+    type: "unique"
+    reponses:
+      - texte: "Une condition WHERE toujours vraie"
+        correcte: true
+        explication: "'1'='1' est toujours vraie, donc la clause WHERE l'est aussi, quel que soit le mot de passe réel."
+      - texte: "Une erreur de syntaxe qui bloque la connexion"
+        correcte: false
+        explication: "Non : la requête reste syntaxiquement valide, c'est bien tout le problème."
+      - texte: "Un mot de passe chiffré automatiquement"
+        correcte: false
+        explication: "Aucun chiffrement n'entre en jeu dans ce mécanisme."
+  - question: "À quoi sert un commentaire SQL (--) dans une charge d'injection ?"
+    type: "unique"
+    reponses:
+      - texte: "À ignorer le reste de la requête d'origine"
+        correcte: true
+        explication: "Tout ce qui suit -- sur la ligne est ignoré par le moteur SQL, y compris une seconde condition."
+      - texte: "À documenter le code pour le développeur"
+        correcte: false
+        explication: "C'est effectivement l'usage normal des commentaires, mais pas ici : l'attaquant l'utilise pour neutraliser la suite de la requête."
+      - texte: "À accélérer l'exécution de la requête"
+        correcte: false
+        explication: "Un commentaire SQL n'a aucun effet sur la performance."
 maj: 2026-08-05
 publie: true
 ---
@@ -21,6 +45,7 @@ publie: true
 import Avertissement from '../../../components/contenu/Avertissement.astro';
 import BlocCode from '../../../components/contenu/BlocCode.astro';
 import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import BacASableSQL from '../../../components/interactif/BacASableSQL.astro';
 
 ## Une page de connexion vulnérable
 
@@ -49,6 +74,15 @@ WHERE identifiant = 'ALICE' AND mot_de_passe = '' OR '1'='1'`}
 />
 
 La condition `'1'='1'` est toujours vraie, quel que soit l'identifiant. La clause `WHERE` devient donc systématiquement vraie, et la requête retourne un utilisateur — sans que le bon mot de passe ait été fourni.
+
+Essaie-le toi-même : saisis `' OR '1'='1` dans le champ ci-dessous et observe la requête se construire, puis exécute-la sur une vraie base en mémoire.
+
+<BacASableSQL
+  base="boutique-vulnerable"
+  mode="formulaire"
+  gabarit="SELECT * FROM utilisateurs WHERE identifiant = 'ALICE' AND mot_de_passe = '{valeur}'"
+  indice="Une valeur qui referme la chaîne avec une apostrophe, puis ajoute une condition toujours vraie."
+/>
 
 <Avertissement type="danger">
   Cette charge fonctionne uniquement parce que la requête est reconstruite à chaque appel par concaténation. Une requête paramétrée, où la valeur est transmise séparément du texte SQL, neutralise complètement cette technique.

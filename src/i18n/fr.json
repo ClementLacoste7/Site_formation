@@ -51,5 +51,37 @@
     "attention": "Attention",
     "danger": "Danger",
     "astuce": "Astuce"
+  },
+  "bacASable": {
+    "essayer": "Essayer ce code",
+    "chargement": "Chargement de l'éditeur…"
+  },
+  "editeur": {
+    "executer": "Exécuter",
+    "reinitialiser": "Réinitialiser",
+    "consoleVide": "Aucune sortie pour le moment."
+  },
+  "bacASableSQL": {
+    "valeurSaisie": "Valeur saisie",
+    "requeteConstruite": "Requête construite :",
+    "indice": "Indice",
+    "executer": "Exécuter",
+    "execution": "Exécution…",
+    "aucunResultat": "La requête n'a retourné aucune ligne."
+  },
+  "consolePython": {
+    "lancer": "Lancer l'environnement Python",
+    "chargement": "Chargement de Python (Pyodide)…",
+    "executer": "Exécuter",
+    "execution": "Exécution…",
+    "consoleVide": "Aucune sortie pour le moment.",
+    "delaiDepasse": "Délai d'exécution dépassé (10 s) — le script a été arrêté."
+  },
+  "quiz": {
+    "valider": "Valider",
+    "recommencer": "Recommencer",
+    "score": "Score",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
   }
 }

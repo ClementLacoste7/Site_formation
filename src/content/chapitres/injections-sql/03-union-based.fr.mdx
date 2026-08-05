@@ -13,7 +13,31 @@ objectifs:
   - "Construire une injection UNION qui extrait des données d'une autre table"
 prerequis: ["premiere-injection"]
 tags: ["injections-sql"]
-quiz: []
+quiz:
+  - question: "Que doit vérifier une injection UNION SELECT pour fonctionner ?"
+    type: "unique"
+    reponses:
+      - texte: "Retourner le même nombre de colonnes que la requête d'origine"
+        correcte: true
+        explication: "UNION impose des jeux de résultats avec le même nombre de colonnes, de types compatibles."
+      - texte: "Porter sur une table du même nom"
+        correcte: false
+        explication: "Non : UNION SELECT peut justement porter sur une table totalement différente, c'est ce qui en fait une arme."
+      - texte: "Ne retourner qu'une seule colonne au total"
+        correcte: false
+        explication: "Le nombre de colonnes doit correspondre à la requête d'origine, pas être réduit à une seule."
+  - question: "Comment déterminer le nombre de colonnes d'une requête à l'aveugle ?"
+    type: "unique"
+    reponses:
+      - texte: "En incrémentant un ORDER BY jusqu'à provoquer une erreur"
+        correcte: true
+        explication: "Une erreur sur ORDER BY N indique que la requête d'origine retourne N-1 colonnes."
+      - texte: "En lisant le code source du site"
+        correcte: false
+        explication: "Le code source n'est pas accessible à l'attaquant dans ce scénario."
+      - texte: "En comptant le nombre de champs du formulaire"
+        correcte: false
+        explication: "Le nombre de champs d'un formulaire n'a aucun rapport avec le nombre de colonnes d'une requête SQL."
 maj: 2026-08-05
 publie: true
 ---
@@ -21,6 +45,7 @@ publie: true
 import Avertissement from '../../../components/contenu/Avertissement.astro';
 import BlocCode from '../../../components/contenu/BlocCode.astro';
 import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import BacASableSQL from '../../../components/interactif/BacASableSQL.astro';
 
 ## Combiner deux requêtes avec UNION
 
@@ -51,10 +76,19 @@ Une fois le nombre de colonnes connu, une requête `UNION SELECT` portant sur un
 
 <BlocCode
   langue="sql"
-  code={`1 UNION SELECT username, password FROM utilisateurs --`}
+  code={`1 UNION SELECT identifiant, mot_de_passe FROM utilisateurs --`}
 />
 
 Si l'application affiche le résultat de la requête sans distinguer sa provenance, les colonnes `nom` et `prix` affichées à l'écran contiennent en réalité un identifiant et un mot de passe issus d'une table totalement différente.
+
+Essaie-le toi-même sur la base `boutique-vulnerable` (mêmes tables `produits` et `utilisateurs` que ci-dessus) :
+
+<BacASableSQL
+  base="boutique-vulnerable"
+  mode="libre"
+  requeteInitiale="SELECT nom, prix FROM produits WHERE id = 1"
+  indice="Combien de colonnes retourne la requête d'origine ? Essaie ensuite UNION SELECT identifiant, mot_de_passe FROM utilisateurs"
+/>
 
 <Avertissement type="info">
   Cette technique suppose que le résultat de la requête est directement affiché à l'utilisateur. C'est le cas le plus favorable à l'attaquant ; d'autres variantes existent lorsque ce n'est pas le cas, mais elles dépassent le cadre de ce chapitre.

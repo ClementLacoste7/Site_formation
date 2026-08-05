@@ -13,7 +13,31 @@ objectifs:
   - "Identifier les points d'entrée typiques d'une application vulnérable"
 prerequis: []
 tags: ["injections-sql", "http"]
-quiz: []
+quiz:
+  - question: "Pourquoi une requête SQL construite par concaténation est-elle dangereuse ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce qu'elle mélange le code SQL et les données fournies par l'utilisateur"
+        correcte: true
+        explication: "Exactement : rien ne distingue alors une donnée d'une instruction SQL aux yeux du moteur de base de données."
+      - texte: "Parce qu'elle est plus lente à exécuter"
+        correcte: false
+        explication: "La performance n'est pas en cause ici, seule la sécurité l'est."
+      - texte: "Parce que SQL ne supporte pas la concaténation"
+        correcte: false
+        explication: "SQL supporte très bien la concaténation ; le problème est ailleurs, dans le mélange code/données."
+  - question: "Lequel de ces éléments N'EST PAS un point d'entrée typique d'une injection SQL ?"
+    type: "unique"
+    reponses:
+      - texte: "Un paramètre d'URL (?id=42)"
+        correcte: false
+        explication: "C'est justement un point d'entrée classique, aussi exposé qu'un champ de formulaire."
+      - texte: "Un en-tête HTTP comme User-Agent"
+        correcte: false
+        explication: "Moins visible, mais tout aussi exploitable si sa valeur atteint une requête."
+      - texte: "La version du navigateur affichée à l'écran"
+        correcte: true
+        explication: "Ce n'est qu'un affichage informatif : ce n'est un point d'entrée que si cette valeur est elle-même réinjectée dans une requête (ce qui n'est pas le cas ici)."
 maj: 2026-08-05
 publie: true
 ---

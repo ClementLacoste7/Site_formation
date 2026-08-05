@@ -1,0 +1,44 @@
+---
+import BlocCode from '../contenu/BlocCode.astro';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  codeInitial?: string;
+}
+
+const { codeInitial = '' } = Astro.props;
+const t = useTranslations();
+const id = `console-py-${Math.random().toString(36).slice(2, 9)}`;
+const propsJson = JSON.stringify({ codeInitial });
+---
+
+<div
+  class="not-prose my-4"
+  data-conteneur-ilot={id}
+  data-props={propsJson}
+  style="min-height: 8rem;"
+>
+  <BlocCode code={codeInitial} langue="python" />
+  <button
+    type="button"
+    data-bouton-essayer={id}
+    class="mt-2 w-full rounded-lg border py-2 text-sm font-medium"
+    style="border-color: var(--couleur-accent); color: var(--couleur-accent);"
+  >
+    {t.bacASable.essayer}
+  </button>
+</div>
+
+<script>
+  import { monterAuClic } from '../../scripts/monter-ilot';
+
+  document
+    .querySelectorAll<HTMLElement>('[data-conteneur-ilot^="console-py-"]')
+    .forEach((conteneur) => {
+      const id = conteneur.dataset.conteneurIlot as string;
+      const bouton = conteneur.querySelector<HTMLButtonElement>(`[data-bouton-essayer="${id}"]`);
+      if (!bouton) return;
+      const props = JSON.parse(conteneur.dataset.props ?? '{}');
+      monterAuClic(bouton, conteneur, props, () => import('./ConsolePythonIlot'));
+    });
+</script>

@@ -6,6 +6,7 @@ import NavChapitre from '../components/nav/NavChapitre.astro';
 import SommaireLateral from '../components/nav/SommaireLateral.astro';
 import EncadreObjectifs from '../components/contenu/EncadreObjectifs.astro';
 import EncadrePrerequis from '../components/contenu/EncadrePrerequis.astro';
+import QuizIlot from '../components/interactif/QuizIlot';
 import { useTranslations } from '../i18n/utils';
 import { urlCours, urlDomaine } from '../lib/contenu';
 
@@ -32,7 +33,7 @@ interface Props {
 
 const { chapitre, cours, domaine, headings, precedent = null, suivant = null } = Astro.props;
 const t = useTranslations();
-const { titre, description, duree, niveau, objectifs, prerequis, maj } = chapitre.data;
+const { titre, description, duree, niveau, objectifs, prerequis, quiz, maj } = chapitre.data;
 
 const dateMaj = maj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -62,6 +63,8 @@ const fils = [
       <div class="contenu-chapitre prose mt-8 max-w-none">
         <slot />
       </div>
+
+      {quiz.length > 0 && <QuizIlot client:visible questions={quiz} />}
 
       <NavChapitre precedent={precedent} suivant={suivant} />
     </article>

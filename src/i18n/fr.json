@@ -83,5 +83,21 @@
     "score": "Score",
     "correct": "Correct",
     "incorrect": "Incorrect"
+  },
+  "commentaires": {
+    "titre": "Commentaires"
+  },
+  "progression": {
+    "reinitialiser": "Réinitialiser ma progression",
+    "confirmation": "Réinitialiser toute ta progression ? Cette action est irréversible.",
+    "termine": "Chapitre terminé"
+  },
+  "recherche": {
+    "titre": "Recherche",
+    "placeholder": "Rechercher un chapitre…",
+    "raccourci": "Ctrl/Cmd + K",
+    "fermer": "Fermer",
+    "aucunResultat": "Aucun résultat.",
+    "chargement": "Chargement de l'index…"
   }
 }

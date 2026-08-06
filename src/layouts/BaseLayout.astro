@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import EnTete from '../components/nav/EnTete.astro';
 import PiedDePage from '../components/nav/PiedDePage.astro';
+import ModaleRecherche from '../components/nav/ModaleRecherche.astro';
 
 interface Props {
   titre: string;
@@ -38,5 +39,6 @@ const lang = Astro.currentLocale ?? 'fr';
       <slot />
     </main>
     <PiedDePage />
+    <ModaleRecherche />
   </body>
 </html>

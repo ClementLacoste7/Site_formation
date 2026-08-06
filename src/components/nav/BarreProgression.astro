@@ -1,0 +1,43 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { cleChapitre } from '../../scripts/progression';
+
+interface Props {
+  cours: CollectionEntry<'cours'>;
+  chapitres: CollectionEntry<'chapitres'>[];
+}
+
+const { cours, chapitres } = Astro.props;
+const cles = chapitres.map((c) => cleChapitre(cours.data.slug, c.data.slug));
+---
+
+<div class="mt-4" data-barre-progression data-cles={JSON.stringify(cles)}>
+  <div class="flex items-center justify-between text-xs" style="color: var(--couleur-texte-attenue);">
+    <span data-barre-texte>0 / {chapitres.length}</span>
+  </div>
+  <div
+    class="mt-1 h-2 overflow-hidden rounded-full"
+    style="background-color: var(--couleur-fond-secondaire);"
+  >
+    <div
+      data-barre-remplissage
+      class="h-full rounded-full transition-all"
+      style={`width: 0%; background-color: var(--couleur-accent);`}
+    >
+    </div>
+  </div>
+</div>
+
+<script>
+  import { estChapitreTermine } from '../../scripts/progression';
+
+  document.querySelectorAll<HTMLElement>('[data-barre-progression]').forEach((barre) => {
+    const cles: string[] = JSON.parse(barre.dataset.cles ?? '[]');
+    const termines = cles.filter((cle) => estChapitreTermine(cle)).length;
+    const pourcentage = cles.length > 0 ? Math.round((termines / cles.length) * 100) : 0;
+    const texte = barre.querySelector('[data-barre-texte]');
+    const remplissage = barre.querySelector<HTMLElement>('[data-barre-remplissage]');
+    if (texte) texte.textContent = `${termines} / ${cles.length}`;
+    if (remplissage) remplissage.style.width = `${pourcentage}%`;
+  });
+</script>

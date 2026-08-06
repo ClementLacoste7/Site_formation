@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import { useTranslations } from '../../i18n/utils';
 import { urlChapitre } from '../../lib/contenu';
+import { cleChapitre } from '../../scripts/progression';
 
 interface Props {
   chapitre: CollectionEntry<'chapitres'>;
@@ -11,15 +12,45 @@ interface Props {
 
 const { chapitre, cours, domaine } = Astro.props;
 const t = useTranslations();
+const cle = cleChapitre(cours.data.slug, chapitre.data.slug);
 ---
 
 <a
   href={urlChapitre(chapitre, cours, domaine)}
   class="flex items-center justify-between rounded-lg border p-3 text-sm transition hover:border-[var(--couleur-accent)]"
   style="border-color: var(--couleur-bordure);"
+  data-cle-chapitre={cle}
 >
-  <span>{chapitre.data.titreCourt}</span>
+  <span class="flex items-center gap-2">
+    <svg
+      data-coche-terminee
+      hidden
+      class="h-4 w-4 shrink-0"
+      style="color: var(--couleur-succes);"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-label={t.progression.termine}
+    >
+      <path
+        fill-rule="evenodd"
+        d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0l-3.5-3.5a1 1 0 111.4-1.4l2.8 2.8 6.8-6.8a1 1 0 011.4 0z"
+        clip-rule="evenodd"
+      />
+    </svg>
+    {chapitre.data.titreCourt}
+  </span>
   <span style="color: var(--couleur-texte-attenue);">
     {t.niveau[chapitre.data.niveau]} · {chapitre.data.duree} {t.cours.minutes}
   </span>
 </a>
+
+<script>
+  import { estChapitreTermine } from '../../scripts/progression';
+
+  document.querySelectorAll<HTMLElement>('[data-cle-chapitre]').forEach((element) => {
+    const cle = element.dataset.cleChapitre;
+    if (cle && estChapitreTermine(cle)) {
+      element.querySelector('[data-coche-terminee]')?.removeAttribute('hidden');
+    }
+  });
+</script>

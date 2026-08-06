@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import FilAriane from '../components/nav/FilAriane.astro';
+import BarreProgression from '../components/nav/BarreProgression.astro';
 import CarteChapitre from '../components/contenu/CarteChapitre.astro';
 import { useTranslations } from '../i18n/utils';
 import { urlDomaine } from '../lib/contenu';
@@ -23,14 +24,18 @@ const fils = [
 ---
 
 <BaseLayout titre={cours.data.titre} description={cours.data.description}>
-  <div class="mx-auto max-w-5xl px-4 py-8">
-    <FilAriane fils={fils} />
+  <div class="mx-auto max-w-5xl px-4 py-8" data-pagefind-body>
+    <div data-pagefind-ignore>
+      <FilAriane fils={fils} />
+    </div>
 
     <h1 class="mt-3 text-3xl font-bold">{cours.data.titre}</h1>
     <p class="mt-2" style="color: var(--couleur-texte-attenue);">{cours.data.description}</p>
     <p class="mt-2 text-sm" style="color: var(--couleur-texte-attenue);">
       {t.niveau[cours.data.niveau]} · {cours.data.dureeTotale} {t.cours.minutes}
     </p>
+
+    <BarreProgression cours={cours} chapitres={chapitres} />
 
     <h2 class="mt-8 font-semibold">{t.cours.chapitres}</h2>
     <div class="mt-3 space-y-2">

@@ -1,0 +1,63 @@
+---
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+const t = useTranslations();
+---
+
+<div data-recherche-ui={id} data-pagefind-ignore>
+  <input
+    type="search"
+    data-recherche-champ
+    placeholder={t.recherche.placeholder}
+    class="w-full rounded-lg border px-3 py-2 text-sm"
+    style="border-color: var(--couleur-bordure); background-color: var(--couleur-fond); color: var(--couleur-texte);"
+  />
+  <div data-recherche-resultats class="mt-4 space-y-3 text-sm"></div>
+</div>
+
+<script>
+  import { rechercher } from '../../scripts/recherche';
+  import { useTranslations } from '../../i18n/utils';
+
+  const t = useTranslations();
+
+  document.querySelectorAll<HTMLElement>('[data-recherche-ui]').forEach((conteneur) => {
+    const champ = conteneur.querySelector<HTMLInputElement>('[data-recherche-champ]')!;
+    const zoneResultats = conteneur.querySelector<HTMLElement>('[data-recherche-resultats]')!;
+    let delai: ReturnType<typeof setTimeout>;
+
+    champ.addEventListener('input', () => {
+      clearTimeout(delai);
+      const requete = champ.value;
+      if (!requete.trim()) {
+        zoneResultats.innerHTML = '';
+        return;
+      }
+      delai = setTimeout(async () => {
+        zoneResultats.innerHTML = `<p style="color: var(--couleur-texte-attenue);">${t.recherche.chargement}</p>`;
+        const resultats = await rechercher(requete);
+        if (champ.value !== requete) return; // une saisie plus récente a pris le relais
+        if (resultats.length === 0) {
+          zoneResultats.innerHTML = `<p style="color: var(--couleur-texte-attenue);">${t.recherche.aucunResultat}</p>`;
+          return;
+        }
+        zoneResultats.innerHTML = resultats
+          .map(
+            (r) => `
+              <a href="${r.url}" class="block rounded-lg border p-3 transition hover:border-[var(--couleur-accent)]" style="border-color: var(--couleur-bordure);">
+                <p class="text-xs" style="color: var(--couleur-texte-attenue);">${r.chemin}</p>
+                <p class="font-medium" style="color: var(--couleur-texte);">${r.titre}</p>
+                <p class="mt-1 text-xs" style="color: var(--couleur-texte-attenue);">${r.excerpt}</p>
+              </a>
+            `
+          )
+          .join('');
+      }, 200);
+    });
+  });
+</script>

@@ -11,6 +11,16 @@ const t = useTranslations();
       <a href="/fr/cours/">{t.nav.cours}</a>
       <a href="/fr/fiches/">{t.nav.fiches}</a>
       <button
+        type="button"
+        data-ouvrir-recherche
+        aria-label={t.nav.recherche}
+        title={`${t.nav.recherche} (${t.recherche.raccourci})`}
+        class="rounded border px-2 py-1"
+        style="border-color: var(--couleur-bordure);"
+      >
+        🔍
+      </button>
+      <button
         id="bascule-theme"
         type="button"
         aria-label={t.theme.bascule}

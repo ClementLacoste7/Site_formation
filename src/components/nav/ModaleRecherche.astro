@@ -1,0 +1,46 @@
+---
+import RechercheUI from './RechercheUI.astro';
+import { useTranslations } from '../../i18n/utils';
+
+const t = useTranslations();
+---
+
+<dialog
+  data-modale-recherche
+  class="w-full max-w-lg rounded-lg border p-0 backdrop:bg-black/50"
+  style="background-color: var(--couleur-fond); color: var(--couleur-texte); border-color: var(--couleur-bordure);"
+>
+  <div class="flex items-center justify-between border-b p-3" style="border-color: var(--couleur-bordure);">
+    <h2 class="font-semibold">{t.recherche.titre}</h2>
+    <button type="button" data-fermer-recherche aria-label={t.recherche.fermer}>✕</button>
+  </div>
+  <div class="p-4">
+    <RechercheUI id="modale" />
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-modale-recherche]');
+  const boutonFermer = dialog?.querySelector<HTMLButtonElement>('[data-fermer-recherche]');
+
+  function ouvrir() {
+    if (!dialog?.open) dialog?.showModal();
+    dialog?.querySelector<HTMLInputElement>('[data-recherche-champ]')?.focus();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-ouvrir-recherche]').forEach((bouton) => {
+    bouton.addEventListener('click', ouvrir);
+  });
+
+  boutonFermer?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('click', (evenement) => {
+    if (evenement.target === dialog) dialog.close();
+  });
+
+  document.addEventListener('keydown', (evenement) => {
+    if ((evenement.ctrlKey || evenement.metaKey) && evenement.key.toLowerCase() === 'k') {
+      evenement.preventDefault();
+      ouvrir();
+    }
+  });
+</script>

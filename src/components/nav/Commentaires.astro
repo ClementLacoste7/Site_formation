@@ -1,0 +1,85 @@
+---
+// Giscus : ressource tierce chargée uniquement à l'entrée dans le viewport
+// (IntersectionObserver ci-dessous), jamais au rendu de la page (section 10.2).
+//
+// TODO configuration réelle : ces data-repo-id / data-category-id sont des
+// placeholders. Ils s'obtiennent via https://giscus.app une fois les GitHub
+// Discussions activées sur le dépôt ClementLacoste7/Site_formation.
+import { useTranslations } from '../../i18n/utils';
+
+const t = useTranslations();
+
+const GISCUS_REPO = 'ClementLacoste7/Site_formation';
+const GISCUS_REPO_ID = 'A_REMPLACER';
+const GISCUS_CATEGORIE = 'Commentaires';
+const GISCUS_CATEGORIE_ID = 'A_REMPLACER';
+---
+
+<section
+  class="mt-12 border-t pt-8"
+  style="border-color: var(--couleur-bordure);"
+  data-commentaires
+  data-pagefind-ignore
+>
+  <h2 class="mb-4 font-semibold">{t.commentaires.titre}</h2>
+  <div data-giscus-conteneur></div>
+</section>
+
+<script
+  define:vars={{
+    GISCUS_REPO,
+    GISCUS_REPO_ID,
+    GISCUS_CATEGORIE,
+    GISCUS_CATEGORIE_ID
+  }}
+>
+  const section = document.querySelector('[data-commentaires]');
+  const conteneur = section?.querySelector('[data-giscus-conteneur]');
+
+  function themeGiscus() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  }
+
+  function chargerGiscus() {
+    if (!conteneur) return;
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.setAttribute('data-repo', GISCUS_REPO);
+    script.setAttribute('data-repo-id', GISCUS_REPO_ID);
+    script.setAttribute('data-category', GISCUS_CATEGORIE);
+    script.setAttribute('data-category-id', GISCUS_CATEGORIE_ID);
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-input-position', 'top');
+    script.setAttribute('data-lang', 'fr');
+    script.setAttribute('data-theme', themeGiscus());
+    conteneur.appendChild(script);
+  }
+
+  if (section && conteneur) {
+    const observateur = new IntersectionObserver(
+      (entrees) => {
+        for (const entree of entrees) {
+          if (!entree.isIntersecting) continue;
+          observateur.disconnect();
+          chargerGiscus();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observateur.observe(section);
+  }
+
+  // Resynchronise le thème du widget si l'utilisateur bascule clair/sombre
+  // après que Giscus a déjà chargé (voir l'évènement dans scripts/theme.ts).
+  document.addEventListener('theme-change', (evenement) => {
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    iframe?.contentWindow?.postMessage(
+      { giscus: { setConfig: { theme: evenement.detail.theme } } },
+      'https://giscus.app'
+    );
+  });
+</script>

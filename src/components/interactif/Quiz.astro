@@ -17,9 +17,11 @@ interface Question {
 
 interface Props {
   questions: Question[];
+  /** Clé de progression (voir scripts/progression.ts), ex. "injections-sql/union-based". */
+  cle: string;
 }
 
-const { questions } = Astro.props;
+const { questions, cle } = Astro.props;
 const t = useTranslations();
 const id = `quiz-${Math.random().toString(36).slice(2, 9)}`;
 ---
@@ -28,6 +30,7 @@ const id = `quiz-${Math.random().toString(36).slice(2, 9)}`;
   class="not-prose my-6 space-y-6 rounded-lg border p-4"
   style="border-color: var(--couleur-bordure);"
   data-quiz={id}
+  data-cle={cle}
   data-libelle-score={t.quiz.score}
 >
   {
@@ -89,12 +92,15 @@ const id = `quiz-${Math.random().toString(36).slice(2, 9)}`;
 </style>
 
 <script>
+  import { enregistrerResultatQuiz } from '../../scripts/progression';
+
   document.querySelectorAll<HTMLElement>('[data-quiz]').forEach((quiz) => {
     const boutonValider = quiz.querySelector<HTMLButtonElement>('.quiz-valider')!;
     const boutonRecommencer = quiz.querySelector<HTMLButtonElement>('.quiz-recommencer')!;
     const zoneScore = quiz.querySelector<HTMLParagraphElement>('.quiz-score')!;
     const fieldsets = quiz.querySelectorAll('fieldset');
     const libelleScore = quiz.dataset.libelleScore;
+    const cle = quiz.dataset.cle;
 
     boutonValider.addEventListener('click', () => {
       let score = 0;
@@ -115,6 +121,9 @@ const id = `quiz-${Math.random().toString(36).slice(2, 9)}`;
       zoneScore.hidden = false;
       boutonValider.hidden = true;
       boutonRecommencer.hidden = false;
+      if (cle) {
+        enregistrerResultatQuiz(cle, Math.round((score / fieldsets.length) * 100));
+      }
     });
 
     boutonRecommencer.addEventListener('click', () => {

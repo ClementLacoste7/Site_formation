@@ -474,6 +474,8 @@ Le champ `version` permet une migration future sans perte. La structure est volo
 - Résultats affichés avec le fil d'Ariane du chapitre et un extrait contextuel.
 - Les pages légales sont exclues de l'index.
 
+**Mécanisme d'exclusion (implémenté au Lot 3) :** Pagefind bascule en mode « inclusion explicite » dès qu'un seul élément `data-pagefind-body` existe sur le site — toute page qui n'en porte pas est alors ignorée par défaut. Cet attribut est posé uniquement dans `ChapitreLayout.astro` et `CoursLayout.astro`. **Ne pas l'ajouter** à un futur `FicheLayout` légal ou aux pages de `16. Pages obligatoires` sans réflexion explicite : l'absence de l'attribut est ce qui les exclut automatiquement de l'index, sans liste de routes à maintenir à la main.
+
 ### 10.2 Commentaires (Giscus)
 
 - Adossé aux GitHub Discussions du repo.
@@ -583,6 +585,14 @@ Les blocs interactifs exécutent du code potentiellement malveillant issu de l'u
 `cdn.jsdelivr.net` doit être autorisé en `script-src`/`connect-src`/`worker-src` : c'est l'unique domaine externe utilisé par le projet à l'exécution, pour charger Pyodide (runtime + `.wasm` + bibliothèque standard) au clic sur « Lancer l'environnement Python ». La version est figée dans `pyodide.worker.ts` (`v314.0.3`, jamais `latest`), pour la reproductibilité autant que pour éviter qu'une CSP pinnée sur cette version se retrouve désynchronisée d'une mise à jour silencieuse du CDN.
 
 sql.js, à l'inverse, **ne dépend d'aucun domaine tiers** : c'est une dépendance npm (`sql.js`, version exacte `1.14.1` dans `package.json`, sans `^`), et son fichier `.wasm` est servi depuis notre propre build (`/_astro/`, importé via `?url`). Rien à ajouter à la CSP pour sql.js au-delà de `'self'`.
+
+**Note pour la CSP (Lot 6) — domaine tiers introduit par les commentaires (Lot 3) :**
+
+`giscus.app` doit être autorisé en `script-src` (le widget) et `frame-src` (l'iframe des commentaires elle-même, chargée depuis `giscus.app`). Comme pour Pyodide, le script Giscus n'est injecté qu'au scroll dans la zone de commentaires (`src/components/nav/Commentaires.astro`), jamais au rendu de la page — donc jamais chargé du tout pour un lecteur qui ne défile pas jusqu'en bas d'un chapitre.
+
+Pagefind, en revanche, **ne dépend d'aucun domaine tiers** : son runtime (`pagefind.js`, l'index et le WASM) est généré dans notre propre build (`dist/pagefind/`) par l'étape `pagefind --site dist` du script npm `build`. Rien à ajouter à la CSP au-delà de `'self'`.
+
+Récapitulatif des domaines tiers à autoriser au Lot 6 : `cdn.jsdelivr.net` (Pyodide) et `giscus.app` (commentaires). C'est la liste complète à ce stade du projet.
 
 ### 13.3 Dépendances
 

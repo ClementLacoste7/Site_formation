@@ -18,6 +18,14 @@ export default defineConfig({
   },
   integrations: [mdx(), react()],
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        // /pagefind/pagefind.js n'existe qu'après l'étape "pagefind --site
+        // dist" qui suit astro build (voir le script npm "build") : il ne
+        // faut pas que Rollup tente de le résoudre au moment du bundle.
+        external: ['/pagefind/pagefind.js']
+      }
+    }
   }
 });

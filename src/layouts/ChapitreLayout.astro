@@ -7,8 +7,10 @@ import SommaireLateral from '../components/nav/SommaireLateral.astro';
 import EncadreObjectifs from '../components/contenu/EncadreObjectifs.astro';
 import EncadrePrerequis from '../components/contenu/EncadrePrerequis.astro';
 import Quiz from '../components/interactif/Quiz.astro';
+import Commentaires from '../components/nav/Commentaires.astro';
 import { useTranslations } from '../i18n/utils';
 import { urlCours, urlDomaine } from '../lib/contenu';
+import { cleChapitre } from '../scripts/progression';
 
 interface Heading {
   depth: number;
@@ -36,6 +38,7 @@ const t = useTranslations();
 const { titre, description, duree, niveau, objectifs, prerequis, quiz, maj } = chapitre.data;
 
 const dateMaj = maj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+const cle = cleChapitre(cours.data.slug, chapitre.data.slug);
 
 const fils = [
   { label: t.nav.cours, href: '/fr/cours/' },
@@ -47,8 +50,10 @@ const fils = [
 
 <BaseLayout titre={titre} description={description}>
   <div class="mx-auto max-w-5xl px-4 py-8 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10">
-    <article class="max-w-[70ch]">
-      <FilAriane fils={fils} />
+    <article class="max-w-[70ch]" data-pagefind-body data-cle-page={cle}>
+      <div data-pagefind-ignore>
+        <FilAriane fils={fils} />
+      </div>
 
       <h1 class="mt-3 text-3xl font-bold">{titre}</h1>
       <p class="mt-2 text-sm" style="color: var(--couleur-texte-attenue);">
@@ -64,11 +69,22 @@ const fils = [
         <slot />
       </div>
 
-      {quiz.length > 0 && <Quiz questions={quiz} />}
+      {quiz.length > 0 && <Quiz questions={quiz} cle={cle} />}
 
-      <NavChapitre precedent={precedent} suivant={suivant} />
+      <div data-pagefind-ignore>
+        <NavChapitre precedent={precedent} suivant={suivant} />
+      </div>
+
+      <Commentaires />
     </article>
 
     <SommaireLateral headings={headings} />
   </div>
 </BaseLayout>
+
+<script>
+  import { marquerChapitreVu } from '../scripts/progression';
+
+  const cle = document.querySelector<HTMLElement>('[data-cle-page]')?.dataset.clePage;
+  if (cle) marquerChapitreVu(cle);
+</script>

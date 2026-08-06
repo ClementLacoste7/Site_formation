@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilAriane from '../../components/nav/FilAriane.astro';
+import DonneesStructurees from '../../components/seo/DonneesStructurees.astro';
+import { locales } from '../../i18n/utils';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const titre = 'Politique de confidentialité';
+const fils = [{ label: titre }];
+---
+
+<BaseLayout titre={titre} description="Ce que Cybercursus fait réellement de tes données : progression locale, mesure d'audience et publicité sous consentement, commentaires via GitHub.">
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+  </Fragment>
+
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <FilAriane fils={fils} />
+    <h1 class="mt-3 text-3xl font-bold">{titre}</h1>
+
+    <div class="prose mt-8 max-w-none">
+      <p>
+        Cette page décrit précisément ce que ce site fait de tes données — rien de plus que ce qui est listé
+        ci-dessous. Il n'y a ni formulaire d'inscription, ni compte utilisateur, ni newsletter.
+      </p>
+
+      <h2>Progression de cours (localStorage)</h2>
+      <p>
+        Ta progression dans les cours (chapitres vus, quiz réussis, meilleur score) est enregistrée
+        uniquement dans le <code>localStorage</code> de ton navigateur, sous la clé
+        <code>Cybercursus:progression</code>. Cette donnée :
+      </p>
+      <ul>
+        <li>reste sur ton appareil — elle n'est jamais transmise à un serveur ;</li>
+        <li>
+          <strong>n'est pas un cookie</strong> : elle n'est jamais envoyée automatiquement avec tes requêtes
+          HTTP ;
+        </li>
+        <li>peut être effacée à tout moment via le bouton « Réinitialiser ma progression » en pied de page, ou en vidant les données de site de ton navigateur.</li>
+      </ul>
+
+      <h2>Mesure d'audience et publicité (Google Analytics 4, Google AdSense)</h2>
+      <p>
+        Ce site a vocation à afficher de la publicité display (Google AdSense) et à mesurer son audience
+        (Google Analytics 4). <strong>Ces deux services ne sont pas encore activés au moment où cette page est
+        écrite.</strong> Lorsqu'ils le seront :
+      </p>
+      <ul>
+        <li>
+          un bandeau de consentement (CMP Google) sera affiché aux visiteurs européens avant tout dépôt de
+          cookie publicitaire ou analytique ;
+        </li>
+        <li>aucun cookie de ce type ne sera déposé avant un consentement explicite ;</li>
+        <li>le refus restera aussi simple d'accès que l'acceptation ;</li>
+        <li>le détail des cookies concernés sera tenu à jour sur la <a href="/fr/cookies/">page dédiée aux cookies</a>.</li>
+      </ul>
+
+      <h2>Commentaires (Giscus)</h2>
+      <p>
+        Les commentaires sous les chapitres, quand tu choisis de les afficher, sont fournis par
+        <a href="https://giscus.app" target="_blank" rel="noopener noreferrer">Giscus</a>, un widget qui
+        s'appuie sur les Discussions GitHub du dépôt de ce site. Poster un commentaire nécessite un compte
+        GitHub et redirige vers l'écosystème GitHub, soumis à la
+        <a href="https://docs.github.com/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener noreferrer">politique de confidentialité de GitHub</a>.
+        Le widget n'est chargé qu'après un clic explicite sur « Afficher les commentaires » — jamais
+        automatiquement.
+      </p>
+
+      <h2>Tes droits</h2>
+      <p>
+        Concernant les seules données personnelles réellement traitées par ce site (celles décrites
+        ci-dessus), tu peux exercer tes droits d'accès, de rectification et de suppression en écrivant à
+        [EMAIL DE CONTACT À COMPLÉTER].
+      </p>
+    </div>
+  </div>
+</BaseLayout>

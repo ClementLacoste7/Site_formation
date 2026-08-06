@@ -1,0 +1,89 @@
+---
+// Un bloc <script type="application/ld+json"> par instance : une page peut
+// en empiler plusieurs (ex. BreadcrumbList + TechArticle sur un chapitre).
+import { useTranslations } from '../../i18n/utils';
+
+const t = useTranslations();
+
+interface Fil {
+  label: string;
+  href?: string;
+}
+
+type Props =
+  | { type: 'BreadcrumbList'; fils: Fil[] }
+  | { type: 'WebSite' }
+  | { type: 'Course'; titre: string; description: string; url: string }
+  | {
+      type: 'TechArticle';
+      titre: string;
+      description: string;
+      url: string;
+      datePublication: Date;
+      dateModification: Date;
+    };
+
+const props = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+
+function construire(): Record<string, unknown> {
+  switch (props.type) {
+    case 'BreadcrumbList': {
+      // FilAriane (composant visuel) préfixe toujours "Accueil" — le
+      // BreadcrumbList structuré doit représenter exactement le même
+      // chemin, sans quoi les deux divergent silencieusement.
+      const tousLesFils: Fil[] = [{ label: t.filAriane.accueil, href: '/fr/' }, ...props.fils];
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: tousLesFils.map((fil, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: fil.label,
+          item: fil.href ? new URL(fil.href, Astro.site).toString() : canonical
+        }))
+      };
+    }
+    case 'WebSite':
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Cybercursus',
+        url: new URL('/fr/', Astro.site).toString(),
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: `${new URL('/fr/recherche/', Astro.site).toString()}?q={search_term_string}`,
+          'query-input': 'required name=search_term_string'
+        }
+      };
+    case 'Course':
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'Course',
+        name: props.titre,
+        description: props.description,
+        url: props.url,
+        provider: {
+          '@type': 'Organization',
+          name: 'Cybercursus',
+          sameAs: new URL('/fr/', Astro.site).toString()
+        }
+      };
+    case 'TechArticle':
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        headline: props.titre,
+        description: props.description,
+        url: props.url,
+        datePublished: props.datePublication.toISOString(),
+        dateModified: props.dateModification.toISOString(),
+        author: { '@type': 'Organization', name: 'Cybercursus' }
+      };
+  }
+}
+
+const json = JSON.stringify(construire());
+---
+
+<script type="application/ld+json" set:html={json} />

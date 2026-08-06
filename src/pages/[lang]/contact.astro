@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilAriane from '../../components/nav/FilAriane.astro';
+import DonneesStructurees from '../../components/seo/DonneesStructurees.astro';
+import { locales } from '../../i18n/utils';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const titre = 'Contact';
+const fils = [{ label: titre }];
+const EMAIL_CONTACT = '[EMAIL À COMPLÉTER]';
+---
+
+<BaseLayout titre={titre} description="Contacter l'éditeur de Cybercursus.">
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+  </Fragment>
+
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <FilAriane fils={fils} />
+    <h1 class="mt-3 text-3xl font-bold">{titre}</h1>
+
+    <div class="prose mt-8 max-w-none">
+      <p>
+        Une question, une erreur repérée dans un chapitre, une suggestion ? Écris à
+        <a href={`mailto:${EMAIL_CONTACT}`}>{EMAIL_CONTACT}</a>.
+      </p>
+      <p>
+        Pour une question technique sur un chapitre précis, tu peux aussi utiliser les commentaires en bas
+        de la page concernée (nécessite un compte GitHub).
+      </p>
+    </div>
+  </div>
+</BaseLayout>

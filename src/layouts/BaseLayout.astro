@@ -3,13 +3,16 @@ import '../styles/global.css';
 import EnTete from '../components/nav/EnTete.astro';
 import PiedDePage from '../components/nav/PiedDePage.astro';
 import ModaleRecherche from '../components/nav/ModaleRecherche.astro';
+import MetaSeo from '../components/seo/MetaSeo.astro';
 
 interface Props {
   titre: string;
   description?: string;
+  image?: string;
+  type?: 'website' | 'article';
 }
 
-const { titre, description } = Astro.props;
+const { titre, description, image, type } = Astro.props;
 const lang = Astro.currentLocale ?? 'fr';
 ---
 
@@ -29,9 +32,9 @@ const lang = Astro.currentLocale ?? 'fr';
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{titre} · Cybercursus</title>
-    {description && <meta name="description" content={description} />}
+    <MetaSeo titre={titre} description={description} image={image} type={type} />
     <meta name="generator" content={Astro.generator} />
+    <slot name="tete" />
   </head>
   <body class="flex min-h-screen flex-col">
     <EnTete />

@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilAriane from '../../components/nav/FilAriane.astro';
+import DonneesStructurees from '../../components/seo/DonneesStructurees.astro';
+import { locales } from '../../i18n/utils';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const titre = 'Mentions légales';
+const fils = [{ label: titre }];
+---
+
+<BaseLayout titre={titre} description="Mentions légales de Cybercursus : éditeur, hébergeur, directeur de la publication.">
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+  </Fragment>
+
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <FilAriane fils={fils} />
+    <h1 class="mt-3 text-3xl font-bold">{titre}</h1>
+
+    <div class="prose mt-8 max-w-none">
+      <h2>Éditeur du site</h2>
+      <p>
+        Le site Cybercursus (cybercursus.fr) est édité par :<br />
+        [NOM ET PRÉNOM À COMPLÉTER]<br />
+        Statut : entreprise individuelle (micro-entreprise)<br />
+        Numéro SIREN : [SIREN À COMPLÉTER]<br />
+        Adresse du siège : [ADRESSE À COMPLÉTER]<br />
+        Email de contact : [EMAIL À COMPLÉTER]
+      </p>
+
+      <h2>Directeur de la publication</h2>
+      <p>[NOM ET PRÉNOM À COMPLÉTER], en qualité d'éditeur du site.</p>
+
+      <h2>Hébergeur</h2>
+      <p>
+        Vercel Inc.<br />
+        340 S Lemon Ave #4133<br />
+        Walnut, CA 91789, États-Unis
+      </p>
+
+      <h2>Propriété intellectuelle</h2>
+      <p>
+        L'ensemble des contenus pédagogiques présents sur ce site (textes, exemples de code, illustrations)
+        est la propriété de l'éditeur, sauf mention contraire. Toute reproduction sans autorisation préalable
+        est interdite.
+      </p>
+
+      <h2>Responsabilité</h2>
+      <p>
+        Les blocs interactifs de ce site exécutent volontairement des démonstrations de vulnérabilités web à
+        but pédagogique, dans des environnements isolés (voir la <a href="/fr/confidentialite/">politique de
+        confidentialité</a>). L'éditeur ne saurait être tenu responsable d'un usage de ces techniques en
+        dehors d'un cadre légal et autorisé.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

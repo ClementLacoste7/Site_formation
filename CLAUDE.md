@@ -24,6 +24,8 @@ Idem `@astrojs/mdx` en 4.x et `@astrojs/react` en 5.x (la 6.x dépend de Vite 8,
 
 Pyodide est chargé depuis le CDN officiel jsDelivr (version figée dans `pyodide.worker.ts`), pas en paquet npm : la distribution complète pèse plusieurs dizaines de Mo, hors de propos pour ce dépôt/déploiement statique. sql.js est en dépendance npm classique, son `.wasm` servi depuis `/_astro/` (import Vite `?url`).
 
+Lot 4 ajoute `@astrojs/sitemap`, et en `devDependencies` uniquement (jamais expédiés au navigateur, exécutés au build pour générer les images Open Graph statiques) : `satori`, `@resvg/resvg-js`, `@fontsource/inter`.
+
 ---
 
 ## Invariants — à ne jamais enfreindre

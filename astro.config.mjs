@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 
 import tailwindcss from '@tailwindcss/vite';
 
@@ -16,7 +17,15 @@ export default defineConfig({
       prefixDefaultLocale: true
     }
   },
-  integrations: [mdx(), react()],
+  integrations: [
+    mdx(),
+    react(),
+    sitemap({
+      // "/" n'est qu'une redirection technique vers "/fr/" (voir
+      // pages/index.astro) : aucune valeur SEO à l'indexer elle-même.
+      filter: (page) => page !== 'https://cybercursus.fr/'
+    })
+  ],
   vite: {
     plugins: [tailwindcss()],
     build: {

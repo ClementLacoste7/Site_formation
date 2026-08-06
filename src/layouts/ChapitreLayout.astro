@@ -4,12 +4,14 @@ import BaseLayout from './BaseLayout.astro';
 import FilAriane from '../components/nav/FilAriane.astro';
 import NavChapitre from '../components/nav/NavChapitre.astro';
 import SommaireLateral from '../components/nav/SommaireLateral.astro';
+import PourAllerPlusLoin from '../components/nav/PourAllerPlusLoin.astro';
 import EncadreObjectifs from '../components/contenu/EncadreObjectifs.astro';
 import EncadrePrerequis from '../components/contenu/EncadrePrerequis.astro';
 import Quiz from '../components/interactif/Quiz.astro';
 import Commentaires from '../components/nav/Commentaires.astro';
+import DonneesStructurees from '../components/seo/DonneesStructurees.astro';
 import { useTranslations } from '../i18n/utils';
-import { urlCours, urlDomaine } from '../lib/contenu';
+import { urlCours, urlDomaine, urlChapitre } from '../lib/contenu';
 import { cleChapitre } from '../scripts/progression';
 
 interface Heading {
@@ -39,6 +41,8 @@ const { titre, description, duree, niveau, objectifs, prerequis, quiz, maj } = c
 
 const dateMaj = maj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 const cle = cleChapitre(cours.data.slug, chapitre.data.slug);
+const urlPage = new URL(urlChapitre(chapitre, cours, domaine), Astro.site).toString();
+const imageOg = `/og/${cours.data.slug}/${chapitre.data.slug}.png`;
 
 const fils = [
   { label: t.nav.cours, href: '/fr/cours/' },
@@ -48,7 +52,19 @@ const fils = [
 ];
 ---
 
-<BaseLayout titre={titre} description={description}>
+<BaseLayout titre={titre} description={description} image={imageOg} type="article">
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+    <DonneesStructurees
+      type="TechArticle"
+      titre={titre}
+      description={description}
+      url={urlPage}
+      datePublication={maj}
+      dateModification={maj}
+    />
+  </Fragment>
+
   <div class="mx-auto max-w-5xl px-4 py-8 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10">
     <article class="max-w-[70ch]" data-pagefind-body data-cle-page={cle}>
       <div data-pagefind-ignore>
@@ -73,6 +89,10 @@ const fils = [
 
       <div data-pagefind-ignore>
         <NavChapitre precedent={precedent} suivant={suivant} />
+      </div>
+
+      <div data-pagefind-ignore>
+        <PourAllerPlusLoin chapitre={chapitre} />
       </div>
 
       <Commentaires />

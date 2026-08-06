@@ -1,0 +1,101 @@
+---
+// Page HTML lisible, distincte de sitemap.xml (généré par @astrojs/sitemap).
+import { getCollection, getEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilAriane from '../../components/nav/FilAriane.astro';
+import DonneesStructurees from '../../components/seo/DonneesStructurees.astro';
+import { locales, useTranslations } from '../../i18n/utils';
+import { urlDomaine, urlCours, urlChapitre } from '../../lib/contenu';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const t = useTranslations();
+const titre = 'Plan du site';
+const fils = [{ label: titre }];
+
+const domaines = (await getCollection('domaines')).sort((a, b) => a.data.ordre - b.data.ordre);
+const tousLesCours = await getCollection('cours');
+const tousLesChapitres = await getCollection('chapitres');
+
+const arborescence = [];
+for (const domaine of domaines) {
+  const cours = tousLesCours
+    .filter((c) => c.data.domaine.id === domaine.id && c.data.publie)
+    .sort((a, b) => a.data.ordre - b.data.ordre);
+  const coursAvecChapitres = [];
+  for (const c of cours) {
+    const chapitres = tousLesChapitres
+      .filter((ch) => ch.data.cours.id === c.id && ch.data.publie)
+      .sort((a, b) => a.data.ordre - b.data.ordre);
+    coursAvecChapitres.push({ cours: c, chapitres });
+  }
+  arborescence.push({ domaine, coursAvecChapitres });
+}
+
+const pagesLegales = [
+  { href: '/fr/mentions-legales/', label: 'Mentions légales' },
+  { href: '/fr/confidentialite/', label: 'Politique de confidentialité' },
+  { href: '/fr/cookies/', label: 'Politique de cookies' },
+  { href: '/fr/a-propos/', label: 'À propos' },
+  { href: '/fr/contact/', label: 'Contact' }
+];
+---
+
+<BaseLayout titre={titre} description="Toutes les pages de Cybercursus, dans une arborescence lisible.">
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+  </Fragment>
+
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <FilAriane fils={fils} />
+    <h1 class="mt-3 text-3xl font-bold">{titre}</h1>
+
+    <nav class="mt-8 space-y-8">
+      <div>
+        <a href="/fr/" class="font-semibold hover:underline">{t.nav.accueil}</a>
+      </div>
+
+      <div>
+        <a href="/fr/cours/" class="font-semibold hover:underline">{t.nav.cours}</a>
+        <ul class="mt-2 space-y-4 border-l pl-4" style="border-color: var(--couleur-bordure);">
+          {arborescence.map(({ domaine, coursAvecChapitres }) => (
+            <li>
+              <a href={urlDomaine(domaine)} class="hover:underline">{domaine.data.titre}</a>
+              <ul class="mt-1 space-y-2 border-l pl-4" style="border-color: var(--couleur-bordure);">
+                {coursAvecChapitres.map(({ cours, chapitres }) => (
+                  <li>
+                    <a href={urlCours(cours, domaine)} class="hover:underline">{cours.data.titre}</a>
+                    <ul class="mt-1 space-y-1 border-l pl-4 text-sm" style="border-color: var(--couleur-bordure); color: var(--couleur-texte-attenue);">
+                      {chapitres.map((chapitre) => (
+                        <li>
+                          <a href={urlChapitre(chapitre, cours, domaine)} class="hover:underline">
+                            {chapitre.data.titreCourt}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <a href="/fr/recherche/" class="font-semibold hover:underline">{t.nav.recherche}</a>
+      </div>
+
+      <div>
+        <p class="font-semibold">Pages légales</p>
+        <ul class="mt-2 space-y-1 border-l pl-4" style="border-color: var(--couleur-bordure);">
+          {pagesLegales.map((page) => (
+            <li><a href={page.href} class="hover:underline">{page.label}</a></li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  </div>
+</BaseLayout>

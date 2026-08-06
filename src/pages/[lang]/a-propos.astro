@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilAriane from '../../components/nav/FilAriane.astro';
+import DonneesStructurees from '../../components/seo/DonneesStructurees.astro';
+import { locales } from '../../i18n/utils';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const titre = 'À propos';
+const fils = [{ label: titre }];
+---
+
+<BaseLayout titre={titre} description="Pourquoi Cybercursus existe et comment le site est fait.">
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+  </Fragment>
+
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <FilAriane fils={fils} />
+    <h1 class="mt-3 text-3xl font-bold">{titre}</h1>
+
+    <div class="prose mt-8 max-w-none">
+      <p>
+        Cybercursus est une plateforme de cours de cybersécurité en français, gratuite, financée par la
+        publicité display. L'objectif : comprendre les vulnérabilités web en les exploitant soi-même,
+        directement dans le navigateur, sans rien installer.
+      </p>
+      <p>
+        Là où beaucoup de ressources francophones se limitent à de la théorie, chaque concept ici est
+        accompagné d'un bloc interactif réellement fonctionnel — un bac à sable SQL pour comprendre une
+        injection, une console Python pour manipuler du hachage, une iframe isolée pour expérimenter du
+        JavaScript sans risque.
+      </p>
+      <p>
+        Le site est édité et maintenu par [NOM ET PRÉNOM À COMPLÉTER]. Le détail de l'éditeur est disponible
+        sur la page <a href="/fr/mentions-legales/">mentions légales</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

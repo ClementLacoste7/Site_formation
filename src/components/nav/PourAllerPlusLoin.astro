@@ -1,0 +1,53 @@
+---
+// Maillage interne (section 12.3) : 2 à 4 liens vers des chapitres
+// partageant des tags avec le chapitre courant.
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { useTranslations } from '../../i18n/utils';
+import { resoudreCours, resoudreDomaine, urlChapitre } from '../../lib/contenu';
+
+interface Props {
+  chapitre: CollectionEntry<'chapitres'>;
+}
+
+const { chapitre } = Astro.props;
+const t = useTranslations();
+
+const tousLesChapitres = await getCollection('chapitres');
+const candidats = tousLesChapitres
+  .filter((c) => c.id !== chapitre.id && c.data.publie)
+  .map((c) => ({
+    chapitre: c,
+    scoreCommun: c.data.tags.filter((tag) => chapitre.data.tags.includes(tag)).length
+  }))
+  .filter((c) => c.scoreCommun > 0)
+  .sort((a, b) => b.scoreCommun - a.scoreCommun)
+  .slice(0, 4);
+
+const liens: { titre: string; href: string }[] = [];
+for (const { chapitre: candidat } of candidats) {
+  const cours = await resoudreCours(candidat);
+  if (!cours) continue;
+  const domaine = await resoudreDomaine(cours);
+  if (!domaine) continue;
+  liens.push({ titre: candidat.data.titreCourt, href: urlChapitre(candidat, cours, domaine) });
+}
+---
+
+{
+  liens.length > 0 && (
+    <section class="mt-12 border-t pt-8" style="border-color: var(--couleur-bordure);">
+      <h2 class="mb-4 font-semibold">{t.chapitre.pourAllerPlusLoin}</h2>
+      <div class="grid gap-2 sm:grid-cols-2">
+        {liens.map((lien) => (
+          <a
+            href={lien.href}
+            class="rounded-lg border p-3 text-sm transition hover:border-[var(--couleur-accent)]"
+            style="border-color: var(--couleur-bordure);"
+          >
+            {lien.titre}
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}

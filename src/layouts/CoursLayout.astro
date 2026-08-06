@@ -4,8 +4,9 @@ import BaseLayout from './BaseLayout.astro';
 import FilAriane from '../components/nav/FilAriane.astro';
 import BarreProgression from '../components/nav/BarreProgression.astro';
 import CarteChapitre from '../components/contenu/CarteChapitre.astro';
+import DonneesStructurees from '../components/seo/DonneesStructurees.astro';
 import { useTranslations } from '../i18n/utils';
-import { urlDomaine } from '../lib/contenu';
+import { urlDomaine, urlCours } from '../lib/contenu';
 
 interface Props {
   cours: CollectionEntry<'cours'>;
@@ -15,6 +16,7 @@ interface Props {
 
 const { cours, domaine, chapitres } = Astro.props;
 const t = useTranslations();
+const urlPage = new URL(urlCours(cours, domaine), Astro.site).toString();
 
 const fils = [
   { label: t.nav.cours, href: '/fr/cours/' },
@@ -24,6 +26,16 @@ const fils = [
 ---
 
 <BaseLayout titre={cours.data.titre} description={cours.data.description}>
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+    <DonneesStructurees
+      type="Course"
+      titre={cours.data.titre}
+      description={cours.data.description}
+      url={urlPage}
+    />
+  </Fragment>
+
   <div class="mx-auto max-w-5xl px-4 py-8" data-pagefind-body>
     <div data-pagefind-ignore>
       <FilAriane fils={fils} />

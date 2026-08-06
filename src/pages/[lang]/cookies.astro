@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilAriane from '../../components/nav/FilAriane.astro';
+import DonneesStructurees from '../../components/seo/DonneesStructurees.astro';
+import { locales } from '../../i18n/utils';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const titre = 'Politique de cookies';
+const fils = [{ label: titre }];
+---
+
+<BaseLayout titre={titre} description="La liste exacte des cookies déposés par Cybercursus, aujourd'hui et à l'activation de la publicité.">
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+  </Fragment>
+
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <FilAriane fils={fils} />
+    <h1 class="mt-3 text-3xl font-bold">{titre}</h1>
+
+    <div class="prose mt-8 max-w-none">
+      <h2>Aujourd'hui : aucun cookie déposé par Cybercursus</h2>
+      <p>
+        À ce stade, ce site ne dépose <strong>aucun cookie propre</strong>. Le thème choisi (clair/sombre)
+        et la progression de cours sont stockés en <code>localStorage</code>, un mécanisme distinct des
+        cookies : ces données restent sur ton appareil et ne sont jamais envoyées automatiquement au serveur.
+      </p>
+
+      <h2>À l'activation de la publicité et de la mesure d'audience</h2>
+      <p>
+        Ce site prévoit d'intégrer Google AdSense (publicité) et Google Analytics 4 (mesure d'audience), pas
+        encore actifs au moment où cette page est écrite. Une fois activés :
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Cookie</th>
+            <th>Émetteur</th>
+            <th>Finalité</th>
+            <th>Durée</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Cookies publicitaires AdSense</td>
+            <td>Google</td>
+            <td>Personnalisation et mesure des annonces</td>
+            <td>Jusqu'à 13 mois</td>
+          </tr>
+          <tr>
+            <td>Cookies Google Analytics 4</td>
+            <td>Google</td>
+            <td>Mesure d'audience anonymisée</td>
+            <td>Jusqu'à 14 mois</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Ces cookies ne seront déposés qu'après consentement explicite, recueilli via une bannière conforme
+        (CMP Google, Consent Mode v2). Le refus restera aussi accessible que l'acceptation, et reste
+        modifiable à tout moment depuis cette bannière.
+      </p>
+
+      <h2>Cookies tiers hors de notre contrôle</h2>
+      <p>
+        Si tu choisis d'afficher les commentaires d'un chapitre, le widget Giscus peut déposer des cookies
+        liés à GitHub (nécessaires pour poster un commentaire connecté). Ces cookies relèvent de la
+        politique de GitHub, pas de celle de Cybercursus, et ne sont chargés qu'après ton clic explicite sur
+        « Afficher les commentaires ».
+      </p>
+    </div>
+  </div>
+</BaseLayout>

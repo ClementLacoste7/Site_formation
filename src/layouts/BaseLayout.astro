@@ -3,6 +3,7 @@ import '../styles/global.css';
 import EnTete from '../components/nav/EnTete.astro';
 import PiedDePage from '../components/nav/PiedDePage.astro';
 import ModaleRecherche from '../components/nav/ModaleRecherche.astro';
+import BandeauConsentement from '../components/pub/BandeauConsentement.astro';
 import MetaSeo from '../components/seo/MetaSeo.astro';
 
 interface Props {
@@ -35,6 +36,12 @@ const lang = Astro.currentLocale ?? 'fr';
     <MetaSeo titre={titre} description={description} image={image} type={type} />
     <meta name="generator" content={Astro.generator} />
     <slot name="tete" />
+    <!-- Consent Mode v2 : pose les signaux par défaut sur "denied" avant
+         tout autre script Google. Aucune requête réseau, aucun cookie. -->
+    <script>
+      import { initialiserConsentModeDefaut } from '../scripts/consentement';
+      initialiserConsentModeDefaut();
+    </script>
   </head>
   <body class="flex min-h-screen flex-col">
     <EnTete />
@@ -43,5 +50,6 @@ const lang = Astro.currentLocale ?? 'fr';
     </main>
     <PiedDePage />
     <ModaleRecherche />
+    <BandeauConsentement />
   </body>
 </html>

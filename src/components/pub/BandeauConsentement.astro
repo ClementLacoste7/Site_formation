@@ -1,0 +1,80 @@
+---
+import { useTranslations } from '../../i18n/utils';
+
+const t = useTranslations();
+---
+
+<div
+  data-bandeau-consentement
+  hidden
+  class="fixed inset-x-0 bottom-0 z-50 border-t p-4 text-sm"
+  style="background-color: var(--couleur-fond); border-color: var(--couleur-bordure);"
+>
+  <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4">
+    <p style="color: var(--couleur-texte);">
+      {t.consentement.message}
+      {' '}
+      <a href="/fr/cookies/" class="underline">{t.consentement.en_savoir_plus}</a>
+    </p>
+    <div class="flex shrink-0 gap-2">
+      <!-- Refuser et accepter : même taille, même poids, même style —
+           uniquement la couleur diffère. Aucun des deux boutons n'est mis
+           en avant (section 11.4 : le refus doit rester aussi accessible
+           que l'acceptation). -->
+      <button
+        type="button"
+        data-consentement-refuser
+        class="rounded border px-4 py-2 font-medium"
+        style="border-color: var(--couleur-bordure); color: var(--couleur-texte);"
+      >
+        {t.consentement.refuser}
+      </button>
+      <button
+        type="button"
+        data-consentement-accepter
+        class="rounded border px-4 py-2 font-medium"
+        style="border-color: var(--couleur-accent); color: var(--couleur-accent);"
+      >
+        {t.consentement.accepter}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { lireConsentement, appliquerConsentement } from '../../scripts/consentement';
+
+  const bandeau = document.querySelector<HTMLElement>('[data-bandeau-consentement]');
+
+  function afficherSiNecessaire() {
+    if (bandeau && !lireConsentement()) {
+      bandeau.hidden = false;
+    }
+  }
+  afficherSiNecessaire();
+
+  document.querySelector('[data-consentement-accepter]')?.addEventListener('click', () => {
+    appliquerConsentement({
+      ad_storage: 'granted',
+      ad_user_data: 'granted',
+      ad_personalization: 'granted',
+      analytics_storage: 'granted'
+    });
+    if (bandeau) bandeau.hidden = true;
+  });
+
+  document.querySelector('[data-consentement-refuser]')?.addEventListener('click', () => {
+    appliquerConsentement({
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied'
+    });
+    if (bandeau) bandeau.hidden = true;
+  });
+
+  // Rouvert depuis le pied de page ("Gérer mes préférences").
+  document.addEventListener('rouvrir-consentement', () => {
+    if (bandeau) bandeau.hidden = false;
+  });
+</script>

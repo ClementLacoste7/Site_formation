@@ -20,6 +20,9 @@ const liens = [
       {liens.map((lien) => (
         <a href={lien.href} class="hover:underline">{lien.label}</a>
       ))}
+      <button type="button" data-gerer-consentement class="underline">
+        {t.consentement.modifier}
+      </button>
     </nav>
     <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
       <p>&copy; {annee} Cybercursus — {t.footer.droits}</p>
@@ -41,5 +44,9 @@ const liens = [
       reinitialiserProgression();
       location.reload();
     }
+  });
+
+  document.querySelector('[data-gerer-consentement]')?.addEventListener('click', () => {
+    document.dispatchEvent(new CustomEvent('rouvrir-consentement'));
   });
 </script>

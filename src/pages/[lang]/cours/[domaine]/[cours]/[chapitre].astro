@@ -1,6 +1,8 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
 import ChapitreLayout from '../../../../../layouts/ChapitreLayout.astro';
+import H2Section from '../../../../../components/contenu/H2Section.astro';
+import { reinitialiser } from '../../../../../lib/position-emplacement-pub';
 import { locales } from '../../../../../i18n/utils';
 
 export async function getStaticPaths() {
@@ -35,6 +37,11 @@ const chapitreSuivant =
 
 const precedent = chapitrePrecedent ? { chapitre: chapitrePrecedent, cours, domaine } : null;
 const suivant = chapitreSuivant ? { chapitre: chapitreSuivant, cours, domaine } : null;
+
+// Doit être appelé juste avant <Content /> : H2Section (composant qui
+// remplace le rendu des <h2>) consomme cet état pour savoir après lequel
+// insérer l'emplacement publicitaire n°2.
+reinitialiser(headings.filter((h) => h.depth === 2).length);
 ---
 
 <ChapitreLayout
@@ -45,5 +52,5 @@ const suivant = chapitreSuivant ? { chapitre: chapitreSuivant, cours, domaine } 
   precedent={precedent}
   suivant={suivant}
 >
-  <Content />
+  <Content components={{ h2: H2Section }} />
 </ChapitreLayout>

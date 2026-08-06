@@ -1,0 +1,72 @@
+---
+// AdSense n'est pas encore validé : aucun identifiant client réel n'existe.
+// Tant que PUB_ACTIVE n'est pas "true" ET que PUBLIC_ADSENSE_CLIENT_ID
+// n'est pas configuré, ce composant reste en mode "placeholder" — un
+// encadré neutre à la hauteur définitive, sans aucun script chargé.
+// Le chemin réel (ci-dessous) est écrit et gaté par consentement, mais
+// n'a pas pu être testé faute de compte validé.
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  emplacement: 1 | 2 | 3 | 4;
+}
+
+const { emplacement } = Astro.props;
+const t = useTranslations();
+
+const PUB_ACTIVE = import.meta.env.PUB_ACTIVE === 'true';
+const ADSENSE_CLIENT_ID = import.meta.env.PUBLIC_ADSENSE_CLIENT_ID as string | undefined;
+const actif = PUB_ACTIVE && Boolean(ADSENSE_CLIENT_ID);
+
+// Hauteur fixe réservée dès le rendu initial, quel que soit le mode
+// (placeholder ou réel) : c'est ce qui garantit un CLS nul (section 11.3.1).
+const HAUTEURS: Record<number, string> = {
+  1: '250px',
+  2: '250px',
+  3: '250px',
+  4: '600px'
+};
+const hauteur = HAUTEURS[emplacement];
+// Emplacement n°4 : barre latérale, desktop uniquement (section 11.2).
+const classeVisibilite = emplacement === 4 ? 'hidden lg:block' : '';
+---
+
+<div
+  class={`not-prose my-8 ${classeVisibilite}`}
+  data-slot-pub={emplacement}
+  style={`min-height: ${hauteur};`}
+>
+  {
+    actif ? (
+      <ins
+        class="adsbygoogle"
+        style={`display:block; min-height: ${hauteur};`}
+        data-ad-client={ADSENSE_CLIENT_ID}
+        data-ad-slot={`emplacement-${emplacement}`}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    ) : (
+      <div
+        class="flex h-full items-center justify-center rounded-lg border text-xs"
+        style={`min-height: ${hauteur}; border-color: var(--couleur-bordure); background-color: var(--couleur-fond-secondaire); color: var(--couleur-texte-attenue);`}
+      >
+        {t.pub.emplacement} {emplacement}
+      </div>
+    )
+  }
+</div>
+
+{
+  actif && (
+    <script>
+      // Un <ins class="adsbygoogle"> ne s'active qu'après ce push({}), lui
+      // -même déclenché seulement une fois adsbygoogle.js chargé (donc
+      // après consentement + peinture, voir scripts/consentement.ts) —
+      // jamais avant.
+      document.addEventListener('adsense-pret', () => {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      });
+    </script>
+  )
+}

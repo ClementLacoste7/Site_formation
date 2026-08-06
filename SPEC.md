@@ -506,12 +506,16 @@ Google AdSense. **La candidature ne doit pas être déposée au lancement** : vi
 | 3 | Après l'encadré « À retenir » | Tous supports |
 | 4 | Barre latérale sticky | Desktop uniquement |
 
+**Implémentation du n°2 (Lot 5) :** un `<h2>` et le contenu qui le suit sont des nœuds frères dans l'arbre Markdown, pas parent/enfant — impossible de savoir "où finit la section" sans attendre le `<h2>` suivant. `ChapitreLayout`/`H2Section.astro` interceptent donc le rendu de chaque `<h2>` (`<Content components={{ h2: H2Section }} />`) et insèrent l'emplacement juste avant le `<h2>` qui suit la section cible — jamais juste après le `<h2>` cible lui-même, ce qui le placerait avant le contenu de sa propre section. Si le chapitre a moins de deux `<h2>`, aucun emplacement n'est inséré (pas de repli approximatif).
+
+**Repositionnement du n°3 (Lot 5) :** placé après la navigation chapitre précédent/suivant plutôt que juste après l'encadré « À retenir » / le quiz, pour respecter la règle 11.3.2 (le quiz contient des champs cochables, donc un bloc interactif).
+
 ### 11.3 Règles impératives
 
 1. **Chaque slot réserve sa hauteur dès le rendu initial** (`min-height` fixe, fond neutre). Un décalage de mise en page dégrade le CLS, donc le SEO, donc le trafic, donc les revenus. C'est la règle la plus importante de cette section.
 2. **Aucune publicité à moins de 200 px d'un bloc interactif.** L'engagement sur ces blocs est le moteur du trafic.
 3. Aucun interstitiel, aucun format intrusif, aucune publicité au-dessus du premier paragraphe.
-4. Les slots sont désactivables globalement par une variable d'environnement, afin de développer sans publicité.
+4. Les slots sont désactivables globalement par une variable d'environnement, afin de développer sans publicité. **Lot 5 :** tant qu'AdSense n'est pas validé, `PUB_ACTIVE` piloté ce même interrupteur en mode « placeholder » (encadré neutre à la hauteur définitive, aucun script) plutôt qu'en absence totale de slot — la réservation d'espace doit pouvoir être vérifiée (CLS) avant même l'activation réelle.
 
 ### 11.4 Consentement (RGPD)
 
@@ -519,6 +523,8 @@ Google AdSense. **La candidature ne doit pas être déposée au lancement** : vi
 - Google Consent Mode v2 implémenté.
 - Aucun cookie publicitaire ni analytique déposé avant consentement.
 - Le refus doit rester aussi accessible que l'acceptation.
+
+**Implémentation (Lot 5) :** le choix de consentement est stocké en `localStorage` (`Cybercursus:consentement`), jamais en cookie — cohérent avec le reste du site (thème, progression). Consent Mode v2 posé en `denied` sur tous les signaux dès le `<head>` (`initialiserConsentModeDefaut`), avant tout autre script. Les scripts GA4/AdSense ne se chargent qu'après le `load` de la page ET un consentement accordé, jamais avant — voir `src/scripts/consentement.ts`.
 
 ---
 

@@ -1,0 +1,21 @@
+---
+// Remplace le rendu par défaut des <h2> du corps MDX (voir la page
+// [chapitre].astro, <Content components={{ h2: H2Section }} />) pour
+// pouvoir insérer l'emplacement publicitaire n°2 entre deux sections —
+// jamais au milieu d'une explication.
+import SlotPub from '../pub/SlotPub.astro';
+import { doitAfficherPubAvant } from '../../lib/position-emplacement-pub';
+
+interface Props {
+  id?: string;
+}
+
+const { id } = Astro.props;
+// Vérifié AVANT de rendre ce <h2> : si vrai, tout le contenu de la
+// section précédente est déjà rendu, donc l'emplacement tombe bien après
+// elle et avant celle-ci.
+const afficherEmplacementPubAvant = doitAfficherPubAvant();
+---
+
+{afficherEmplacementPubAvant && <SlotPub emplacement={2} />}
+<h2 id={id}><slot /></h2>

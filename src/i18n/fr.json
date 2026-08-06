@@ -109,5 +109,15 @@
     "essentiel": "L'essentiel",
     "voirLeCours": "Voir le cours complet :",
     "ficheAssociee": "Fiche de révision associée :"
+  },
+  "consentement": {
+    "message": "Ce site utilise des cookies de mesure d'audience et de publicité une fois que tu les acceptes. Rien n'est déposé sans ton accord.",
+    "en_savoir_plus": "En savoir plus",
+    "accepter": "Accepter",
+    "refuser": "Refuser",
+    "modifier": "Gérer mes préférences"
+  },
+  "pub": {
+    "emplacement": "Emplacement publicitaire"
   }
 }

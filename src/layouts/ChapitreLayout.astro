@@ -8,6 +8,7 @@ import PourAllerPlusLoin from '../components/nav/PourAllerPlusLoin.astro';
 import EncadreObjectifs from '../components/contenu/EncadreObjectifs.astro';
 import EncadrePrerequis from '../components/contenu/EncadrePrerequis.astro';
 import Quiz from '../components/interactif/Quiz.astro';
+import SlotPub from '../components/pub/SlotPub.astro';
 import Commentaires from '../components/nav/Commentaires.astro';
 import DonneesStructurees from '../components/seo/DonneesStructurees.astro';
 import { useTranslations } from '../i18n/utils';
@@ -81,6 +82,10 @@ const fils = [
         <EncadrePrerequis prerequis={prerequis} />
       </div>
 
+      <div data-pagefind-ignore>
+        <SlotPub emplacement={1} />
+      </div>
+
       <div class="contenu-chapitre prose mt-8 max-w-none">
         <slot />
       </div>
@@ -91,6 +96,13 @@ const fils = [
         <NavChapitre precedent={precedent} suivant={suivant} />
       </div>
 
+      <!-- Emplacement n°3 placé après la navigation plutôt que juste après
+           "à retenir" / le quiz : invariant n°5 (jamais à moins de 200 px
+           d'un bloc interactif), et le quiz contient des champs cochables. -->
+      <div data-pagefind-ignore>
+        <SlotPub emplacement={3} />
+      </div>
+
       <div data-pagefind-ignore>
         <PourAllerPlusLoin chapitre={chapitre} />
       </div>
@@ -98,7 +110,10 @@ const fils = [
       <Commentaires />
     </article>
 
-    <SommaireLateral headings={headings} />
+    <div>
+      <SommaireLateral headings={headings} />
+      <SlotPub emplacement={4} />
+    </div>
   </div>
 </BaseLayout>
 

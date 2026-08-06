@@ -42,6 +42,7 @@ Lot 4 ajoute `@astrojs/sitemap`, et en `devDependencies` uniquement (jamais exp�
 10. **Le build échoue** si un fichier de contenu ne respecte pas son schéma Zod.
 11. **Le contenu pédagogique reste lisible sans JavaScript.**
 12. **Toute ressource de plus de 20 Ko (JS ou tierce) se charge au clic explicite, jamais au scroll ni à l'entrée en viewport.** Atteindre le bas d'une page ne signifie pas vouloir déclencher un chargement lourd — le scroll n'est pas un consentement. Un bouton statique (« Essayer ce code », « Afficher les commentaires », etc.) rend l'action explicite. `client:visible` reste acceptable pour de petits îlots (quelques Ko) mais pas comme mécanisme de lazy-loading pour des widgets tiers ou des bundles conséquents (CodeMirror, Giscus, Pyodide…).
+13. **Consent Mode v2 en "denied" par défaut sur tous les signaux.** Aucun cookie, aucun script GA4/AdSense avant un choix explicite (accepter ou refuser), stocké en localStorage — jamais un cookie. Les deux boutons du bandeau ont strictement le même poids visuel (taille, style, position) : le refus n'est jamais un choix puni ou caché.
 
 ---
 
@@ -70,4 +71,4 @@ npm run build    # build de production
 npm run preview  # prévisualisation du build
 ```
 
-Variable d'environnement `PUB_ACTIVE=false` pour développer sans les emplacements publicitaires.
+Variables d'environnement (voir `.env.example`) : `PUB_ACTIVE` (`true` uniquement une fois AdSense validé ET `PUBLIC_ADSENSE_CLIENT_ID` renseigné — sinon `SlotPub` reste en mode placeholder neutre, à la bonne hauteur, sans aucun script), `PUBLIC_GA_MEASUREMENT_ID` (Google Analytics, chargé seulement après consentement — vide = no-op même si l'utilisateur accepte).

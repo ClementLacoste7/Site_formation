@@ -6,7 +6,7 @@ import NavChapitre from '../components/nav/NavChapitre.astro';
 import SommaireLateral from '../components/nav/SommaireLateral.astro';
 import EncadreObjectifs from '../components/contenu/EncadreObjectifs.astro';
 import EncadrePrerequis from '../components/contenu/EncadrePrerequis.astro';
-import QuizIlot from '../components/interactif/QuizIlot';
+import Quiz from '../components/interactif/Quiz.astro';
 import { useTranslations } from '../i18n/utils';
 import { urlCours, urlDomaine } from '../lib/contenu';
 
@@ -64,7 +64,7 @@ const fils = [
         <slot />
       </div>
 
-      {quiz.length > 0 && <QuizIlot client:visible questions={quiz} />}
+      {quiz.length > 0 && <Quiz questions={quiz} />}
 
       <NavChapitre precedent={precedent} suivant={suivant} />
     </article>

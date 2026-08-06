@@ -96,7 +96,7 @@ Les éléments suivants doivent être **présents dans l'architecture** sans êt
 | Style | Tailwind CSS | Rapidité de développement |
 | Typographie longue-forme | @tailwindcss/typography | Plugin officiel, 100 % build-time (aucun JS runtime), tokens surchargés avec nos variables CSS de thème |
 | Thème | Variables CSS | Bascule clair/sombre sans rechargement |
-| Îlots interactifs | React 19 | Uniquement éditeur et quiz |
+| Îlots interactifs | React 19 | Uniquement les bacs à sable (éditeur CodeMirror + exécution). Le Quiz est en JS natif, sans framework — un QCM ne le justifie pas |
 | Éditeur de code | CodeMirror 6 | Léger, coloration syntaxique, chargé à la demande |
 | Exécution JS/HTML | iframe sandboxée | Isolation native du navigateur |
 | Exécution Python | Pyodide (WebAssembly) | Chargement paresseux uniquement |
@@ -115,6 +115,8 @@ Les éléments suivants doivent être **présents dans l'architecture** sans êt
 2. **Pyodide et sql.js ne sont téléchargés qu'au clic explicite de l'utilisateur** sur un bouton « Lancer ». Ce sont des paquets de plusieurs mégaoctets : les charger au rendu détruirait les Core Web Vitals.
 3. **Aucune chaîne de texte d'interface en dur dans les composants.** Tout passe par les fichiers de traduction, même en V1 monolingue.
 4. **Le build doit échouer** si un fichier de contenu ne respecte pas son schéma.
+
+**Note (à évaluer, pas à faire avant le Lot 6)** : CodeMirror 6 expose une API JavaScript native (`@codemirror/state`, `@codemirror/view`), sans dépendance à React. Si les bacs à sable (Web, SQL, Python) sont un jour portés en JS natif — sur le même principe que le Quiz —, React pourrait être retiré entièrement de la stack. À évaluer au Lot 6 selon le gain réel (React + ReactDOM représentent environ 57 Ko compressé, chargés aujourd'hui uniquement au clic sur un bac à sable, jamais au rendu initial).
 
 ---
 
@@ -575,6 +577,12 @@ Les blocs interactifs exécutent du code potentiellement malveillant issu de l'u
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Permissions-Policy` désactivant les API non utilisées
 - `Strict-Transport-Security`
+
+**Note pour la CSP (Lot 6) — domaine tiers introduit par les bacs à sable :**
+
+`cdn.jsdelivr.net` doit être autorisé en `script-src`/`connect-src`/`worker-src` : c'est l'unique domaine externe utilisé par le projet à l'exécution, pour charger Pyodide (runtime + `.wasm` + bibliothèque standard) au clic sur « Lancer l'environnement Python ». La version est figée dans `pyodide.worker.ts` (`v314.0.3`, jamais `latest`), pour la reproductibilité autant que pour éviter qu'une CSP pinnée sur cette version se retrouve désynchronisée d'une mise à jour silencieuse du CDN.
+
+sql.js, à l'inverse, **ne dépend d'aucun domaine tiers** : c'est une dépendance npm (`sql.js`, version exacte `1.14.1` dans `package.json`, sans `^`), et son fichier `.wasm` est servi depuis notre propre build (`/_astro/`, importé via `?url`). Rien à ajouter à la CSP pour sql.js au-delà de `'self'`.
 
 ### 13.3 Dépendances
 

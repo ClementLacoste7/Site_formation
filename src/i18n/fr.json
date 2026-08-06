@@ -70,7 +70,7 @@
     "aucunResultat": "La requête n'a retourné aucune ligne."
   },
   "consolePython": {
-    "lancer": "Lancer l'environnement Python",
+    "lancer": "Lancer l'environnement Python (~6 Mo)",
     "chargement": "Chargement de Python (Pyodide)…",
     "executer": "Exécuter",
     "execution": "Exécution…",

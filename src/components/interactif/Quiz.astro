@@ -1,0 +1,136 @@
+---
+// JS natif, volontairement sans React : un QCM ne justifie pas de charger
+// un framework (57 Ko compressé) pour tous les lecteurs qui scrollent.
+import { useTranslations } from '../../i18n/utils';
+
+interface Reponse {
+  texte: string;
+  correcte: boolean;
+  explication: string;
+}
+
+interface Question {
+  question: string;
+  type: 'unique' | 'multiple';
+  reponses: Reponse[];
+}
+
+interface Props {
+  questions: Question[];
+}
+
+const { questions } = Astro.props;
+const t = useTranslations();
+const id = `quiz-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div
+  class="not-prose my-6 space-y-6 rounded-lg border p-4"
+  style="border-color: var(--couleur-bordure);"
+  data-quiz={id}
+  data-libelle-score={t.quiz.score}
+>
+  {
+    questions.map((question, indexQuestion) => (
+      <fieldset>
+        <legend class="font-medium">{question.question}</legend>
+        <div class="mt-2 space-y-1">
+          {question.reponses.map((reponse, indexReponse) => (
+            <label class="quiz-reponse flex items-start gap-2 rounded p-2 text-sm" data-correcte={reponse.correcte}>
+              <input
+                type={question.type === 'unique' ? 'radio' : 'checkbox'}
+                name={`${id}-q${indexQuestion}`}
+                class="mt-1"
+              />
+              <span>
+                {reponse.texte}
+                <span
+                  class="quiz-explication mt-1 block text-xs"
+                  style="color: var(--couleur-texte-attenue);"
+                  hidden
+                >
+                  {reponse.explication}
+                </span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    ))
+  }
+
+  <div class="flex items-center gap-4">
+    <button
+      type="button"
+      class="quiz-valider rounded px-4 py-2 text-sm font-medium text-white"
+      style="background-color: var(--couleur-accent);"
+    >
+      {t.quiz.valider}
+    </button>
+    <p class="quiz-score font-medium" hidden></p>
+    <button
+      type="button"
+      class="quiz-recommencer rounded border px-3 py-1.5 text-sm"
+      style="border-color: var(--couleur-bordure);"
+      hidden
+    >
+      {t.quiz.recommencer}
+    </button>
+  </div>
+</div>
+
+<style>
+  .quiz-correcte {
+    background-color: color-mix(in srgb, var(--couleur-succes) 15%, transparent);
+  }
+  .quiz-incorrecte {
+    background-color: color-mix(in srgb, var(--couleur-danger) 15%, transparent);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-quiz]').forEach((quiz) => {
+    const boutonValider = quiz.querySelector<HTMLButtonElement>('.quiz-valider')!;
+    const boutonRecommencer = quiz.querySelector<HTMLButtonElement>('.quiz-recommencer')!;
+    const zoneScore = quiz.querySelector<HTMLParagraphElement>('.quiz-score')!;
+    const fieldsets = quiz.querySelectorAll('fieldset');
+    const libelleScore = quiz.dataset.libelleScore;
+
+    boutonValider.addEventListener('click', () => {
+      let score = 0;
+      fieldsets.forEach((fieldset) => {
+        let questionCorrecte = true;
+        fieldset.querySelectorAll<HTMLLabelElement>('.quiz-reponse').forEach((label) => {
+          const input = label.querySelector<HTMLInputElement>('input')!;
+          const correcte = label.dataset.correcte === 'true';
+          if (input.checked !== correcte) questionCorrecte = false;
+          label.classList.toggle('quiz-correcte', correcte);
+          label.classList.toggle('quiz-incorrecte', !correcte && input.checked);
+          label.querySelector('.quiz-explication')?.removeAttribute('hidden');
+          input.disabled = true;
+        });
+        if (questionCorrecte) score += 1;
+      });
+      zoneScore.textContent = `${libelleScore} : ${score} / ${fieldsets.length}`;
+      zoneScore.hidden = false;
+      boutonValider.hidden = true;
+      boutonRecommencer.hidden = false;
+    });
+
+    boutonRecommencer.addEventListener('click', () => {
+      fieldsets.forEach((fieldset) => {
+        fieldset.querySelectorAll<HTMLInputElement>('input').forEach((input) => {
+          input.checked = false;
+          input.disabled = false;
+        });
+        fieldset.querySelectorAll('.quiz-reponse').forEach((label) => {
+          label.classList.remove('quiz-correcte', 'quiz-incorrecte');
+        });
+        fieldset.querySelectorAll('.quiz-explication').forEach((e) => e.setAttribute('hidden', ''));
+      });
+      zoneScore.hidden = true;
+      boutonValider.hidden = false;
+      boutonRecommencer.hidden = true;
+    });
+  });
+</script>

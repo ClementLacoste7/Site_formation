@@ -101,5 +101,13 @@
     "fermer": "Fermer",
     "aucunResultat": "Aucun résultat.",
     "chargement": "Chargement de l'index…"
+  },
+  "fiche": {
+    "titrePage": "Fiches de révision",
+    "descriptionPage": "Résumés rapides à consulter avant un exercice ou un entretien.",
+    "miseAJour": "Mise à jour le",
+    "essentiel": "L'essentiel",
+    "voirLeCours": "Voir le cours complet :",
+    "ficheAssociee": "Fiche de révision associée :"
   }
 }

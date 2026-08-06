@@ -1,0 +1,27 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import FicheLayout from '../../../layouts/FicheLayout.astro';
+import { locales } from '../../../i18n/utils';
+
+export async function getStaticPaths() {
+  const fiches = await getCollection('fiches');
+  const chemins = [];
+  for (const fiche of fiches) {
+    for (const lang of locales) {
+      chemins.push({ params: { lang, fiche: fiche.data.slug }, props: { fiche } });
+    }
+  }
+  return chemins;
+}
+
+const { fiche } = Astro.props;
+const cours = await getEntry(fiche.data.coursLie);
+if (!cours) {
+  throw new Error(`Fiche "${fiche.id}" : cours lié introuvable (${fiche.data.coursLie.id}).`);
+}
+const { Content } = await render(fiche);
+---
+
+<FicheLayout fiche={fiche} cours={cours}>
+  <Content />
+</FicheLayout>

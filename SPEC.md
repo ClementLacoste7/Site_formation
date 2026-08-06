@@ -713,6 +713,19 @@ Chaque lot est un livrable autonome et testable. Ne pas démarrer un lot avant v
 
 **Critère de sortie :** Lighthouse SEO à 100, données structurées valides au test Google.
 
+### Lot 4bis — Fiches de révision
+
+Ajouté après coup : les fiches sont un type de contenu à part entière (schéma Zod section 5.4, URLs section 5.2, `FicheLayout` section 6) mais avaient été omises du plan par lots initial — un oubli de la spec, pas un report volontaire vers une version ultérieure.
+
+- `/fr/fiches/` : page index listant les fiches
+- `/fr/fiches/[fiche]/` : `FicheLayout`, réutilisant les composants de contenu existants (`BlocCode`, `Avertissement`)
+- Une fiche de démonstration : `injections-sql`, structurée en questions (champ `questions` optionnel du schéma, section 5.4)
+- `data-pagefind-body` sur `FicheLayout` : les fiches doivent être cherchables, contrairement aux pages légales
+- Données structurées : `TechArticle` systématique, `FAQPage` en plus si `questions` est renseigné
+- Maillage interne réciproque : lien du cours vers sa fiche associée, et de la fiche vers son cours (`coursLie`)
+
+**Critère de sortie :** la fiche de démonstration apparaît dans les résultats de recherche Pagefind, le lien réciproque cours ↔ fiche fonctionne dans les deux sens, Lighthouse SEO à 100 sur la page de fiche.
+
 ### Lot 5 — Monétisation
 
 - Composant `SlotPub` à hauteur réservée, désactivable par variable d'environnement

@@ -1,0 +1,43 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FilAriane from '../../../components/nav/FilAriane.astro';
+import DonneesStructurees from '../../../components/seo/DonneesStructurees.astro';
+import { locales, useTranslations } from '../../../i18n/utils';
+import { urlFiche } from '../../../lib/contenu';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const t = useTranslations();
+const fiches = await getCollection('fiches');
+const fils = [{ label: t.nav.fiches }];
+---
+
+<BaseLayout titre={t.fiche.titrePage} description={t.fiche.descriptionPage}>
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+  </Fragment>
+
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <FilAriane fils={fils} />
+    <h1 class="mt-3 text-3xl font-bold">{t.fiche.titrePage}</h1>
+    <p class="mt-2" style="color: var(--couleur-texte-attenue);">{t.fiche.descriptionPage}</p>
+
+    <div class="mt-6 space-y-3">
+      {fiches.map((fiche) => (
+        <a
+          href={urlFiche(fiche)}
+          class="block rounded-lg border p-4 transition hover:border-[var(--couleur-accent)]"
+          style="border-color: var(--couleur-bordure);"
+        >
+          <h2 class="font-semibold">{fiche.data.titre}</h2>
+          <p class="mt-1 text-sm" style="color: var(--couleur-texte-attenue);">
+            {fiche.data.description}
+          </p>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

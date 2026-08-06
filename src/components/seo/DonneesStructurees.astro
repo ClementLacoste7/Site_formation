@@ -10,6 +10,11 @@ interface Fil {
   href?: string;
 }
 
+interface Question {
+  question: string;
+  reponse: string;
+}
+
 type Props =
   | { type: 'BreadcrumbList'; fils: Fil[] }
   | { type: 'WebSite' }
@@ -21,7 +26,8 @@ type Props =
       url: string;
       datePublication: Date;
       dateModification: Date;
-    };
+    }
+  | { type: 'FAQPage'; questions: Question[] };
 
 const props = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
@@ -79,6 +85,16 @@ function construire(): Record<string, unknown> {
         datePublished: props.datePublication.toISOString(),
         dateModified: props.dateModification.toISOString(),
         author: { '@type': 'Organization', name: 'Cybercursus' }
+      };
+    case 'FAQPage':
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: props.questions.map((q) => ({
+          '@type': 'Question',
+          name: q.question,
+          acceptedAnswer: { '@type': 'Answer', text: q.reponse }
+        }))
       };
   }
 }

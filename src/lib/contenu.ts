@@ -26,3 +26,11 @@ export function urlChapitre(
 ): string {
   return `${urlCours(cours, domaine)}${chapitre.data.slug}/`;
 }
+
+export function urlFiches(): string {
+  return '/fr/fiches/';
+}
+
+export function urlFiche(fiche: CollectionEntry<'fiches'>): string {
+  return `${urlFiches()}${fiche.data.slug}/`;
+}

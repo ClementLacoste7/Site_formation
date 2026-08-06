@@ -69,6 +69,16 @@ const fiches = defineCollection({
     slug: z.string(),
     coursLie: reference('cours'),
     tags: z.array(z.string()),
+    // Optionnel : si renseigné, la fiche est structurée en questions et
+    // génère un JSON-LD FAQPage en plus du TechArticle (section 12.2 SPEC).
+    questions: z
+      .array(
+        z.object({
+          question: z.string(),
+          reponse: z.string()
+        })
+      )
+      .optional(),
     maj: z.date()
   })
 });

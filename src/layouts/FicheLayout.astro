@@ -1,0 +1,82 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import FilAriane from '../components/nav/FilAriane.astro';
+import DonneesStructurees from '../components/seo/DonneesStructurees.astro';
+import { useTranslations } from '../i18n/utils';
+import { urlFiches, urlFiche, urlCours, urlDomaine, resoudreDomaine } from '../lib/contenu';
+
+interface Props {
+  fiche: CollectionEntry<'fiches'>;
+  cours: CollectionEntry<'cours'>;
+}
+
+const { fiche, cours } = Astro.props;
+const t = useTranslations();
+const { titre, description, questions, maj } = fiche.data;
+
+const domaine = await resoudreDomaine(cours);
+const dateMaj = maj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+const urlPage = new URL(urlFiche(fiche), Astro.site).toString();
+
+const fils = [
+  { label: t.nav.fiches, href: urlFiches() },
+  { label: fiche.data.titre }
+];
+---
+
+<BaseLayout titre={titre} description={description} type="article">
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+    <DonneesStructurees
+      type="TechArticle"
+      titre={titre}
+      description={description}
+      url={urlPage}
+      datePublication={maj}
+      dateModification={maj}
+    />
+    {questions && questions.length > 0 && <DonneesStructurees type="FAQPage" questions={questions} />}
+  </Fragment>
+
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <article data-pagefind-body>
+      <div data-pagefind-ignore>
+        <FilAriane fils={fils} />
+      </div>
+
+      <h1 class="mt-3 text-3xl font-bold">{titre}</h1>
+      <p class="mt-2 text-sm" style="color: var(--couleur-texte-attenue);">
+        {t.fiche.miseAJour} {dateMaj}
+      </p>
+
+      <div class="contenu-chapitre prose mt-8 max-w-none">
+        <slot />
+      </div>
+
+      {questions && questions.length > 0 && (
+        <section class="mt-8 space-y-4">
+          <h2 class="font-semibold">{t.fiche.essentiel}</h2>
+          {questions.map((q) => (
+            <div class="rounded-lg border p-4" style="border-color: var(--couleur-bordure);">
+              <p class="font-medium">{q.question}</p>
+              <p class="mt-1 text-sm" style="color: var(--couleur-texte-attenue);">{q.reponse}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {domaine && (
+        <div class="mt-12 border-t pt-8" style="border-color: var(--couleur-bordure);" data-pagefind-ignore>
+          <a
+            href={urlCours(cours, domaine)}
+            class="rounded-lg border p-4 text-sm transition hover:border-[var(--couleur-accent)]"
+            style="border-color: var(--couleur-bordure); display: block;"
+          >
+            {t.fiche.voirLeCours} <strong>{cours.data.titre}</strong>
+          </a>
+        </div>
+      )}
+    </article>
+  </div>
+</BaseLayout>

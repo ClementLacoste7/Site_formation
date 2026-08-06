@@ -1,0 +1,44 @@
+---
+titre: "Fiche de révision — Injections SQL"
+description: "L'essentiel à retenir sur les injections SQL : principe, contournement d'authentification, UNION-based, et comment s'en protéger."
+slug: "injections-sql"
+coursLie: "injections-sql"
+tags: ["injections-sql"]
+questions:
+  - question: "Pourquoi une requête SQL construite par concaténation est-elle dangereuse ?"
+    reponse: "Parce qu'elle mélange le code SQL écrit par le développeur et les données fournies par l'utilisateur : rien ne distingue plus une donnée d'une instruction SQL aux yeux du moteur de base de données."
+  - question: "Que produit la valeur ' OR '1'='1 insérée dans un mot de passe concaténé ?"
+    reponse: "Une condition WHERE toujours vraie : '1'='1' l'est systématiquement, donc la requête retourne un utilisateur sans que le bon mot de passe ait été fourni."
+  - question: "À quoi sert un commentaire SQL (--) dans une charge d'injection ?"
+    reponse: "À ignorer le reste de la requête d'origine, y compris une seconde condition qui suivrait la vérification du mot de passe."
+  - question: "Que doit vérifier une injection UNION SELECT pour fonctionner ?"
+    reponse: "Retourner le même nombre de colonnes que la requête d'origine, avec des types compatibles."
+  - question: "Comment déterminer le nombre de colonnes d'une requête à l'aveugle ?"
+    reponse: "En incrémentant un ORDER BY jusqu'à provoquer une erreur : une erreur sur ORDER BY N indique que la requête retourne N-1 colonnes."
+  - question: "Quelle est la protection efficace contre les injections SQL ?"
+    reponse: "Les requêtes préparées (paramétrées) : la valeur est transmise séparément du texte SQL, jamais concaténée dans la requête elle-même."
+maj: 2026-08-06
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Le problème : concaténer au lieu de paramétrer
+
+<BlocCode
+  langue="sql"
+  code={`-- Vulnérable : la valeur est concaténée dans le texte SQL
+SELECT * FROM utilisateurs WHERE identifiant = '\${identifiant}'`}
+/>
+
+## La protection : une requête préparée
+
+<BlocCode
+  langue="sql"
+  code={`-- Sûr : la valeur est transmise à part, jamais interprétée comme du SQL
+SELECT * FROM utilisateurs WHERE identifiant = ?`}
+/>
+
+<Avertissement type="astuce">
+  Une requête préparée neutralise `' OR '1'='1` aussi bien que `UNION SELECT` : la base de données traite toujours la valeur fournie comme une donnée brute, jamais comme une instruction.
+</Avertissement>

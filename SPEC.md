@@ -479,7 +479,7 @@ Le champ `version` permet une migration future sans perte. La structure est volo
 ### 10.2 Commentaires (Giscus)
 
 - Adossé aux GitHub Discussions du repo.
-- **Chargement paresseux** : le script ne se charge qu'au scroll dans la zone de commentaires.
+- **Chargement au clic explicite** (invariant n°12) : un bouton statique « Afficher les commentaires » est rendu en HTML ; le script Giscus (~80 Ko) n'est injecté qu'à ce clic. Atteindre le bas d'un chapitre par scroll ne déclenche rien — ce n'est pas un consentement à charger un widget tiers.
 - Thème synchronisé avec le thème du site.
 - Mapping par `pathname`.
 

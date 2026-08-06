@@ -1,6 +1,9 @@
 ---
-// Giscus : ressource tierce chargée uniquement à l'entrée dans le viewport
-// (IntersectionObserver ci-dessous), jamais au rendu de la page (section 10.2).
+// Giscus : ressource tierce (~80 Ko), chargée uniquement au clic explicite
+// sur "Afficher les commentaires" — jamais au rendu, jamais au scroll.
+// Même règle que les bacs à sable du Lot 2 (voir invariant n°12 de
+// CLAUDE.md) : atteindre le bas d'un chapitre ne signifie pas vouloir lire
+// les commentaires.
 //
 // TODO configuration réelle : ces data-repo-id / data-category-id sont des
 // placeholders. Ils s'obtiennent via https://giscus.app une fois les GitHub
@@ -22,7 +25,16 @@ const GISCUS_CATEGORIE_ID = 'A_REMPLACER';
   data-pagefind-ignore
 >
   <h2 class="mb-4 font-semibold">{t.commentaires.titre}</h2>
-  <div data-giscus-conteneur></div>
+  <div data-giscus-conteneur>
+    <button
+      type="button"
+      data-bouton-commentaires
+      class="rounded-lg border px-4 py-2 text-sm font-medium"
+      style="border-color: var(--couleur-accent); color: var(--couleur-accent);"
+    >
+      {t.commentaires.afficher}
+    </button>
+  </div>
 </section>
 
 <script
@@ -35,6 +47,7 @@ const GISCUS_CATEGORIE_ID = 'A_REMPLACER';
 >
   const section = document.querySelector('[data-commentaires]');
   const conteneur = section?.querySelector('[data-giscus-conteneur]');
+  const bouton = section?.querySelector('[data-bouton-commentaires]');
 
   function themeGiscus() {
     return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
@@ -42,6 +55,7 @@ const GISCUS_CATEGORIE_ID = 'A_REMPLACER';
 
   function chargerGiscus() {
     if (!conteneur) return;
+    conteneur.innerHTML = '';
     const script = document.createElement('script');
     script.src = 'https://giscus.app/client.js';
     script.async = true;
@@ -59,19 +73,7 @@ const GISCUS_CATEGORIE_ID = 'A_REMPLACER';
     conteneur.appendChild(script);
   }
 
-  if (section && conteneur) {
-    const observateur = new IntersectionObserver(
-      (entrees) => {
-        for (const entree of entrees) {
-          if (!entree.isIntersecting) continue;
-          observateur.disconnect();
-          chargerGiscus();
-        }
-      },
-      { rootMargin: '200px' }
-    );
-    observateur.observe(section);
-  }
+  bouton?.addEventListener('click', chargerGiscus, { once: true });
 
   // Resynchronise le thème du widget si l'utilisateur bascule clair/sombre
   // après que Giscus a déjà chargé (voir l'évènement dans scripts/theme.ts).

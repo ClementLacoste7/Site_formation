@@ -39,6 +39,7 @@ Pyodide est chargé depuis le CDN officiel jsDelivr (version figée dans `pyodid
 9. **Les iframes de démonstration utilisent `sandbox="allow-scripts"` SANS `allow-same-origin`.** Le site héberge des démonstrations XSS réelles.
 10. **Le build échoue** si un fichier de contenu ne respecte pas son schéma Zod.
 11. **Le contenu pédagogique reste lisible sans JavaScript.**
+12. **Toute ressource de plus de 20 Ko (JS ou tierce) se charge au clic explicite, jamais au scroll ni à l'entrée en viewport.** Atteindre le bas d'une page ne signifie pas vouloir déclencher un chargement lourd — le scroll n'est pas un consentement. Un bouton statique (« Essayer ce code », « Afficher les commentaires », etc.) rend l'action explicite. `client:visible` reste acceptable pour de petits îlots (quelques Ko) mais pas comme mécanisme de lazy-loading pour des widgets tiers ou des bundles conséquents (CodeMirror, Giscus, Pyodide…).
 
 ---
 

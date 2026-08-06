@@ -85,7 +85,8 @@
     "incorrect": "Incorrect"
   },
   "commentaires": {
-    "titre": "Commentaires"
+    "titre": "Commentaires",
+    "afficher": "Afficher les commentaires"
   },
   "progression": {
     "reinitialiser": "Réinitialiser ma progression",

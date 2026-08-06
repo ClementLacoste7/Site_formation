@@ -77,6 +77,10 @@ const fils = [
         {duree} {t.cours.minutes} · {t.niveau[niveau]} · {dateMaj}
       </p>
 
+      <div class="mt-6">
+        <SommaireLateral headings={headings} variante="mobile" />
+      </div>
+
       <div class="mt-6 space-y-4">
         <EncadreObjectifs objectifs={objectifs} />
         <EncadrePrerequis prerequis={prerequis} />
@@ -111,7 +115,7 @@ const fils = [
     </article>
 
     <div>
-      <SommaireLateral headings={headings} />
+      <SommaireLateral headings={headings} variante="desktop" />
       <SlotPub emplacement={4} />
     </div>
   </div>

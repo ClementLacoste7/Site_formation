@@ -10,11 +10,11 @@
   --couleur-fond-secondaire: #f3f4f6;
   --couleur-bordure: #e5e7eb;
   --couleur-texte: #111827;
-  --couleur-texte-attenue: #6b7280;
+  --couleur-texte-attenue: #4b5563;
   --couleur-accent: #2563eb;
   --couleur-succes: #16a34a;
   --couleur-attention: #d97706;
-  --couleur-danger: #dc2626;
+  --couleur-danger: #b91c1c;
   --couleur-information: #0891b2;
 
   /* Palette de coloration syntaxique pour l'éditeur CodeMirror (EditeurCodeMirror). */

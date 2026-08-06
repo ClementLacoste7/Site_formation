@@ -651,6 +651,8 @@ Trois points de rupture : mobile (< 768 px), tablette, desktop (> 1280 px). En m
 
 Ces valeurs sont mesurées **hors scripts publicitaires**, puis vérifiées avec publicité activée pour contrôler la dégradation.
 
+**Note (Lot 6) — le CLS mesuré avec `SlotPub` en mode placeholder n'est pas transposable tel quel.** Le placeholder réserve une hauteur fixe et ne change jamais de contenu après son premier rendu, donc son CLS est nul par construction. Un `<ins class="adsbygoogle">` réel peut redimensionner son contenu une fois l'annonce chargée (format responsive, annonce refusée qui s'effondre à 0, etc.), ce qui peut introduire un décalage que le mode placeholder ne peut pas révéler. **Le CLS devra être remesuré le jour où un identifiant AdSense réel sera posé** (`PUB_ACTIVE=true` + `PUBLIC_ADSENSE_CLIENT_ID` configuré) — la mesure de ce lot couvre le mécanisme (réservation d'espace, chargement conditionné), pas le comportement d'une annonce réelle.
+
 ---
 
 ## 16. Pages obligatoires

@@ -24,6 +24,16 @@ const t = useTranslations();
   </div>
 </dialog>
 
+<style>
+  /* Le reset Tailwind (margin: 0 sur *) annule le centrage par défaut du
+     navigateur sur <dialog> (qui repose sur margin: auto). On le restaure
+     explicitement, en calant la boîte un peu sous le haut de l'écran plutôt
+     qu'au centre exact, comme une barre de recherche classique. */
+  dialog[data-modale-recherche] {
+    margin: 8vh auto auto;
+  }
+</style>
+
 <script>
   const dialog = document.querySelector<HTMLDialogElement>('[data-modale-recherche]');
   const boutonFermer = dialog?.querySelector<HTMLButtonElement>('[data-fermer-recherche]');

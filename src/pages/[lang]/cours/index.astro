@@ -23,10 +23,6 @@ for (const chapitre of chapitresPublies) {
   const id = chapitre.data.cours.id;
   nbChapitresParCours.set(id, (nbChapitresParCours.get(id) ?? 0) + 1);
 }
-
-// Ouvert par défaut tant qu'il n'y a qu'un seul domaine : un accordéon replié
-// sur un catalogue qui n'affiche alors qu'une seule ligne serait contre-productif.
-const ouvertParDefaut = domaines.length === 1;
 ---
 
 <BaseLayout titre={t.catalogue.titre} description={t.catalogue.description}>
@@ -47,7 +43,7 @@ const ouvertParDefaut = domaines.length === 1;
           .sort((a, b) => a.data.ordre - b.data.ordre);
 
         return (
-          <details class="accordeon-domaine rounded-lg border" style="border-color: var(--couleur-bordure);" open={ouvertParDefaut}>
+          <details class="accordeon-domaine rounded-lg border" style="border-color: var(--couleur-bordure);">
             <summary
               class="accordeon-domaine__entete"
               aria-label={`${t.domaine.afficherCoursDe} ${domaine.data.titre}`}

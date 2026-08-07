@@ -1,0 +1,50 @@
+---
+titre: "Fiche de révision : HTTP et le fonctionnement du web"
+description: "L'essentiel à retenir sur HTTP : trajet d'une requête, GET/POST, codes de statut, en-têtes de sécurité, cookies, et ce que HTTPS protège vraiment."
+slug: "http-fonctionnement-web"
+coursLie: "http-fonctionnement-web"
+tags: ["http", "web"]
+questions:
+  - question: "Quel est le rôle du DNS dans le trajet d'une requête ?"
+    reponse: "Il traduit un nom de domaine lisible (ex. cybercursus.fr) en adresse IP, avant que le navigateur ne puisse établir une connexion avec le serveur."
+  - question: "Quelle est la différence entre GET et POST ?"
+    reponse: "GET récupère une ressource sans effet de bord prévu, ses paramètres apparaissent dans l'URL. POST transmet des données destinées à provoquer un changement, dans le corps de la requête."
+  - question: "Que signale un code de statut de la famille 4xx ?"
+    reponse: "Un problème du côté de la requête envoyée par le client (ressource introuvable, requête mal formée, accès refusé), à distinguer de la famille 5xx (erreur côté serveur)."
+  - question: "Quelle est la différence entre les codes 401 et 403 ?"
+    reponse: "401 signifie que l'authentification est requise ou a échoué. 403 signifie que l'identité est connue, mais que l'accès reste refusé malgré tout."
+  - question: "À quoi sert l'en-tête Content-Security-Policy ?"
+    reponse: "Il restreint les sources autorisées à fournir des scripts, styles ou images sur une page, ce qui réduit fortement l'impact d'une éventuelle faille XSS."
+  - question: "Pourquoi dit-on que HTTP est un protocole sans état ?"
+    reponse: "Parce que chaque requête est traitée indépendamment des précédentes : sans mécanisme additionnel, le serveur ne sait pas que deux requêtes viennent du même visiteur."
+  - question: "Que protège l'attribut HttpOnly d'un cookie ?"
+    reponse: "Il empêche un script JavaScript côté navigateur de lire la valeur du cookie, ce qui rend son vol beaucoup plus difficile en cas de faille XSS."
+  - question: "HTTPS protège-t-il contre une injection SQL ?"
+    reponse: "Non. HTTPS chiffre le trajet de la requête entre le navigateur et le serveur, mais ne change rien à la façon dont le serveur construit ses requêtes vers sa base de données."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Le strict minimum d'une requête et d'une réponse
+
+<BlocCode
+  langue="text"
+  code={`GET /fr/ HTTP/1.1
+Host: cybercursus.fr
+
+HTTP/1.1 200 OK
+Content-Type: text/html`}
+/>
+
+## Un cookie de session correctement configuré
+
+<BlocCode
+  langue="text"
+  code={`Set-Cookie: session_id=a3f9c2e1; HttpOnly; Secure; SameSite=Lax`}
+/>
+
+<Avertissement type="astuce">
+  HttpOnly, Secure et SameSite ne sont pas décoratifs : ils réduisent respectivement le risque de vol par un script malveillant, de fuite en clair sur une connexion non chiffrée, et d'envoi non désiré depuis un site tiers.
+</Avertissement>

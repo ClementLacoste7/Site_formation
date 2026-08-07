@@ -52,11 +52,14 @@
     "description": "Tous les cours disponibles, classés par domaine."
   },
   "domaine": {
-    "coursDisponibles": "Cours disponibles"
+    "coursDisponibles": "Cours disponibles",
+    "afficherCoursDe": "Afficher les cours de"
   },
   "cours": {
     "chapitres": "Chapitres du cours",
-    "minutes": "min"
+    "minutes": "min",
+    "chapitreSingulier": "chapitre",
+    "chapitrePluriel": "chapitres"
   },
   "niveau": {
     "debutant": "Débutant",

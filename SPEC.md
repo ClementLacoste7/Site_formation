@@ -795,7 +795,7 @@ Objectif : 30 à 40 chapitres publiés avant la candidature AdSense.
 |---|---|---|---|
 | 1 | Fondamentaux de la cybersécurité | 5 | Moyenne |
 | 2 | HTTP et fonctionnement du web | 6 | **Haute** |
-| 3 | Injections SQL | 6 | **Haute** |
+| 3 | Injections SQL | 6 (rédigés) | **Haute** |
 | 4 | Cross-Site Scripting (XSS) | 5 | Haute |
 | 5 | Authentification et sessions | 5 | Moyenne |
 | 6 | Cryptographie appliquée | 5 | Moyenne |
@@ -815,4 +815,4 @@ Fiches de révision associées : une par cours, publiée après le cours corresp
 4. Ne jamais introduire de dépendance non listée en section 4 sans la signaler et la justifier.
 5. Commenter en français le code des composants interactifs, qui concentrent la complexité.
 6. Créer `CONTRIBUTING.md` avec une procédure « ajouter un chapitre » en cinq étapes maximum, rédigée pour quelqu'un qui n'ouvre pas le code au quotidien.
-7. Ne pas générer de contenu pédagogique : seuls trois chapitres de démonstration sont attendus, le reste sera rédigé séparément.
+7. Génération de contenu pédagogique autorisée (levé le 2026-08-07, à la demande explicite de l'utilisateur). Suivre le curriculum de l'Annexe A pour l'ordre et la portée des cours/chapitres, et l'anatomie standard de la section 5.5 pour la structure de chaque chapitre.

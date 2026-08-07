@@ -1,0 +1,92 @@
+---
+titre: "L'injection aveugle basée sur le temps"
+titreCourt: "Injection temporelle"
+description: "Extraire une donnée quand même une différence de comportement vrai/faux n'est plus observable, en mesurant un délai de réponse."
+slug: "injection-temporelle"
+cours: "injections-sql"
+ordre: 5
+duree: 8
+niveau: "avance"
+objectifs:
+  - "Identifier les situations où l'injection aveugle booléenne devient inutilisable"
+  - "Comprendre comment un délai de réponse remplace une différence de contenu comme signal"
+  - "Reconnaître les fonctions de temporisation typiques selon le moteur de base de données"
+prerequis: ["injection-aveugle"]
+tags: ["injections-sql"]
+quiz:
+  - question: "Dans quelle situation une injection temporelle devient-elle nécessaire plutôt qu'une injection aveugle booléenne classique ?"
+    type: "unique"
+    reponses:
+      - texte: "Quand la réponse de l'application est strictement identique, que la condition injectée soit vraie ou fausse"
+        correcte: true
+        explication: "Sans la moindre différence observable dans la réponse, seul un signal extérieur au contenu, comme un délai, peut encore trahir la valeur d'une condition."
+      - texte: "Quand la base de données ne contient aucune donnée sensible"
+        correcte: false
+        explication: "Le contenu de la base ne détermine pas la technique à employer : c'est l'observabilité du comportement de l'application qui compte."
+      - texte: "Quand l'attaquant ne connaît pas le nom des tables"
+        correcte: false
+        explication: "Cette difficulté existe déjà pour l'injection UNION-based et l'injection aveugle booléenne : elle ne motive pas spécifiquement la technique temporelle."
+  - question: "Comment un attaquant interprète-t-il le résultat d'une injection temporelle ?"
+    type: "unique"
+    reponses:
+      - texte: "Un délai de réponse anormalement long confirme que la condition testée était vraie"
+        correcte: true
+        explication: "La fonction de temporisation n'est déclenchée que si la condition injectée s'évalue à vrai : le délai devient le signal, à la place d'un contenu affiché."
+      - texte: "Un message d'erreur HTTP 500 confirme que la condition était vraie"
+        correcte: false
+        explication: "Une erreur HTTP peut avoir de nombreuses causes : ce n'est pas un signal fiable pour cette technique, contrairement au délai mesuré."
+      - texte: "La taille de la réponse en octets confirme que la condition était vraie"
+        correcte: false
+        explication: "C'est le principe d'une autre variante (l'injection aveugle par la taille de la réponse), pas de l'injection temporelle."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Quand même le vrai/faux devient invisible
+
+L'injection aveugle booléenne du chapitre précédent suppose un dernier point d'appui : une différence de comportement observable, même minime, entre une condition vraie et une condition fausse. Certaines applications ne laissent même pas filtrer ça, par exemple une API qui renvoie systématiquement le même message générique, quel que soit le résultat de la requête sous-jacente.
+
+Dans ce cas, il ne reste plus rien à observer dans le *contenu* de la réponse. Mais un signal indépendant du contenu reste disponible : le temps que met le serveur à répondre.
+
+## Faire attendre la base de données à dessein
+
+L'idée consiste à injecter une condition qui, si elle est vraie, déclenche une pause artificielle avant que la base ne réponde. L'attaquant n'a alors qu'à mesurer le temps de réponse : une réponse lente confirme que la condition était vraie, une réponse rapide qu'elle était fausse.
+
+La fonction de temporisation utilisée dépend du moteur de base de données visé :
+
+<BlocCode
+  langue="sql"
+  code={`-- MySQL / MariaDB
+' AND IF(1=1, SLEEP(5), 0)--
+
+-- PostgreSQL
+' AND (SELECT CASE WHEN (1=1) THEN pg_sleep(5) ELSE pg_sleep(0) END)--
+
+-- SQL Server
+'; IF (1=1) WAITFOR DELAY '0:0:5'--`}
+/>
+
+Dans chaque cas, `1=1` est un exemple : en pratique, cette condition est remplacée par le même type de test caractère par caractère vu au chapitre précédent (`SUBSTR(...) = 's'`), avec la temporisation comme unique signal de succès.
+
+<Avertissement type="attention">
+  SQLite (le moteur utilisé par les bacs à sable de ce site) ne dispose d'aucune fonction de temporisation native comme `SLEEP` : ce chapitre reste donc volontairement théorique, sans bloc interactif. Le principe (mesurer un délai plutôt qu'un contenu) reste identique quel que soit le moteur réellement ciblé.
+</Avertissement>
+
+## Une technique plus lente, mais plus discrète... et plus détectable
+
+Cette méthode est nettement plus lente qu'une extraction booléenne classique : chaque caractère nécessite d'attendre le délai complet pour confirmer une hypothèse vraie. Elle reste néanmoins la seule option quand aucune différence de contenu n'est exploitable, et elle est largement automatisée par les mêmes outils que l'injection booléenne.
+
+Du côté défensif, des délais de réponse anormalement longs et répétés sur une même requête paramétrée constituent justement un signal de détection : c'est un des indicateurs que surveillent les outils de protection applicative (WAF).
+
+<EncadreARetenir
+  points={[
+    "L'injection temporelle s'utilise quand aucune différence de contenu n'est observable, ni directe ni booléenne",
+    "Une fonction de temporisation (SLEEP, pg_sleep, WAITFOR DELAY) sert de signal à la place d'un contenu affiché",
+    "Un délai de réponse mesuré remplace un vrai/faux visible : lent confirme la condition, rapide l'infirme",
+    "C'est la technique la plus lente à exploiter, et l'une des plus détectables côté défense"
+  ]}
+/>

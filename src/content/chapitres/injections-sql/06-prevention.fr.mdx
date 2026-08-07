@@ -1,0 +1,96 @@
+---
+titre: "Se protéger : requêtes préparées et bonnes pratiques"
+titreCourt: "Prévention"
+description: "Pourquoi les requêtes préparées neutralisent toutes les techniques d'injection vues dans ce cours, et ce qui complète cette protection."
+slug: "prevention"
+cours: "injections-sql"
+ordre: 6
+duree: 10
+niveau: "debutant"
+objectifs:
+  - "Expliquer pourquoi une requête préparée neutralise une injection SQL, quelle que soit sa forme"
+  - "Réécrire une requête vulnérable construite par concaténation en requête préparée"
+  - "Situer la validation d'entrée et le principe du moindre privilège comme compléments, pas comme substituts"
+prerequis: ["injection-temporelle"]
+tags: ["injections-sql"]
+quiz:
+  - question: "Pourquoi une requête préparée neutralise-t-elle une injection SQL, quelle que soit sa forme (apostrophe, UNION, condition booléenne) ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que la valeur est transmise séparément du texte SQL et n'est jamais réinterprétée comme une instruction"
+        correcte: true
+        explication: "Le moteur SQL analyse d'abord la structure de la requête, placeholders compris, puis lie la valeur telle quelle : elle ne peut plus modifier cette structure, quel que soit son contenu."
+      - texte: "Parce qu'elle chiffre automatiquement les valeurs transmises"
+        correcte: false
+        explication: "Une requête préparée ne chiffre rien : elle sépare simplement le code SQL des données, ce qui suffit à neutraliser l'injection."
+      - texte: "Parce qu'elle interdit les apostrophes dans les valeurs transmises"
+        correcte: false
+        explication: "Une requête préparée accepte très bien une apostrophe dans une valeur : c'est justement le signe qu'elle est traitée comme une donnée, pas comme du SQL."
+  - question: "Pourquoi la validation d'entrée seule (filtrer les caractères suspects) n'est-elle pas une protection suffisante contre les injections SQL ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce qu'il est facile d'oublier un cas particulier ou un contexte (numérique, encodage) qui contourne le filtre"
+        correcte: true
+        explication: "Une liste de caractères à bloquer est presque toujours incomplète : les requêtes préparées retirent le problème à la racine plutôt que de tenter de le filtrer."
+      - texte: "Parce que la validation d'entrée ralentit trop l'application"
+        correcte: false
+        explication: "La performance n'est pas en cause : c'est la fiabilité du filtrage qui pose problème."
+      - texte: "Parce qu'elle est incompatible avec les requêtes préparées"
+        correcte: false
+        explication: "Les deux se combinent très bien : la validation reste utile en complément, jamais comme unique protection."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Revenir à la source du problème
+
+Le premier chapitre de ce cours identifiait la cause commune à toutes les techniques vues depuis : une requête construite par concaténation mélange le code SQL écrit par le développeur et les données fournies par l'utilisateur, sans que le moteur de base de données puisse distinguer l'un de l'autre.
+
+<BlocCode
+  langue="sql"
+  code={`-- Vulnérable : la valeur est concaténée dans le texte SQL
+SELECT * FROM utilisateurs WHERE identifiant = '\${identifiantFourni}'`}
+/>
+
+La solution ne consiste donc pas à filtrer ou échapper des caractères dangereux au cas par cas, mais à empêcher structurellement ce mélange : c'est exactement ce que fait une requête préparée (aussi appelée requête paramétrée).
+
+## Comment fonctionne une requête préparée
+
+Une requête préparée se déroule en deux temps bien séparés. D'abord, le texte SQL est envoyé au moteur de base de données avec des emplacements réservés (`?` ou `:nom`, selon le langage) à la place des valeurs :
+
+<BlocCode langue="sql" code={`SELECT * FROM utilisateurs WHERE identifiant = ?`} />
+
+Le moteur analyse et compile cette structure une bonne fois pour toutes. Ensuite seulement, la valeur réelle est transmise séparément, pour être liée à cet emplacement :
+
+<BlocCode
+  langue="text"
+  code={`requete = preparer("SELECT * FROM utilisateurs WHERE identifiant = ?")
+executer(requete, [identifiantFourni])`}
+/>
+
+À ce stade, `identifiantFourni` a beau contenir `' OR '1'='1` ou `' UNION SELECT ...`, il est traité comme une seule valeur brute à comparer, jamais comme un fragment de SQL à exécuter. La structure de la requête a déjà été fixée avant même que la valeur n'entre en jeu.
+
+<Avertissement type="astuce">
+  Une requête préparée neutralise indifféremment l'apostrophe qui referme une chaîne, l'injection UNION-based, et l'injection aveugle (booléenne ou temporelle) : dans les trois cas, la technique repose sur le fait que la valeur transmise est réinterprétée comme du SQL, ce qu'une requête préparée empêche par construction.
+</Avertissement>
+
+## Ce qui complète, sans jamais remplacer
+
+Les requêtes préparées restent la protection de fond contre l'injection SQL. Quelques pratiques complémentaires réduisent encore l'impact d'une éventuelle faille, sans jamais s'y substituer :
+
+- **Principe du moindre privilège** : le compte utilisé par l'application pour se connecter à la base ne doit avoir que les droits strictement nécessaires (pas de droits d'administration si l'application ne fait que lire et écrire quelques tables).
+- **Validation des entrées** : rejeter un identifiant qui contient des caractères impossibles pour ce champ reste une bonne pratique défensive, mais ne dispense jamais de requêtes préparées, une liste de caractères à bloquer étant presque toujours incomplète.
+- **Pare-feu applicatif (WAF)** : peut détecter et bloquer des charges d'injection connues, mais c'est une mesure compensatoire, pas une correction du problème à la source.
+
+<EncadreARetenir
+  points={[
+    "Une requête préparée sépare structurellement le texte SQL des données transmises",
+    "Une valeur liée à une requête préparée n'est jamais réinterprétée comme du SQL, quel que soit son contenu",
+    "Cette protection neutralise indifféremment toutes les techniques vues dans ce cours",
+    "Moindre privilège, validation d'entrée et WAF restent des compléments utiles, jamais des substituts"
+  ]}
+/>

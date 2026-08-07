@@ -1,6 +1,6 @@
 ---
 titre: "Fiche de révision : injections SQL"
-description: "L'essentiel à retenir sur les injections SQL : principe, contournement d'authentification, UNION-based, et comment s'en protéger."
+description: "L'essentiel à retenir sur les injections SQL : principe, contournement d'authentification, UNION-based, injection aveugle, et comment s'en protéger."
 slug: "injections-sql"
 coursLie: "injections-sql"
 tags: ["injections-sql"]
@@ -15,9 +15,13 @@ questions:
     reponse: "Retourner le même nombre de colonnes que la requête d'origine, avec des types compatibles."
   - question: "Comment déterminer le nombre de colonnes d'une requête à l'aveugle ?"
     reponse: "En incrémentant un ORDER BY jusqu'à provoquer une erreur : une erreur sur ORDER BY N indique que la requête retourne N-1 colonnes."
+  - question: "Comment extraire une donnée quand aucun résultat de requête n'est directement affiché ?"
+    reponse: "Par injection aveugle : transformer l'extraction en une suite de questions vrai/faux (ex. SUBSTR(valeur, 1, 1) = 's'), en observant une différence de comportement de l'application plutôt qu'un contenu affiché."
+  - question: "Que faire quand même une différence de comportement vrai/faux n'est pas observable ?"
+    reponse: "Passer à l'injection temporelle : injecter une temporisation (SLEEP, pg_sleep, WAITFOR DELAY selon le moteur) déclenchée uniquement si la condition est vraie, et mesurer le délai de réponse comme signal."
   - question: "Quelle est la protection efficace contre les injections SQL ?"
-    reponse: "Les requêtes préparées (paramétrées) : la valeur est transmise séparément du texte SQL, jamais concaténée dans la requête elle-même."
-maj: 2026-08-06
+    reponse: "Les requêtes préparées (paramétrées) : la valeur est transmise séparément du texte SQL, jamais concaténée dans la requête elle-même. Cette protection neutralise indifféremment l'apostrophe, UNION-based et l'injection aveugle."
+maj: 2026-08-07
 ---
 
 import BlocCode from '../../components/contenu/BlocCode.astro';

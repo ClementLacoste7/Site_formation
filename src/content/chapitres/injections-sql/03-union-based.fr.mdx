@@ -38,7 +38,19 @@ quiz:
       - texte: "En comptant le nombre de champs du formulaire"
         correcte: false
         explication: "Le nombre de champs d'un formulaire n'a aucun rapport avec le nombre de colonnes d'une requête SQL."
-maj: 2026-08-05
+  - question: "À quoi sert de remplacer temporairement les colonnes injectées par des NULL (UNION SELECT NULL, NULL) ?"
+    type: "unique"
+    reponses:
+      - texte: "À valider le nombre de colonnes sans se soucier de leur type, NULL étant compatible avec n'importe quel type"
+        correcte: true
+        explication: "NULL passe la contrainte de type de UNION quelle que soit la colonne visée, ce qui isole le problème du nombre de colonnes de celui de leurs types."
+      - texte: "À effacer les données de la table ciblée"
+        correcte: false
+        explication: "UNION SELECT ne modifie aucune donnée : c'est une lecture, pas une suppression."
+      - texte: "À accélérer l'exécution de la requête injectée"
+        correcte: false
+        explication: "La performance n'entre pas en jeu ici, seule la validation de structure compte."
+maj: 2026-08-07
 publie: true
 ---
 
@@ -70,6 +82,10 @@ Avant de pouvoir écrire une injection `UNION`, il faut connaître le nombre de 
 
 Une erreur sur `ORDER BY 3` indique que la requête d'origine ne retourne que deux colonnes.
 
+Une fois le nombre de colonnes présumé, une seconde vérification confirme aussi leur type : `UNION SELECT NULL, NULL` doit s'exécuter sans erreur, `NULL` étant accepté par `UNION` quel que soit le type attendu par chaque colonne.
+
+<BlocCode langue="sql" code={`1 UNION SELECT NULL, NULL --`} />
+
 ## Extraire des données d'une autre table
 
 Une fois le nombre de colonnes connu, une requête `UNION SELECT` portant sur une autre table peut être injectée à la place de l'identifiant attendu :
@@ -91,13 +107,14 @@ Essaie-le toi-même sur la base `boutique-vulnerable` (mêmes tables `produits` 
 />
 
 <Avertissement type="info">
-  Cette technique suppose que le résultat de la requête est directement affiché à l'utilisateur. C'est le cas le plus favorable à l'attaquant ; d'autres variantes existent lorsque ce n'est pas le cas, mais elles dépassent le cadre de ce chapitre.
+  Cette technique suppose que le résultat de la requête est directement affiché à l'utilisateur. C'est le cas le plus favorable à l'attaquant : le chapitre suivant montre comment procéder quand ce n'est pas le cas.
 </Avertissement>
 
 <EncadreARetenir
   points={[
     "UNION combine deux SELECT à condition qu'ils retournent le même nombre de colonnes",
     "ORDER BY incrémenté permet de déterminer ce nombre de colonnes à l'aveugle",
+    "UNION SELECT NULL, NULL confirme aussi la compatibilité des types de colonnes",
     "Une fois le nombre de colonnes connu, UNION SELECT peut faire apparaître des données d'une autre table"
   ]}
 />

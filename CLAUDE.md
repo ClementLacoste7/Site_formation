@@ -53,7 +53,7 @@ Lot 4 ajoute `@astrojs/sitemap`, et en `devDependencies` uniquement (jamais exp�
 
 - **Un lot à la fois.** Les lots sont définis en section 17 de `SPEC.md`. Ne jamais anticiper sur un lot ultérieur.
 - À la fin de chaque lot, **vérifier explicitement le critère de sortie** et le signaler.
-- Ne pas générer de contenu pédagogique : seuls trois chapitres de démonstration sont attendus.
+- Génération de contenu pédagogique autorisée (levé le 2026-08-07, à la demande explicite de l'utilisateur). Suivre le curriculum de l'Annexe A de `SPEC.md` pour l'ordre et la portée des cours/chapitres, et l'anatomie standard de la section 5.5 pour la structure de chaque chapitre.
 - Commenter en français le code des composants interactifs.
 
 ---

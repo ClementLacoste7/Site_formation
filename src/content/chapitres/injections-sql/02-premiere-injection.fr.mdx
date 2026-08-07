@@ -38,7 +38,19 @@ quiz:
       - texte: "À accélérer l'exécution de la requête"
         correcte: false
         explication: "Un commentaire SQL n'a aucun effet sur la performance."
-maj: 2026-08-05
+  - question: "Pourquoi tester d'abord une valeur de contrôle (un mot de passe quelconque, non malveillant) avant d'essayer une charge d'injection ?"
+    type: "unique"
+    reponses:
+      - texte: "Pour observer le comportement normal de l'application et le distinguer d'un comportement provoqué par la charge"
+        correcte: true
+        explication: "Sans point de référence, impossible de savoir si un changement de comportement vient réellement de l'injection ou d'autre chose."
+      - texte: "Parce qu'une charge d'injection ne fonctionne jamais du premier coup"
+        correcte: false
+        explication: "Ce n'est pas systématique : tester une valeur de contrôle reste une bonne pratique même quand la charge fonctionne immédiatement."
+      - texte: "Pour éviter d'endommager la base de données"
+        correcte: false
+        explication: "Une simple lecture ne modifie rien : ce n'est pas la raison de cette étape, qui est méthodologique."
+maj: 2026-08-07
 publie: true
 ---
 
@@ -58,6 +70,10 @@ WHERE identifiant = 'ALICE' AND mot_de_passe = 'motdepasse123'`}
 />
 
 Si un utilisateur correspondant existe, l'application considère la connexion réussie. Tant que les deux valeurs viennent directement d'un formulaire sans validation, elles peuvent contenir n'importe quel caractère, y compris une apostrophe, qui referme prématurément la chaîne de texte SQL.
+
+<Avertissement type="astuce">
+  Avant de tenter une charge d'injection, teste toujours une valeur de contrôle anodine (un mot de passe quelconque). Elle sert de point de comparaison : sans savoir à quoi ressemble un échec normal, impossible de repérer avec certitude qu'une charge a changé le comportement de l'application.
+</Avertissement>
 
 ## Refermer la chaîne plus tôt que prévu
 
@@ -94,12 +110,13 @@ Une variante fréquente ajoute un commentaire SQL (`--` ou `#`) pour neutraliser
 
 <BlocCode langue="text" code={`ALICE'--`} />
 
-Tout ce qui suit `--` sur la ligne est ignoré par le moteur SQL. Le mot de passe attendu n'est alors même plus évalué.
+Tout ce qui suit `--` sur la ligne est ignoré par le moteur SQL. Le mot de passe attendu n'est alors même plus évalué. Le choix entre `--` et `#` dépend du moteur : `--` est le plus répandu (attention, certains moteurs exigent un espace après), `#` est spécifique à MySQL.
 
 <EncadreARetenir
   points={[
     "Une simple apostrophe suffit à modifier la structure d'une requête concaténée",
     "'1'='1' rend une condition WHERE toujours vraie, contournant l'authentification",
+    "Tester une valeur de contrôle avant la charge évite de mal interpréter le résultat",
     "Un commentaire SQL (--) permet d'ignorer le reste d'une requête d'origine"
   ]}
 />

@@ -38,7 +38,19 @@ quiz:
       - texte: "La version du navigateur affichée à l'écran"
         correcte: true
         explication: "Ce n'est qu'un affichage informatif : ce n'est un point d'entrée que si cette valeur est elle-même réinjectée dans une requête (ce qui n'est pas le cas ici)."
-maj: 2026-08-05
+  - question: "Pourquoi un champ numérique (comme un identifiant) reste-t-il exploitable même sans apostrophe dans la charge ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce qu'aucune apostrophe n'est nécessaire pour sortir d'un contexte numérique non délimité"
+        correcte: true
+        explication: "Une valeur numérique concaténée sans guillemets n'a pas de délimiteur à refermer : il suffit d'y ajouter directement du SQL, comme un espace suivi d'une clause."
+      - texte: "Parce que les nombres sont toujours convertis en texte par la base de données"
+        correcte: false
+        explication: "Cette conversion n'a rien à voir avec la vulnérabilité : c'est l'absence de délimiteur à contourner qui compte."
+      - texte: "Parce qu'un champ numérique n'est jamais validé côté serveur"
+        correcte: false
+        explication: "La validation est une contre-mesure possible, pas la cause du problème : le problème reste la concaténation elle-même."
+maj: 2026-08-07
 publie: true
 ---
 
@@ -64,6 +76,18 @@ Tant que `idFourniParUtilisateur` contient un nombre, la requête se comporte co
   Une base de données ne fait aucune différence entre le SQL écrit par le développeur et le SQL introduit involontairement via une entrée utilisateur. Elle exécute tout ce qui lui est soumis.
 </Avertissement>
 
+## Contexte texte, contexte numérique
+
+Le chapitre suivant construit son premier exemple autour d'une apostrophe, parce que la valeur y est délimitée par des guillemets simples (un contexte texte). Mais un champ numérique, laissé sans guillemets dans la requête, est tout aussi vulnérable, et parfois plus simple à exploiter : il n'y a alors aucun délimiteur à refermer.
+
+<BlocCode
+  langue="sql"
+  code={`-- Contexte numérique, sans guillemets
+SELECT * FROM produits WHERE id = 1 OR 1=1`}
+/>
+
+Il suffit ici d'ajouter directement une clause après le nombre attendu : `1 OR 1=1` transforme la condition `id = 1` en une condition toujours vraie, sans qu'aucune apostrophe n'ait été nécessaire.
+
 ## Où se cachent ces points d'entrée
 
 Toute donnée qui traverse la frontière entre l'utilisateur et la base de données est un point d'entrée potentiel :
@@ -76,6 +100,7 @@ Toute donnée qui traverse la frontière entre l'utilisateur et la base de donn�
   points={[
     "Une requête construite par concaténation mélange code et données",
     "Toute entrée utilisateur qui atteint une requête SQL est un point d'entrée potentiel",
+    "Un contexte numérique sans guillemets se contourne sans même une apostrophe",
     "Le prochain chapitre montre comment exploiter concrètement ce problème"
   ]}
 />

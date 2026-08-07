@@ -1,0 +1,106 @@
+---
+titre: "L'injection aveugle (boolean-based)"
+titreCourt: "Injection aveugle"
+description: "Extraire une donnée invisible en posant des questions vrai/faux à la base, un caractère à la fois."
+slug: "injection-aveugle"
+cours: "injections-sql"
+ordre: 4
+duree: 12
+niveau: "intermediaire"
+objectifs:
+  - "Reconnaître qu'une différence de comportement, même sans donnée affichée, reste exploitable"
+  - "Transformer une extraction de donnée en une suite de questions vrai/faux"
+  - "Utiliser SUBSTR pour tester un caractère à la fois d'une valeur secrète"
+prerequis: ["union-based"]
+tags: ["injections-sql"]
+quiz:
+  - question: "Qu'est-ce qui distingue une injection aveugle d'une injection UNION-based ?"
+    type: "unique"
+    reponses:
+      - texte: "Aucune donnée n'est directement affichée : seul le comportement de l'application (vrai/faux) est observable"
+        correcte: true
+        explication: "C'est justement ce qui rend la technique nécessaire : sans affichage direct, il faut déduire la donnée indirectement."
+      - texte: "Elle ne fonctionne que sur des champs numériques"
+        correcte: false
+        explication: "Le type de champ (texte ou numérique) n'a pas de rapport avec le caractère aveugle ou non de la technique."
+      - texte: "Elle ne nécessite aucune connaissance du schéma de la base"
+        correcte: false
+        explication: "Comme UNION-based, elle suppose généralement de connaître ou de deviner les noms de table et de colonne visés."
+  - question: "Pourquoi la fonction SUBSTR est-elle centrale dans une extraction aveugle caractère par caractère ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle isole un seul caractère de la valeur secrète, que la condition peut ensuite comparer"
+        correcte: true
+        explication: "En testant chaque position une par une, une suite de réponses vrai/faux reconstitue progressivement la valeur complète."
+      - texte: "Elle chiffre la valeur avant comparaison"
+        correcte: false
+        explication: "SUBSTR ne chiffre rien : c'est une simple extraction de sous-chaîne."
+      - texte: "Elle accélère l'exécution de la requête"
+        correcte: false
+        explication: "La performance n'est pas le sujet ici, seule l'isolation d'un caractère l'est."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import BacASableSQL from '../../../components/interactif/BacASableSQL.astro';
+
+## Quand la réponse ne s'affiche plus
+
+Le chapitre précédent supposait que le résultat de la requête était directement affiché à l'écran. Beaucoup d'applications ne font pas ça : une page produit peut simplement afficher « Produit trouvé » ou « Produit introuvable », sans jamais révéler la moindre colonne de la base.
+
+Cette différence de comportement, même minime, reste une fuite d'information exploitable. Si l'application se comporte différemment selon qu'une condition est vraie ou fausse, alors elle répond, indirectement, à n'importe quelle question qui peut se formuler en vrai ou faux.
+
+<BlocCode
+  langue="sql"
+  code={`SELECT * FROM produits WHERE id = 1 AND 1=1   -- vrai : le produit s'affiche
+SELECT * FROM produits WHERE id = 1 AND 1=2   -- faux : rien ne s'affiche`}
+/>
+
+## Poser une question sur une donnée invisible
+
+La même logique s'applique à une donnée qu'on ne peut pas voir directement, comme un mot de passe stocké dans une autre table. Il suffit de remplacer une condition arbitraire (`1=1`) par une condition qui porte sur cette donnée :
+
+<BlocCode
+  langue="sql"
+  code={`SELECT * FROM produits WHERE id = 1
+  AND (SELECT mot_de_passe FROM utilisateurs WHERE identifiant = 'ADMIN') = 'un-essai-au-hasard'`}
+/>
+
+Si le produit s'affiche, la valeur essayée est correcte. Deviner un mot de passe entier au hasard n'a aucune chance d'aboutir, mais rien n'oblige à comparer la valeur complète d'un coup.
+
+## Extraire un caractère à la fois
+
+`SUBSTR(valeur, position, longueur)` isole une portion précise d'une chaîne. En la combinant à la condition précédente, chaque requête ne teste plus qu'un seul caractère à une position donnée :
+
+<BlocCode
+  langue="sql"
+  code={`SELECT * FROM produits WHERE id = 1
+  AND SUBSTR((SELECT mot_de_passe FROM utilisateurs WHERE identifiant = 'ADMIN'), 1, 1) = 's'`}
+/>
+
+En répétant cette requête pour chaque lettre de l'alphabet à la position 1, puis à la position 2, et ainsi de suite, la valeur complète se reconstitue lettre par lettre, sans jamais la voir directement.
+
+Essaie-le toi-même : la base `boutique-vulnerable` contient un compte `ADMIN`. Devine le premier caractère de son mot de passe.
+
+<BacASableSQL
+  base="boutique-vulnerable"
+  mode="formulaire"
+  gabarit="SELECT * FROM produits WHERE id = 1 AND SUBSTR((SELECT mot_de_passe FROM utilisateurs WHERE identifiant = 'ADMIN'), 1, 1) = '{valeur}'"
+  indice="Essaie une lettre à la fois. Si le produit apparaît dans les résultats, tu as trouvé le bon caractère à cette position."
+/>
+
+<Avertissement type="info">
+  Deviner chaque caractère manuellement, lettre par lettre, est lent. Dans la pratique, cette technique est automatisée par des outils (comme sqlmap), et optimisée par recherche dichotomique : comparer la valeur ASCII du caractère avec `&gt;` ou `&lt;` réduit l'espace de recherche bien plus vite qu'une comparaison d'égalité.
+</Avertissement>
+
+<EncadreARetenir
+  points={[
+    "Une différence de comportement observable (vrai/faux) suffit à extraire une donnée, sans qu'elle soit affichée",
+    "SUBSTR isole un caractère précis d'une valeur secrète pour le comparer un par un",
+    "Répéter le test sur chaque position reconstitue la valeur complète",
+    "Cette technique est lente manuellement : les outils automatisés l'optimisent par recherche dichotomique"
+  ]}
+/>

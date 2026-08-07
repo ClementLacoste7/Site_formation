@@ -512,10 +512,10 @@ Google AdSense. **La candidature ne doit pas être déposée au lancement** : vi
 
 ### 11.3 Règles impératives
 
-1. **Chaque slot réserve sa hauteur dès le rendu initial** (`min-height` fixe, fond neutre). Un décalage de mise en page dégrade le CLS, donc le SEO, donc le trafic, donc les revenus. C'est la règle la plus importante de cette section.
+1. **Chaque slot configuré réserve sa hauteur dès le rendu initial** (`min-height` fixe, fond neutre). Un décalage de mise en page dégrade le CLS, donc le SEO, donc le trafic, donc les revenus. C'est la règle la plus importante de cette section.
 2. **Aucune publicité à moins de 200 px d'un bloc interactif.** L'engagement sur ces blocs est le moteur du trafic.
 3. Aucun interstitiel, aucun format intrusif, aucune publicité au-dessus du premier paragraphe.
-4. Les slots sont désactivables globalement par une variable d'environnement, afin de développer sans publicité. **Lot 5 :** tant qu'AdSense n'est pas validé, `PUB_ACTIVE` piloté ce même interrupteur en mode « placeholder » (encadré neutre à la hauteur définitive, aucun script) plutôt qu'en absence totale de slot — la réservation d'espace doit pouvoir être vérifiée (CLS) avant même l'activation réelle.
+4. Les slots sont désactivables globalement par une variable d'environnement, afin de développer sans publicité. **Lot 5 :** tant qu'AdSense n'est pas validé, `PUB_ACTIVE` pilote ce même interrupteur en mode « placeholder » (encadré neutre à la hauteur définitive, aucun script) plutôt qu'en absence totale de slot, pour que la réservation d'espace puisse être vérifiée (CLS) avant même l'activation réelle. **Ajustement post-Lot 5 :** ce mode placeholder suppose qu'un identifiant AdSense existe. **Tant que `PUBLIC_ADSENSE_CLIENT_ID` est vide, `SlotPub` ne rend rien du tout** (ni cadre, ni fond, ni hauteur réservée) : sans identifiant, il n'y a rien à activer un jour, et un espace vide serait aussi gênant qu'un cadre visible. `PUB_ACTIVE` n'a d'effet qu'une fois un identifiant renseigné.
 
 ### 11.4 Consentement (RGPD)
 

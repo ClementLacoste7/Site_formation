@@ -74,4 +74,4 @@ npm run build    # build de production
 npm run preview  # prévisualisation du build
 ```
 
-Variables d'environnement (voir `.env.example`) : `PUB_ACTIVE` (`true` uniquement une fois AdSense validé ET `PUBLIC_ADSENSE_CLIENT_ID` renseigné — sinon `SlotPub` reste en mode placeholder neutre, à la bonne hauteur, sans aucun script), `PUBLIC_GA_MEASUREMENT_ID` (Google Analytics, chargé seulement après consentement — vide = no-op même si l'utilisateur accepte).
+Variables d'environnement (voir `.env.example`) : `PUB_ACTIVE` et `PUBLIC_ADSENSE_CLIENT_ID` pilotent `SlotPub`. **Tant que `PUBLIC_ADSENSE_CLIENT_ID` est vide, `SlotPub` ne rend rien du tout** (ni cadre, ni fond, ni hauteur réservée) : un site sans identifiant AdSense se comporte comme un site sans aucune publicité. Une fois un identifiant renseigné, `PUB_ACTIVE` redevient l'interrupteur de développement entre l'encadré placeholder (`false`) et le slot réellement actif (`true`). `PUBLIC_GA_MEASUREMENT_ID` (Google Analytics, chargé seulement après consentement : vide = no-op même si l'utilisateur accepte).

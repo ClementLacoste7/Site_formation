@@ -13,7 +13,36 @@
   },
   "accueil": {
     "titre": "Cybercursus",
-    "description": "Apprends la cybersécurité en pratiquant, directement dans ton navigateur."
+    "description": "Apprends la cybersécurité en pratiquant, directement dans ton navigateur.",
+    "accrocheTitre": "Apprends à casser des applications avant qu'un attaquant ne le fasse.",
+    "accrocheSousTitre": "Des cours de cybersécurité pratiques : de vraies vulnérabilités à exploiter soi-même, dans le navigateur, sans rien installer.",
+    "terminalInvite": "invite@cybercursus",
+    "terminalLignes": [
+      { "prompt": "$", "texte": "whoami" },
+      { "prompt": ">", "texte": "invite" },
+      { "prompt": "$", "texte": "cat mission.txt" },
+      { "prompt": ">", "texte": "comprendre les failles web en les exploitant soi-meme" },
+      { "prompt": "$", "texte": "./commencer.sh" }
+    ],
+    "ctaCommencer": "Commencer",
+    "ctaCatalogue": "Voir tous les cours",
+    "sandboxTitre": "Essaie tout de suite",
+    "sandboxDescription": "Un vrai formulaire de connexion, une vraie base SQL en mémoire dans ton navigateur. Trouve la valeur qui contourne l'authentification.",
+    "pourquoiTitre": "Pourquoi ce site",
+    "pourquoiPoints": [
+      {
+        "titre": "Pratique, pas seulement théorique",
+        "texte": "Chaque concept s'accompagne d'un bloc interactif réellement fonctionnel : bac à sable SQL, console Python, bac à sable web isolé."
+      },
+      {
+        "titre": "Gratuit et sans compte",
+        "texte": "Aucune inscription, aucun mur payant. Le site est financé par de la publicité display, jamais par tes données."
+      },
+      {
+        "titre": "Rien à installer",
+        "texte": "Tout s'exécute dans ton navigateur : base de données, interpréteur Python et bacs à sable isolés se chargent au clic, jamais avant."
+      }
+    ]
   },
   "filAriane": {
     "accueil": "Accueil"
@@ -76,7 +105,7 @@
     "executer": "Exécuter",
     "execution": "Exécution…",
     "consoleVide": "Aucune sortie pour le moment.",
-    "delaiDepasse": "Délai d'exécution dépassé (10 s) — le script a été arrêté."
+    "delaiDepasse": "Délai d'exécution dépassé (10 s), le script a été arrêté."
   },
   "quiz": {
     "valider": "Valider",

@@ -35,14 +35,17 @@ Lot 4 ajoute `@astrojs/sitemap`, et en `devDependencies` uniquement (jamais exp�
 3. **Aucun JavaScript n'est chargé sur une page qui n'en a pas besoin.**
 4. **Chaque emplacement publicitaire réserve sa hauteur dès le rendu initial** (`min-height` fixe). Aucun décalage de mise en page toléré.
 5. **Aucune publicité à moins de 200 px d'un bloc interactif.**
-6. **Un script inline bloquant dans le `<head>`** applique le thème avant le premier rendu — sinon flash blanc en mode sombre.
+6. **Un script inline bloquant dans le `<head>`** applique le thème avant le premier rendu (sinon flash du thème par défaut chez un visiteur ayant choisi l'autre thème).
 7. **Aucune chaîne de texte d'interface en dur.** Tout passe par `src/i18n/fr.json`, même si le site est monolingue en V1.
 8. **Toutes les URLs sont préfixées par la langue** (`/fr/...`). Le schéma d'URL de la section 5.2 est définitif.
 9. **Les iframes de démonstration utilisent `sandbox="allow-scripts"` SANS `allow-same-origin`.** Le site héberge des démonstrations XSS réelles.
 10. **Le build échoue** si un fichier de contenu ne respecte pas son schéma Zod.
 11. **Le contenu pédagogique reste lisible sans JavaScript.**
 12. **Toute ressource de plus de 20 Ko (JS ou tierce) se charge au clic explicite, jamais au scroll ni à l'entrée en viewport.** Atteindre le bas d'une page ne signifie pas vouloir déclencher un chargement lourd — le scroll n'est pas un consentement. Un bouton statique (« Essayer ce code », « Afficher les commentaires », etc.) rend l'action explicite. `client:visible` reste acceptable pour de petits îlots (quelques Ko) mais pas comme mécanisme de lazy-loading pour des widgets tiers ou des bundles conséquents (CodeMirror, Giscus, Pyodide…).
-13. **Consent Mode v2 en "denied" par défaut sur tous les signaux.** Aucun cookie, aucun script GA4/AdSense avant un choix explicite (accepter ou refuser), stocké en localStorage — jamais un cookie. Les deux boutons du bandeau ont strictement le même poids visuel (taille, style, position) : le refus n'est jamais un choix puni ou caché.
+13. **Consent Mode v2 en "denied" par défaut sur tous les signaux.** Aucun cookie, aucun script GA4/AdSense avant un choix explicite (accepter ou refuser), stocké en localStorage (jamais un cookie). Les deux boutons du bandeau ont strictement le même poids visuel (taille, style, position) : le refus n'est jamais un choix puni ou caché.
+14. **Jamais d'emoji, nulle part** : ni dans l'interface, ni dans le contenu, ni dans les commentaires de code. Utiliser des icônes SVG inline ou du texte pour toute indication visuelle.
+15. **Jamais de tiret cadratin (—) ni demi-cadratin (–) dans les textes**, quel que soit le fichier (interface, contenu pédagogique, commentaires de code). Utiliser deux-points, virgules ou parenthèses selon le sens de la phrase.
+16. **Thème : choix stocké > `prefers-color-scheme` > sombre par défaut** (identité "terminal"). "Sombre par défaut" s'applique quand on ne sait rien du visiteur, jamais contre un réglage système explicite. Bascule manuelle conservée et persistée en localStorage.
 
 ---
 

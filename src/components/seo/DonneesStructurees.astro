@@ -35,7 +35,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 function construire(): Record<string, unknown> {
   switch (props.type) {
     case 'BreadcrumbList': {
-      // FilAriane (composant visuel) préfixe toujours "Accueil" — le
+      // FilAriane (composant visuel) préfixe toujours "Accueil" : le
       // BreadcrumbList structuré doit représenter exactement le même
       // chemin, sans quoi les deux divergent silencieusement.
       const tousLesFils: Fil[] = [{ label: t.filAriane.accueil, href: '/fr/' }, ...props.fils];

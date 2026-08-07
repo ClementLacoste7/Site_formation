@@ -1,7 +1,7 @@
 // Pagefind est généré en post-build (voir le script npm "build") : ce module
 // ne charge son runtime qu'à la première recherche effective, jamais au
 // rendu de la page. En développement (astro dev), l'index n'existe pas
-// encore — la recherche échoue silencieusement, c'est attendu.
+// encore : la recherche échoue silencieusement, c'est attendu.
 
 export interface ResultatRecherche {
   url: string;

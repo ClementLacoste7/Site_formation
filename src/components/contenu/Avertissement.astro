@@ -9,13 +9,13 @@ const { type = 'info' } = Astro.props;
 const t = useTranslations();
 
 const styles = {
-  info: { couleur: 'var(--couleur-information)', icone: 'ℹ️' },
-  attention: { couleur: 'var(--couleur-attention)', icone: '⚠️' },
-  danger: { couleur: 'var(--couleur-danger)', icone: '⛔' },
-  astuce: { couleur: 'var(--couleur-succes)', icone: '💡' }
+  info: 'var(--couleur-information)',
+  attention: 'var(--couleur-attention)',
+  danger: 'var(--couleur-danger)',
+  astuce: 'var(--couleur-succes)'
 } as const;
 
-const { couleur, icone } = styles[type];
+const couleur = styles[type];
 const libelle = t.avertissement[type];
 ---
 
@@ -23,7 +23,7 @@ const libelle = t.avertissement[type];
   class="not-prose my-4 rounded-lg border-l-4 p-4 text-sm"
   style={`border-color: ${couleur}; background-color: var(--couleur-fond-secondaire);`}
 >
-  <p class="mb-1 font-semibold" style={`color: ${couleur};`}>{icone} {libelle}</p>
+  <p class="mb-1 font-mono font-semibold uppercase tracking-wide" style={`color: ${couleur};`}>{libelle}</p>
   <div>
     <slot />
   </div>

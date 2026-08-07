@@ -486,8 +486,8 @@ Le champ `version` permet une migration future sans perte. La structure est volo
 ### 10.3 Thème clair / sombre
 
 - Variables CSS définies dans `global.css`, basculées par un attribut `data-theme` sur `<html>`.
-- Valeur par défaut : `prefers-color-scheme`, surchargée par le choix stocké en localStorage.
-- **Un script inline bloquant dans le `<head>`** applique le thème avant le premier rendu. Sans cela, un flash blanc apparaît au chargement en mode sombre. Ce point est non négociable.
+- **Ordre de priorité (Lot 7) :** choix explicite déjà stocké en localStorage, sinon `prefers-color-scheme`, sinon sombre par défaut (identité « terminal »). Le sombre par défaut s'applique quand on ne sait rien du visiteur, jamais contre un réglage système explicite. `:root` porte directement la palette sombre (donc aussi le défaut pour un visiteur sans JavaScript, qui n'a par définition pas de préférence détectée).
+- **Un script inline bloquant dans le `<head>`** applique le thème avant le premier rendu. Sans cela, un flash du thème par défaut apparaît chez un visiteur ayant choisi l'autre thème. Ce point est non négociable.
 
 ---
 
@@ -616,20 +616,26 @@ Lisibilité prioritaire : le contenu est long, technique, lu sur écran. Densit�
 ### 14.2 Typographie
 
 - Corps de texte : police système sans-serif, 17 px minimum, interligne 1.7.
+- Logo, métadonnées et labels techniques (langage d'un bloc de code, niveau d'un cours, etc.) : police système à chasse fixe (`font-mono`).
 - Code : police à chasse fixe, 15 px.
 - Titres : échelle modulaire, `<h1>` nettement distinct.
-- Polices auto-hébergées dans `/public/fonts`, préchargées, `font-display: swap`.
+- **Aucune police auto-hébergée (Lot 7) :** contrairement à la version initiale de cette section, aucune police n'est chargée par le navigateur. Les empilements système (sans-serif et monospace) suffisent aux deux besoins ci-dessus et évitent toute requête réseau supplémentaire, cohérent avec la priorité de performance de ce projet. `@fontsource/inter` reste utilisé, mais uniquement au build pour la génération des images Open Graph (section 12.4), jamais livré au navigateur.
 
 ### 14.3 Couleurs
 
-Définies en variables CSS, deux jeux (clair / sombre) :
+Identité « terminal », **sombre par défaut** (voir 10.3). Définies en variables CSS, deux jeux (clair / sombre) :
 
 - Fond, fond secondaire, bordure
-- Texte principal, texte atténué
-- Accent principal (identité du site)
+- Texte principal (blanc cassé en thème sombre, jamais `#ffffff` pur), texte atténué
+- Accent principal (vert : vif en thème sombre, foncé en thème clair)
 - Sémantiques : succès, attention, danger, information
+- Fenêtre terminal (`--couleur-terminal-fond` / `--couleur-terminal-texte`) : surface volontairement toujours sombre dans les deux thèmes, utilisée par les blocs techniques (voir 14.1bis ci-dessous). Bordure fine dans la couleur d'accent du thème actif.
 
-Contraste conforme WCAG AA au minimum sur les deux thèmes.
+Contraste conforme WCAG AA au minimum sur les deux thèmes (vérifié par calcul du ratio de luminance relative au Lot 7, pas seulement par audit Lighthouse ponctuel).
+
+### 14.1bis Blocs techniques (Lot 7)
+
+Les blocs de code, bacs à sable et l'accroche de l'accueil partagent une identité « fenêtre terminal » (classe `.fenetre-terminal` de `global.css`) : surface plus sombre que le fond de page, bordure fine verte, coins arrondis, en-tête à trois pastilles. Cette surface ne suit pas le thème clair/sombre de la page : un terminal reste sombre par construction.
 
 ### 14.4 Responsive
 
@@ -751,6 +757,19 @@ Ajouté après coup : les fiches sont un type de contenu à part entière (sché
 - Vérification responsive et accessibilité clavier
 
 **Critère de sortie :** tous les objectifs chiffrés de la section 15 atteints.
+
+---
+
+### Lot 7 — Identité visuelle et refonte de l'accueil
+
+- Règles d'écriture (invariants 14 et 15 de `CLAUDE.md`) appliquées sur l'ensemble du dépôt : plus aucun emoji, plus aucun tiret cadratin/demi-cadratin.
+- Thème sombre par défaut (identité « terminal »), bascule vers le clair conservée (voir 10.3).
+- Palette de couleurs revue (14.3), vérifiée WCAG AA par calcul de ratio sur les deux thèmes.
+- Identité « fenêtre terminal » pour les blocs techniques (14.1bis), appliquée à `BlocCode.astro` et donc à tous les bacs à sable qui l'utilisent.
+- Logo texte monospace avec curseur clignotant (respecte `prefers-reduced-motion`), favicon SVG refait.
+- Page d'accueil refondue : accroche avec terminal qui s'écrit seul (animation CSS pure), CTA, bac à sable SQL jouable préchargé, grille des cours, section « pourquoi ce site ».
+
+**Critère de sortie :** poids JS et CLS de l'accueil mesurés et communiqués ; aucune régression sur les objectifs chiffrés de la section 15.
 
 ---
 

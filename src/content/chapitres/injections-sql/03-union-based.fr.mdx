@@ -49,7 +49,7 @@ import BacASableSQL from '../../../components/interactif/BacASableSQL.astro';
 
 ## Combiner deux requêtes avec UNION
 
-L'opérateur `UNION` combine les résultats de deux requêtes `SELECT` en un seul jeu de résultats. C'est un outil légitime du langage SQL — mais il devient une arme quand une des deux requêtes est injectée par un attaquant.
+L'opérateur `UNION` combine les résultats de deux requêtes `SELECT` en un seul jeu de résultats. C'est un outil légitime du langage SQL, mais il devient une arme quand une des deux requêtes est injectée par un attaquant.
 
 Prenons une page produit qui exécute la requête suivante, où `id` vient de l'URL :
 
@@ -59,7 +59,7 @@ Prenons une page produit qui exécute la requête suivante, où `id` vient de l'
 
 ## Trouver le nombre de colonnes à l'aveugle
 
-Avant de pouvoir écrire une injection `UNION`, il faut connaître le nombre de colonnes de la requête d'origine — généralement inconnu de l'attaquant. La technique classique consiste à incrémenter un `ORDER BY` jusqu'à provoquer une erreur :
+Avant de pouvoir écrire une injection `UNION`, il faut connaître le nombre de colonnes de la requête d'origine (généralement inconnu de l'attaquant). La technique classique consiste à incrémenter un `ORDER BY` jusqu'à provoquer une erreur :
 
 <BlocCode
   langue="sql"

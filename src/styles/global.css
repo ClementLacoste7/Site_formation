@@ -5,43 +5,60 @@
    inline anti-flash), et non par prefers-color-scheme seul. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* Identité "terminal, sombre par défaut" (voir invariant 16 de CLAUDE.md) :
+   :root porte directement la palette sombre, pour qu'un visiteur sans
+   JavaScript obtienne aussi le thème par défaut voulu. [data-theme="light"]
+   surcharge vers le thème clair uniquement sur choix explicite stocké. */
 :root {
-  --couleur-fond: #ffffff;
-  --couleur-fond-secondaire: #f3f4f6;
-  --couleur-bordure: #e5e7eb;
-  --couleur-texte: #111827;
-  --couleur-texte-attenue: #4b5563;
-  --couleur-accent: #2563eb;
-  --couleur-succes: #16a34a;
-  --couleur-attention: #d97706;
-  --couleur-danger: #b91c1c;
-  --couleur-information: #0891b2;
-
-  /* Palette de coloration syntaxique pour l'éditeur CodeMirror (EditeurCodeMirror). */
-  --code-mot-cle: #d73a49;
-  --code-chaine: #22863a;
-  --code-commentaire: #6a737d;
-  --code-nombre: #005cc5;
-  --code-fonction: #6f42c1;
-}
-
-[data-theme="dark"] {
-  --couleur-fond: #0f172a;
-  --couleur-fond-secondaire: #1e293b;
-  --couleur-bordure: #334155;
-  --couleur-texte: #f1f5f9;
-  --couleur-texte-attenue: #94a3b8;
-  --couleur-accent: #60a5fa;
-  --couleur-succes: #4ade80;
+  --couleur-fond: #14171a;
+  --couleur-fond-secondaire: #20242a;
+  --couleur-bordure: #2c3137;
+  --couleur-texte: #e8eaed;
+  --couleur-texte-attenue: #9ba3aa;
+  --couleur-accent: #97c459;
+  --couleur-succes: #97c459;
   --couleur-attention: #fbbf24;
   --couleur-danger: #f87171;
   --couleur-information: #22d3ee;
 
+  /* Surface des fenêtres terminal (BlocCode, bacs à sable, accroche de
+     l'accueil) : toujours sombre, dans les deux thèmes. Un terminal est
+     un élément de marque autonome, pas un panneau qui suit le thème de
+     la page (voir Lot 7 / CLAUDE.md). */
+  --couleur-terminal-fond: #0d0f11;
+  --couleur-terminal-texte: #e8eaed;
+
+  /* Palette de coloration syntaxique pour l'éditeur CodeMirror (EditeurCodeMirror). */
   --code-mot-cle: #ff7b72;
   --code-chaine: #7ee787;
   --code-commentaire: #8b949e;
   --code-nombre: #79c0ff;
   --code-fonction: #d2a8ff;
+
+  /* Empilement monospace pour le logo, les métadonnées et les labels
+     techniques (voir Tailwind font-mono) : polices système uniquement,
+     aucune police auto-hébergée, conformément à la priorité de
+     performance du site (voir CLAUDE.md, section Stack imposée). */
+  --police-mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+[data-theme="light"] {
+  --couleur-fond: #ffffff;
+  --couleur-fond-secondaire: #f3f4f6;
+  --couleur-bordure: #e5e7eb;
+  --couleur-texte: #111827;
+  --couleur-texte-attenue: #4b5563;
+  --couleur-accent: #3b6d11;
+  --couleur-succes: #3b6d11;
+  --couleur-attention: #8a5a06;
+  --couleur-danger: #b91c1c;
+  --couleur-information: #0c6478;
+
+  --code-mot-cle: #d73a49;
+  --code-chaine: #22863a;
+  --code-commentaire: #6a737d;
+  --code-nombre: #005cc5;
+  --code-fonction: #6f42c1;
 }
 
 body {
@@ -76,4 +93,39 @@ body {
 
 .prose :where(h2, h3):not(:where([class~="not-prose"] *)) {
   scroll-margin-top: 1rem;
+}
+
+/* Fenêtre terminal : identité visuelle partagée par les blocs techniques
+   (blocs de code, bacs à sable, accroche de l'accueil). Surface toujours
+   plus sombre que le fond de page (--couleur-terminal-fond), bordure fine
+   dans la couleur d'accent du thème, coins arrondis, en-tête à trois
+   pastilles. Voir CLAUDE.md (Lot 7) pour la règle d'ensemble. */
+.fenetre-terminal {
+  border-radius: 0.75rem;
+  border: 1px solid var(--couleur-accent);
+  background-color: var(--couleur-terminal-fond);
+  color: var(--couleur-terminal-texte);
+  overflow: hidden;
+}
+
+.fenetre-terminal__entete {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--couleur-accent) 35%, transparent);
+}
+
+.fenetre-terminal__pastille {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 9999px;
+  background-color: color-mix(in srgb, var(--couleur-terminal-texte) 25%, transparent);
+}
+
+.fenetre-terminal__titre {
+  margin-left: 0.35rem;
+  font-family: var(--police-mono);
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--couleur-terminal-texte) 60%, transparent);
 }

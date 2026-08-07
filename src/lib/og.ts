@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 
-// Fichiers statiques de @fontsource/inter (build-time uniquement — jamais
+// Fichiers statiques de @fontsource/inter (build-time uniquement, jamais
 // livrés au navigateur). "latin" + "latin-ext" combinés : le français a
 // besoin des deux (accents hors du sous-ensemble "latin" de base).
 const dossierPolices = new URL('../../node_modules/@fontsource/inter/files/', import.meta.url);

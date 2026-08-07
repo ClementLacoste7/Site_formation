@@ -12,7 +12,12 @@ const t = useTranslations();
 >
   <div class="flex items-center justify-between border-b p-3" style="border-color: var(--couleur-bordure);">
     <h2 class="font-semibold">{t.recherche.titre}</h2>
-    <button type="button" data-fermer-recherche aria-label={t.recherche.fermer}>✕</button>
+    <button type="button" data-fermer-recherche aria-label={t.recherche.fermer}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line x1="5" y1="5" x2="19" y2="19"></line>
+        <line x1="19" y1="5" x2="5" y2="19"></line>
+      </svg>
+    </button>
   </div>
   <div class="p-4">
     <RechercheUI id="modale" />

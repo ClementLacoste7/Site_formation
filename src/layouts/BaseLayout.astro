@@ -22,13 +22,20 @@ const lang = Astro.currentLocale ?? 'fr';
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Script bloquant : pose data-theme avant le premier rendu pour éviter le flash. -->
+    <!-- Script bloquant : pose data-theme avant le premier rendu pour éviter le
+         flash. Ordre de priorité (invariant 16 de CLAUDE.md) : choix explicite
+         déjà stocké, sinon préférence système, sinon sombre par défaut.
+         "Sombre par défaut" s'applique quand on ne sait rien du visiteur, pas
+         contre un réglage système explicite. -->
     <script is:inline>
       (function () {
         const stocke = localStorage.getItem('theme');
+        const preferenceConnue = typeof window.matchMedia === 'function';
         const theme =
           stocke ||
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          (preferenceConnue && window.matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark');
         document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>

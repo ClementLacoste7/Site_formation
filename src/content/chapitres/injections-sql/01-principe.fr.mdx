@@ -68,9 +68,9 @@ Tant que `idFourniParUtilisateur` contient un nombre, la requête se comporte co
 
 Toute donnée qui traverse la frontière entre l'utilisateur et la base de données est un point d'entrée potentiel :
 
-- **Champs de formulaire** — un champ de connexion, de recherche ou de commentaire, dès lors que sa valeur finit dans une requête.
-- **Paramètres d'URL** — un identifiant transmis en paramètre (`?id=42`) est aussi exposé qu'un champ de formulaire.
-- **En-têtes HTTP** — moins visibles, mais tout aussi exploitables si leur valeur est réutilisée dans une requête (`User-Agent`, cookies, etc.).
+- **Champs de formulaire** : un champ de connexion, de recherche ou de commentaire, dès lors que sa valeur finit dans une requête.
+- **Paramètres d'URL** : un identifiant transmis en paramètre (`?id=42`) est aussi exposé qu'un champ de formulaire.
+- **En-têtes HTTP** : moins visibles, mais tout aussi exploitables si leur valeur est réutilisée dans une requête (`User-Agent`, cookies, etc.).
 
 <EncadreARetenir
   points={[

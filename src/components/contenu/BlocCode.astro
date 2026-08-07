@@ -13,26 +13,26 @@ const t = useTranslations();
 const id = `bloc-code-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
-<div
-  class="not-prose relative my-4 overflow-hidden rounded-lg border"
-  style="border-color: var(--couleur-bordure);"
-  data-bloc-code={id}
->
-  <button
-    type="button"
-    class="absolute right-2 top-2 rounded border px-2 py-1 text-xs"
-    style="border-color: var(--couleur-bordure); background-color: var(--couleur-fond);"
-    data-bouton-copier={id}
-  >
-    {t.code.copier}
-  </button>
+{/* Fenêtre terminal (voir CLAUDE.md, invariants Lot 7) : surface toujours
+    sombre, bordure verte, en-tête à trois pastilles. Le thème Shiki reste
+    donc figé sur "github-dark" quel que soit le thème de la page. */}
+<div class="not-prose fenetre-terminal my-4" data-bloc-code={id}>
+  <div class="fenetre-terminal__entete">
+    <span class="fenetre-terminal__pastille"></span>
+    <span class="fenetre-terminal__pastille"></span>
+    <span class="fenetre-terminal__pastille"></span>
+    <span class="fenetre-terminal__titre">{langue}</span>
+    <button
+      type="button"
+      class="ml-auto rounded border px-2 py-1 font-mono text-xs"
+      style="border-color: var(--couleur-accent); color: var(--couleur-terminal-texte);"
+      data-bouton-copier={id}
+    >
+      {t.code.copier}
+    </button>
+  </div>
   <div class:list={['overflow-x-auto p-4 text-sm', { 'avec-numeros': numerosDeLigne }]}>
-    <Code
-      code={code}
-      lang={langue}
-      themes={{ light: 'github-light', dark: 'github-dark' }}
-      defaultColor={false}
-    />
+    <Code code={code} lang={langue} theme="github-dark" />
   </div>
 </div>
 
@@ -62,25 +62,14 @@ const id = `bloc-code-${Math.random().toString(36).slice(2, 9)}`;
     width: 2rem;
     margin-right: 1rem;
     text-align: right;
-    color: var(--couleur-texte-attenue);
+    color: color-mix(in srgb, var(--couleur-terminal-texte) 55%, transparent);
     user-select: none;
   }
 
-  /* Double thème Shiki (voir <Code themes defaultColor={false}> ci-dessus) :
-     la palette suit data-theme, pas prefers-color-scheme. Astro nomme la
-     classe générée "astro-code", pas "shiki". */
-  :global(.astro-code),
-  :global(.astro-code span) {
-    color: var(--shiki-light);
-  }
+  /* La fenêtre terminal (voir .fenetre-terminal, global.css) porte déjà le
+     fond sombre : on neutralise le fond que Shiki appose sur <pre> pour
+     éviter un double-fond, sans toucher à sa palette syntaxique. */
   :global(.astro-code) {
-    background-color: var(--shiki-light-bg) !important;
-  }
-  :global([data-theme='dark'] .astro-code),
-  :global([data-theme='dark'] .astro-code span) {
-    color: var(--shiki-dark);
-  }
-  :global([data-theme='dark'] .astro-code) {
-    background-color: var(--shiki-dark-bg) !important;
+    background-color: transparent !important;
   }
 </style>

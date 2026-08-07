@@ -1,7 +1,7 @@
 // Gestion de la progression en localStorage (section 9.3 de SPEC.md).
 // Toute lecture/écriture est défensive : le mode privé de Safari fait
 // échouer setItem, et un contenu corrompu ou d'un schéma inconnu ne doit
-// jamais casser l'affichage — au pire, la progression repart de zéro.
+// jamais casser l'affichage (au pire, la progression repart de zéro).
 
 export interface EntreeChapitre {
   vu: boolean;

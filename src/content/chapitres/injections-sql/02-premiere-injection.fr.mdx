@@ -57,7 +57,7 @@ Prenons un formulaire de connexion classique. Le serveur reçoit un identifiant 
 WHERE identifiant = 'ALICE' AND mot_de_passe = 'motdepasse123'`}
 />
 
-Si un utilisateur correspondant existe, l'application considère la connexion réussie. Tant que les deux valeurs viennent directement d'un formulaire sans validation, elles peuvent contenir n'importe quel caractère — y compris une apostrophe, qui referme prématurément la chaîne de texte SQL.
+Si un utilisateur correspondant existe, l'application considère la connexion réussie. Tant que les deux valeurs viennent directement d'un formulaire sans validation, elles peuvent contenir n'importe quel caractère, y compris une apostrophe, qui referme prématurément la chaîne de texte SQL.
 
 ## Refermer la chaîne plus tôt que prévu
 
@@ -73,7 +73,7 @@ Une fois insérée dans le gabarit de requête, elle produit :
 WHERE identifiant = 'ALICE' AND mot_de_passe = '' OR '1'='1'`}
 />
 
-La condition `'1'='1'` est toujours vraie, quel que soit l'identifiant. La clause `WHERE` devient donc systématiquement vraie, et la requête retourne un utilisateur — sans que le bon mot de passe ait été fourni.
+La condition `'1'='1'` est toujours vraie, quel que soit l'identifiant. La clause `WHERE` devient donc systématiquement vraie, et la requête retourne un utilisateur, sans que le bon mot de passe ait été fourni.
 
 Essaie-le toi-même : saisis `' OR '1'='1` dans le champ ci-dessous et observe la requête se construire, puis exécute-la sur une vraie base en mémoire.
 

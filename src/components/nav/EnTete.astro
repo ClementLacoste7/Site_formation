@@ -6,7 +6,9 @@ const t = useTranslations();
 
 <header class="border-b" style="border-color: var(--couleur-bordure);">
   <div class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-    <a href="/fr/" class="shrink-0 text-lg font-semibold">Cybercursus</a>
+    <a href="/fr/" class="shrink-0 font-mono text-lg font-semibold" style="color: var(--couleur-texte);">
+      cybercursus<span class="logo-curseur" aria-hidden="true"></span>
+    </a>
     <nav class="flex items-center gap-2 text-sm sm:gap-4">
       <a href="/fr/cours/">{t.nav.cours}</a>
       <a href="/fr/fiches/">{t.nav.fiches}</a>
@@ -15,23 +17,61 @@ const t = useTranslations();
         data-ouvrir-recherche
         aria-label={t.nav.recherche}
         title={`${t.nav.recherche} (${t.recherche.raccourci})`}
-        class="rounded border px-2 py-1"
+        class="rounded border p-1.5"
         style="border-color: var(--couleur-bordure);"
       >
-        🔍
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
       </button>
       <button
         id="bascule-theme"
         type="button"
         aria-label={t.theme.bascule}
-        class="rounded border px-2 py-1"
+        class="rounded border p-1.5"
         style="border-color: var(--couleur-bordure);"
       >
-        🌓
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="hidden dark:block">
+          <circle cx="12" cy="12" r="4"></circle>
+          <line x1="12" y1="2" x2="12" y2="4"></line>
+          <line x1="12" y1="20" x2="12" y2="22"></line>
+          <line x1="4.9" y1="4.9" x2="6.3" y2="6.3"></line>
+          <line x1="17.7" y1="17.7" x2="19.1" y2="19.1"></line>
+          <line x1="2" y1="12" x2="4" y2="12"></line>
+          <line x1="20" y1="12" x2="22" y2="12"></line>
+          <line x1="4.9" y1="19.1" x2="6.3" y2="17.7"></line>
+          <line x1="17.7" y1="6.3" x2="19.1" y2="4.9"></line>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="block dark:hidden">
+          <path d="M21 12.5A8.5 8.5 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5Z"></path>
+        </svg>
       </button>
     </nav>
   </div>
 </header>
+
+<style>
+  /* Curseur clignotant du logo terminal : respecte prefers-reduced-motion. */
+  .logo-curseur {
+    display: inline-block;
+    width: 0.55em;
+    height: 1em;
+    margin-left: 0.1em;
+    background-color: var(--couleur-accent);
+    vertical-align: -0.15em;
+    animation: clignoter 1.1s steps(1) infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .logo-curseur {
+      animation: none;
+    }
+  }
+  @keyframes clignoter {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+</style>
 
 <script>
   import { initBasculeTheme } from '../../scripts/theme';

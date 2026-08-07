@@ -1,6 +1,6 @@
 // Consent Mode v2 (section 11.4 de SPEC.md) : tous les signaux sont
 // "denied" par défaut, mis à jour uniquement au choix explicite de
-// l'utilisateur. Le choix est stocké en localStorage (jamais un cookie) —
+// l'utilisateur. Le choix est stocké en localStorage (jamais un cookie) :
 // c'est la seule trace laissée avant consentement, et ce n'est pas un
 // mécanisme de suivi mais l'enregistrement du choix lui-même.
 
@@ -85,7 +85,7 @@ export function initialiserConsentModeDefaut(): void {
 
 /**
  * Met à jour Consent Mode et déclenche le chargement des scripts
- * tiers concernés — jamais avant ce point.
+ * tiers concernés, jamais avant ce point.
  */
 export function appliquerConsentement(
   choix: Omit<Consentement, 'date'>,

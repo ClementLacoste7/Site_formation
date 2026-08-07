@@ -1,13 +1,60 @@
 ---
+import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import DonneesStructurees from '../../components/seo/DonneesStructurees.astro';
+import CarteCours from '../../components/contenu/CarteCours.astro';
+import BacASableSQL from '../../components/interactif/BacASableSQL.astro';
 import { locales, useTranslations } from '../../i18n/utils';
+import { urlChapitre } from '../../lib/contenu';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
 }
 
 const t = useTranslations();
+
+// Grille des cours (section 4 de l'accueil) : tous les cours publiés, avec
+// leur domaine résolu pour construire l'URL et l'affichage de CarteCours.
+const domaines = (await getCollection('domaines')).sort((a, b) => a.data.ordre - b.data.ordre);
+const domainesParId = new Map(domaines.map((domaine) => [domaine.id, domaine]));
+const coursPublies = (await getCollection('cours')).filter((c) => c.data.publie);
+const cartesCours = coursPublies
+  .map((cours) => ({ cours, domaine: domainesParId.get(cours.data.domaine.id) }))
+  .filter(
+    (entree): entree is { cours: CollectionEntry<'cours'>; domaine: CollectionEntry<'domaines'> } =>
+      entree.domaine !== undefined
+  )
+  .sort((a, b) => a.domaine.data.ordre - b.domaine.data.ordre || a.cours.data.ordre - b.cours.data.ordre);
+
+// CTA "Commencer" : pointe vers le premier chapitre publié du premier cours
+// publié du premier domaine, jamais une route en dur (le curriculum V1 ne
+// compte qu'un cours, mais cette page ne doit pas dépendre de ce fait).
+let hrefCommencer = '/fr/cours/';
+const premiereCarte = cartesCours[0];
+if (premiereCarte) {
+  const chapitresDuCours = (await getCollection('chapitres'))
+    .filter((ch) => ch.data.cours.id === premiereCarte.cours.id && ch.data.publie)
+    .sort((a, b) => a.data.ordre - b.data.ordre);
+  const premierChapitre = chapitresDuCours[0];
+  if (premierChapitre) {
+    hrefCommencer = urlChapitre(premierChapitre, premiereCarte.cours, premiereCarte.domaine);
+  }
+}
+
+// Accroche terminal : les lignes existent dans le HTML dès le rendu (lisible
+// sans JavaScript, invariant 11 de CLAUDE.md), une animation CSS pure les
+// révèle caractère par caractère. Vitesse et délais calculés au build à
+// partir de la longueur réelle de chaque ligne, pas de JS côté client.
+const VITESSE_CARACTERE = 0.045;
+const PAUSE_ENTRE_LIGNES = 0.35;
+let delaiCumule = 0.3;
+const lignesTerminal = t.accueil.terminalLignes.map((ligne) => {
+  const duree = Math.max(ligne.texte.length * VITESSE_CARACTERE, 0.15);
+  const retard = delaiCumule;
+  delaiCumule += duree + PAUSE_ENTRE_LIGNES;
+  return { ...ligne, duree, retard };
+});
+const retardCurseurFinal = delaiCumule;
 ---
 
 <BaseLayout titre={t.accueil.titre} description={t.accueil.description}>
@@ -15,10 +62,161 @@ const t = useTranslations();
     <DonneesStructurees type="WebSite" />
   </Fragment>
 
+  {/* 1. Accroche : titre, sous-titre, terminal qui s'écrit seul. */}
   <section class="mx-auto max-w-5xl px-4 py-16">
-    <h1 class="text-3xl font-bold">{t.accueil.titre}</h1>
-    <p class="mt-4" style="color: var(--couleur-texte-attenue);">
-      {t.accueil.description}
-    </p>
+    <div class="grid items-center gap-10 lg:grid-cols-2">
+      <div>
+        <h1 class="text-3xl font-bold sm:text-4xl">{t.accueil.accrocheTitre}</h1>
+        <p class="mt-4 text-lg" style="color: var(--couleur-texte-attenue);">
+          {t.accueil.accrocheSousTitre}
+        </p>
+
+        {/* 2. CTA. */}
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a
+            href={hrefCommencer}
+            class="rounded-lg px-5 py-2.5 text-sm font-semibold"
+            style="background-color: var(--couleur-accent); color: var(--couleur-fond);"
+          >
+            {t.accueil.ctaCommencer}
+          </a>
+          <a
+            href="/fr/cours/"
+            class="rounded-lg border px-5 py-2.5 text-sm font-semibold"
+            style="border-color: var(--couleur-accent); color: var(--couleur-accent);"
+          >
+            {t.accueil.ctaCatalogue}
+          </a>
+        </div>
+      </div>
+
+      <div class="fenetre-terminal" aria-hidden="true">
+        <div class="fenetre-terminal__entete">
+          <span class="fenetre-terminal__pastille"></span>
+          <span class="fenetre-terminal__pastille"></span>
+          <span class="fenetre-terminal__pastille"></span>
+          <span class="fenetre-terminal__titre">{t.accueil.terminalInvite}</span>
+        </div>
+        <div class="terminal-accroche p-4">
+          {lignesTerminal.map((ligne) => (
+            <div class="ligne-terminal">
+              <span class="ligne-terminal__invite">{ligne.prompt}</span>
+              <span
+                class="ligne-terminal__texte"
+                style={`--largeur-finale: ${ligne.texte.length}ch; animation-duration: ${ligne.duree}s; animation-delay: ${ligne.retard}s; animation-timing-function: steps(${ligne.texte.length}, end);`}
+              >{ligne.texte}</span>
+            </div>
+          ))}
+          <span class="curseur-final" style={`animation-delay: ${retardCurseurFinal}s;`}></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* 3. Bac à sable SQL jouable, préchargé sur un exemple d'injection. */}
+  <section class="mx-auto max-w-3xl px-4 py-8">
+    <h2 class="text-2xl font-bold">{t.accueil.sandboxTitre}</h2>
+    <p class="mt-2" style="color: var(--couleur-texte-attenue);">{t.accueil.sandboxDescription}</p>
+    <div class="mt-4">
+      <BacASableSQL
+        base="boutique-vulnerable"
+        mode="formulaire"
+        gabarit="SELECT * FROM utilisateurs WHERE identifiant = 'ALICE' AND mot_de_passe = '{valeur}'"
+        indice="Une valeur qui referme la chaîne avec une apostrophe, puis ajoute une condition toujours vraie."
+      />
+    </div>
+  </section>
+
+  {/* 4. Grille des cours. */}
+  {cartesCours.length > 0 && (
+    <section class="mx-auto max-w-5xl px-4 py-8">
+      <h2 class="text-2xl font-bold">{t.catalogue.titre}</h2>
+      <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {cartesCours.map(({ cours, domaine }) => (
+          <CarteCours cours={cours} domaine={domaine} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  {/* 5. Pourquoi ce site. */}
+  <section class="mx-auto max-w-5xl px-4 py-16">
+    <h2 class="text-2xl font-bold">{t.accueil.pourquoiTitre}</h2>
+    <div class="mt-6 grid gap-6 sm:grid-cols-3">
+      {t.accueil.pourquoiPoints.map((point, index) => (
+        <div>
+          <p class="font-mono text-sm" style="color: var(--couleur-accent);">
+            {String(index + 1).padStart(2, '0')}
+          </p>
+          <h3 class="mt-1 font-semibold">{point.titre}</h3>
+          <p class="mt-1 text-sm" style="color: var(--couleur-texte-attenue);">{point.texte}</p>
+        </div>
+      ))}
+    </div>
   </section>
 </BaseLayout>
+
+<style>
+  .terminal-accroche {
+    font-family: var(--police-mono);
+    font-size: 0.875rem;
+  }
+
+  .ligne-terminal {
+    display: flex;
+    gap: 0.6em;
+    line-height: 1.9;
+  }
+
+  .ligne-terminal__invite {
+    flex-shrink: 0;
+    color: var(--couleur-accent);
+  }
+
+  .ligne-terminal__texte {
+    display: inline-block;
+    overflow: hidden;
+    width: 0;
+    white-space: nowrap;
+    vertical-align: top;
+    animation-name: taper-machine;
+    animation-fill-mode: forwards;
+  }
+
+  .curseur-final {
+    display: inline-block;
+    width: 0.55em;
+    height: 1em;
+    margin-top: 0.3em;
+    background-color: var(--couleur-accent);
+    opacity: 0;
+    animation-name: curseur-final-clignoter;
+    animation-duration: 1.1s;
+    animation-timing-function: steps(1);
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+  }
+
+  @keyframes taper-machine {
+    from { width: 0; }
+    to { width: var(--largeur-finale); }
+  }
+
+  @keyframes curseur-final-clignoter {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  /* Invariant "respecte prefers-reduced-motion" (Lot 7) : le texte est déjà
+     dans le HTML, on affiche directement l'état final sans animer. */
+  @media (prefers-reduced-motion: reduce) {
+    .ligne-terminal__texte {
+      animation: none;
+      width: var(--largeur-finale);
+    }
+    .curseur-final {
+      animation: none;
+      opacity: 1;
+    }
+  }
+</style>

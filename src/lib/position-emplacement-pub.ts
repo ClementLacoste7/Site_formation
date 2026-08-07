@@ -7,8 +7,8 @@
 // ce module plutôt que par une prop.
 //
 // Sûr en usage SSG : le rendu d'une page (donc de tout son <Content>) est
-// entièrement synchrone avant que la page suivante ne réutilise ce module
-// — reinitialiser() doit simplement être appelé en tout début de rendu de
+// entièrement synchrone avant que la page suivante ne réutilise ce module.
+// reinitialiser() doit simplement être appelé en tout début de rendu de
 // chaque page, avant <Content />.
 //
 // Piège évité : un <h2> et le texte qui le suit sont des nœuds FRÈRES dans

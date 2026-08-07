@@ -1,0 +1,103 @@
+---
+titre: "Anatomie d'une requête HTTP : méthodes, GET vs POST"
+titreCourt: "Anatomie d'une requête"
+description: "Ce que contient réellement une requête HTTP, et pourquoi le choix entre GET et POST n'est pas qu'une convention."
+slug: "anatomie-requete-http"
+cours: "http-fonctionnement-web"
+ordre: 2
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Identifier les parties d'une requête HTTP (méthode, chemin, en-têtes, corps)"
+  - "Distinguer GET et POST par leur usage prévu, pas seulement par convention"
+  - "Repérer où une donnée fournie par l'utilisateur peut se trouver dans une requête"
+prerequis: ["modele-client-serveur"]
+tags: ["http", "requetes"]
+quiz:
+  - question: "Quelle affirmation décrit correctement la différence entre GET et POST ?"
+    type: "unique"
+    reponses:
+      - texte: "GET est prévu pour récupérer une ressource sans la modifier, POST pour envoyer des données qui provoquent un changement"
+        correcte: true
+        explication: "C'est la distinction sémantique voulue par le protocole : GET est censé être « sûr » (sans effet de bord), POST ne l'est pas."
+      - texte: "GET est plus rapide que POST"
+        correcte: false
+        explication: "La vitesse ne distingue pas ces deux méthodes : leur différence est sémantique (l'intention), pas une question de performance."
+      - texte: "POST ne peut être utilisé qu'avec HTTPS"
+        correcte: false
+        explication: "POST fonctionne aussi bien en HTTP qu'en HTTPS : le choix du chiffrement est indépendant de la méthode utilisée."
+  - question: "Pourquoi un paramètre sensible ne devrait-il jamais être transmis dans l'URL d'une requête GET ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce qu'une URL se retrouve dans l'historique du navigateur, les journaux du serveur et parfois des outils tiers"
+        correcte: true
+        explication: "Une URL complète est journalisée à plusieurs endroits par défaut ; un corps de requête POST ne l'est pas de la même façon."
+      - texte: "Parce que GET ne supporte pas les caractères spéciaux"
+        correcte: false
+        explication: "GET supporte les caractères spéciaux via l'encodage d'URL : ce n'est pas une limitation technique, c'est un problème d'exposition."
+      - texte: "Parce que GET est automatiquement bloqué par les navigateurs modernes"
+        correcte: false
+        explication: "Rien n'est bloqué : GET fonctionne normalement. Le problème est la visibilité de l'URL, pas un blocage."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Ce que contient réellement une requête
+
+Une requête HTTP, malgré son nom technique, est simplement du texte structuré, envoyé du client vers le serveur :
+
+<BlocCode
+  langue="text"
+  code={`GET /fr/cours/cybersecurite/injections-sql/ HTTP/1.1
+Host: cybercursus.fr
+User-Agent: Mozilla/5.0
+Accept: text/html`}
+/>
+
+Quatre éléments la composent :
+
+- **La méthode** (`GET`) : l'action demandée.
+- **Le chemin** (`/fr/cours/.../`) : la ressource visée.
+- **Les en-têtes** (`Host`, `User-Agent`, `Accept`, etc.) : des métadonnées sur la requête (détaillées au chapitre suivant).
+- **Un corps optionnel** : des données envoyées au serveur, absent ici, présent dans une requête `POST` typique.
+
+## GET : demander sans modifier
+
+`GET` est la méthode par défaut d'un navigateur : cliquer sur un lien, taper une adresse, tout ça déclenche une requête `GET`. Elle est conçue pour être **sûre** (elle ne devrait provoquer aucun effet de bord côté serveur) et ses paramètres, s'il y en a, apparaissent directement dans l'URL :
+
+<BlocCode langue="text" code={`GET /recherche?q=injection+sql HTTP/1.1`} />
+
+## POST : envoyer des données qui changent quelque chose
+
+`POST` sert à transmettre des données destinées à provoquer un changement : créer un compte, publier un commentaire, se connecter. Ces données voyagent dans le **corps** de la requête, pas dans l'URL :
+
+<BlocCode
+  langue="text"
+  code={`POST /connexion HTTP/1.1
+Host: exemple.test
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 34
+
+identifiant=ALICE&mot_de_passe=xxx`}
+/>
+
+<Avertissement type="attention">
+  Utiliser POST au lieu de GET ne rend pas une donnée « sécurisée » : le corps d'une requête POST n'est ni chiffré ni caché par la méthode elle-même (seul HTTPS chiffre le trafic, voir le dernier chapitre de ce cours). La différence est une question d'exposition et de sémantique, pas de confidentialité.
+</Avertissement>
+
+## Repérer où une donnée utilisateur peut se cacher
+
+Le chapitre 1 du cours sur les injections SQL listait les points d'entrée typiques d'une application (champs de formulaire, paramètres d'URL, en-têtes HTTP). Avec la structure d'une requête maintenant posée, ces points d'entrée correspondent précisément aux éléments vus ici : le chemin et sa chaîne de requête pour un `GET`, le corps pour un `POST`, et les en-têtes dans les deux cas.
+
+<EncadreARetenir
+  points={[
+    "Une requête HTTP se compose d'une méthode, d'un chemin, d'en-têtes et d'un corps optionnel",
+    "GET est prévu pour récupérer une ressource sans effet de bord, ses paramètres sont visibles dans l'URL",
+    "POST transmet des données dans le corps de la requête, destinées à provoquer un changement",
+    "Aucune des deux méthodes ne chiffre ni ne sécurise les données par elle-même"
+  ]}
+/>

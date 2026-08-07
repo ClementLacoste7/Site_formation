@@ -1,0 +1,83 @@
+---
+titre: "Les en-têtes HTTP : rôle, en-têtes de sécurité"
+titreCourt: "En-têtes HTTP"
+description: "Ce que transportent les en-têtes d'une requête et d'une réponse, et comment certains d'entre eux renforcent la sécurité d'un site."
+slug: "en-tetes-http"
+cours: "http-fonctionnement-web"
+ordre: 4
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Expliquer le rôle général des en-têtes dans une requête et une réponse HTTP"
+  - "Citer le rôle d'au moins trois en-têtes de sécurité courants"
+  - "Comprendre pourquoi un en-tête de sécurité mal configuré n'apporte aucune protection réelle"
+prerequis: ["codes-statut"]
+tags: ["http", "en-tetes"]
+quiz:
+  - question: "À quoi servent les en-têtes d'une requête ou d'une réponse HTTP ?"
+    type: "unique"
+    reponses:
+      - texte: "À transporter des métadonnées sur l'échange, séparément du contenu principal"
+        correcte: true
+        explication: "Type de contenu, langue, mise en cache, autorisations : les en-têtes décrivent l'échange sans faire partie du contenu lui-même (le corps de la requête ou de la réponse)."
+      - texte: "À chiffrer automatiquement le contenu de la requête"
+        correcte: false
+        explication: "Aucun en-tête ne chiffre quoi que ce soit par lui-même : le chiffrement est assuré par HTTPS, au niveau de la connexion entière."
+      - texte: "À remplacer le corps de la requête sur les petites pages"
+        correcte: false
+        explication: "Les en-têtes et le corps ont des rôles distincts et coexistent : les en-têtes ne se substituent jamais au corps."
+  - question: "Pourquoi un en-tête Content-Security-Policy mal configuré n'apporte-t-il aucune protection réelle ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce qu'une politique trop permissive autorise justement ce que l'en-tête est censé bloquer"
+        correcte: true
+        explication: "Un en-tête de sécurité n'est qu'une déclaration de règles : s'il autorise largement les scripts externes, il ne protège de rien, même s'il est présent."
+      - texte: "Parce que les navigateurs ignorent systématiquement cet en-tête"
+        correcte: false
+        explication: "Les navigateurs modernes appliquent bien cet en-tête ; le problème vient de sa configuration, pas de son support."
+      - texte: "Parce que cet en-tête ne fonctionne qu'en HTTP, jamais en HTTPS"
+        correcte: false
+        explication: "C'est l'inverse qui est vrai en pratique : ces en-têtes de sécurité sont d'autant plus pertinents que le site est déjà servi en HTTPS."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Des métadonnées, pas du contenu
+
+Les chapitres précédents ont déjà croisé plusieurs en-têtes (`Host`, `Content-Type`, `Content-Length`) sans s'y arrêter. Un en-tête est une ligne `Nom: valeur` qui décrit l'échange, sans faire partie du contenu transporté : la langue préférée du visiteur, le type de contenu envoyé, des instructions de mise en cache, ou encore des règles de sécurité.
+
+<BlocCode
+  langue="text"
+  code={`Content-Type: text/html; charset=utf-8
+Cache-Control: max-age=3600
+Accept-Language: fr-FR,fr;q=0.9`}
+/>
+
+## Trois en-têtes de sécurité courants
+
+Certains en-têtes de réponse existent spécifiquement pour indiquer au navigateur comment se comporter de façon plus stricte face au contenu reçu :
+
+- **`Content-Security-Policy`** (CSP) : liste les sources autorisées à fournir des scripts, styles ou images pour la page. Une politique stricte réduit fortement l'impact d'une éventuelle faille XSS, en empêchant l'exécution de scripts non explicitement autorisés.
+- **`Strict-Transport-Security`** (HSTS) : indique au navigateur de toujours utiliser HTTPS pour ce domaine à l'avenir, même si l'utilisateur tape `http://` par erreur.
+- **`X-Content-Type-Options: nosniff`** : empêche le navigateur de deviner (« sniffer ») le type d'un fichier différemment de ce qu'indique `Content-Type`, ce qui bloque certaines techniques d'exécution de contenu déguisé.
+
+<Avertissement type="info">
+  Ce site applique ses propres en-têtes de sécurité (dont une CSP stricte) au niveau de son hébergeur : c'est notamment ce qui encadre les démonstrations de failles présentées dans les autres cours, en isolant leur exécution.
+</Avertissement>
+
+## Un en-tête n'est qu'une déclaration
+
+Un point mérite d'être souligné : un en-tête de sécurité n'a de valeur que si sa configuration est réellement stricte. Une CSP qui autorise `script-src *` (n'importe quelle source) est présente mais ne protège de rien, exactement comme une porte blindée qu'on laisse ouverte. Vérifier la présence d'un en-tête de sécurité est un premier pas ; vérifier son contenu réel en est un second, tout aussi nécessaire.
+
+<EncadreARetenir
+  points={[
+    "Un en-tête HTTP transporte une métadonnée sur l'échange, jamais le contenu lui-même",
+    "Content-Security-Policy restreint les sources de scripts/styles/images autorisées sur une page",
+    "Strict-Transport-Security force l'usage de HTTPS pour les visites futures d'un domaine",
+    "Un en-tête de sécurité présent mais mal configuré (trop permissif) n'apporte aucune protection réelle"
+  ]}
+/>

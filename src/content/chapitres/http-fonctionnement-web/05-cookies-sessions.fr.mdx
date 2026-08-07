@@ -1,0 +1,93 @@
+---
+titre: "Cookies et sessions : comment un site te reconnaît"
+titreCourt: "Cookies et sessions"
+description: "HTTP oublie tout entre deux requêtes : comment les cookies et les sessions donnent l'illusion d'une mémoire continue."
+slug: "cookies-sessions"
+cours: "http-fonctionnement-web"
+ordre: 5
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Expliquer ce que signifie « HTTP est un protocole sans état »"
+  - "Décrire le rôle d'un cookie de session dans la reconnaissance d'un visiteur"
+  - "Citer le rôle des attributs HttpOnly, Secure et SameSite d'un cookie"
+prerequis: ["en-tetes-http"]
+tags: ["http", "cookies", "authentification"]
+quiz:
+  - question: "Que signifie l'affirmation « HTTP est un protocole sans état » ?"
+    type: "unique"
+    reponses:
+      - texte: "Chaque requête est traitée indépendamment, sans mémoire des requêtes précédentes du même visiteur"
+        correcte: true
+        explication: "Sans mécanisme additionnel, un serveur HTTP ne sait pas que deux requêtes successives viennent du même visiteur : chaque requête part de zéro."
+      - texte: "Le protocole ne peut transmettre aucune donnée"
+        correcte: false
+        explication: "HTTP transmet énormément de données (voir les chapitres précédents) : l'absence d'état concerne la mémoire d'une requête à l'autre, pas le contenu transporté."
+      - texte: "Les serveurs HTTP ne peuvent pas gérer plusieurs visiteurs à la fois"
+        correcte: false
+        explication: "C'est l'inverse : un serveur web gère couramment des milliers de visiteurs simultanés, chacun avec ses propres requêtes indépendantes."
+  - question: "Que protège l'attribut HttpOnly d'un cookie ?"
+    type: "unique"
+    reponses:
+      - texte: "Il empêche un script JavaScript côté navigateur de lire la valeur du cookie"
+        correcte: true
+        explication: "Un cookie HttpOnly reste accessible au navigateur pour l'envoyer au serveur, mais devient invisible pour document.cookie : un script malveillant injecté sur la page ne peut plus le voler."
+      - texte: "Il chiffre automatiquement la valeur du cookie"
+        correcte: false
+        explication: "HttpOnly ne chiffre rien : c'est une restriction d'accès depuis JavaScript, pas un mécanisme de chiffrement."
+      - texte: "Il empêche le cookie d'être envoyé au serveur"
+        correcte: false
+        explication: "Un cookie HttpOnly est envoyé normalement au serveur à chaque requête : seule sa lecture depuis JavaScript est bloquée."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Un protocole qui oublie tout
+
+Chaque requête HTTP est traitée indépendamment des autres : c'est ce qu'on appelle un protocole **sans état** (« stateless »). Sans mécanisme additionnel, un serveur ne peut pas savoir que la requête qui arrive vient du même navigateur que celle reçue dix secondes plus tôt, y compris si un identifiant vient de se connecter entre les deux.
+
+Pourtant, la plupart des sites « se souviennent » qu'on est connecté d'une page à l'autre. Ce souvenir n'a rien de magique : il repose entièrement sur un en-tête vu au chapitre précédent, décliné pour cet usage précis.
+
+## Le cookie, une donnée que le client renvoie lui-même
+
+Quand un serveur veut qu'un client conserve une information, il l'envoie via l'en-tête `Set-Cookie` dans une réponse :
+
+<BlocCode
+  langue="text"
+  code={`HTTP/1.1 200 OK
+Set-Cookie: session_id=a3f9c2e1; HttpOnly; Secure; SameSite=Lax`}
+/>
+
+Le navigateur stocke cette valeur, puis la renvoie automatiquement au serveur à chaque requête suivante vers ce même domaine, via l'en-tête `Cookie` :
+
+<BlocCode langue="text" code={`GET /compte HTTP/1.1
+Host: exemple.test
+Cookie: session_id=a3f9c2e1`}
+/>
+
+Le serveur retrouve alors, grâce à cet identifiant (`session_id`), les informations associées à la session ouverte : qui est connecté, ce qu'il y a dans son panier, etc. Le cookie ne contient généralement pas ces informations lui-même, seulement une clé qui permet au serveur de les retrouver de son côté.
+
+## Trois attributs qui renforcent un cookie
+
+Les attributs ajoutés après la valeur du cookie (`HttpOnly`, `Secure`, `SameSite` dans l'exemple ci-dessus) ne sont pas décoratifs :
+
+- **`HttpOnly`** : rend le cookie invisible à JavaScript (`document.cookie`), pour qu'un script malveillant injecté sur la page ne puisse pas le lire et l'exfiltrer.
+- **`Secure`** : n'envoie le cookie que sur une connexion HTTPS, jamais en clair sur une connexion HTTP non chiffrée.
+- **`SameSite`** : limite l'envoi du cookie aux requêtes provenant du même site (ou l'autorise avec restrictions), pour réduire l'exposition à certaines attaques déclenchées depuis un site tiers.
+
+<Avertissement type="danger">
+  Un cookie de session volé équivaut, pour un attaquant, à être connecté à la place de la victime, sans jamais avoir eu besoin de son mot de passe. C'est précisément ce que HttpOnly cherche à rendre beaucoup plus difficile.
+</Avertissement>
+
+<EncadreARetenir
+  points={[
+    "HTTP est un protocole sans état : chaque requête est traitée indépendamment des précédentes",
+    "Un cookie, posé par Set-Cookie et renvoyé via l'en-tête Cookie, permet au serveur de relier des requêtes successives à une même session",
+    "HttpOnly empêche JavaScript de lire un cookie, Secure le réserve à HTTPS, SameSite limite son envoi entre sites",
+    "Voler un cookie de session équivaut souvent à usurper une connexion sans connaître le mot de passe"
+  ]}
+/>

@@ -3,7 +3,7 @@ titre: "Injections SQL"
 description: "Comprends comment une requête SQL mal construite peut être détournée par un attaquant, et apprends à t'en protéger."
 slug: "injections-sql"
 domaine: "cybersecurite"
-ordre: 1
+ordre: 2
 niveau: "debutant"
 dureeTotale: 60
 objectifs:
@@ -12,6 +12,6 @@ objectifs:
   - "Utiliser une injection UNION pour extraire des données non prévues"
   - "Extraire une donnée à l'aveugle quand aucun résultat n'est affiché directement"
   - "Mettre en œuvre des requêtes préparées pour neutraliser ces attaques"
-prerequisCours: []
+prerequisCours: ["http-fonctionnement-web"]
 publie: true
 ---

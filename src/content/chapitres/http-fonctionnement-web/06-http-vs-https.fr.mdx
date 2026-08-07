@@ -1,0 +1,81 @@
+---
+titre: "HTTP vs HTTPS : ce que le chiffrement change vraiment"
+titreCourt: "HTTP vs HTTPS"
+description: "HTTPS protège le trajet d'une requête, pas ce que fait le serveur une fois qu'elle est arrivée. La distinction compte."
+slug: "http-vs-https"
+cours: "http-fonctionnement-web"
+ordre: 6
+duree: 9
+niveau: "intermediaire"
+objectifs:
+  - "Expliquer les trois garanties apportées par HTTPS (confidentialité, intégrité, authentification du serveur)"
+  - "Identifier ce que HTTPS ne protège pas (les failles applicatives du serveur)"
+  - "Relier cette distinction aux cours suivants du curriculum"
+prerequis: ["cookies-sessions"]
+tags: ["http", "https", "chiffrement"]
+quiz:
+  - question: "Laquelle de ces garanties HTTPS apporte-t-il réellement ?"
+    type: "unique"
+    reponses:
+      - texte: "La confidentialité et l'intégrité du trafic entre le navigateur et le serveur"
+        correcte: true
+        explication: "HTTPS chiffre le trafic (personne ne peut le lire en transit) et garantit son intégrité (personne ne peut le modifier sans que ce soit détecté)."
+      - texte: "La sécurité du code exécuté sur le serveur"
+        correcte: false
+        explication: "HTTPS ne protège que le transport des données, pas la logique applicative qui s'exécute côté serveur une fois la requête arrivée."
+      - texte: "La protection contre les injections SQL"
+        correcte: false
+        explication: "Une application vulnérable aux injections SQL le reste exactement autant en HTTPS qu'en HTTP : le chiffrement du trajet ne corrige aucune faille applicative."
+  - question: "Un site en HTTPS peut-il quand même être vulnérable à une injection SQL ?"
+    type: "unique"
+    reponses:
+      - texte: "Oui, HTTPS et la vulnérabilité aux injections SQL sont deux sujets totalement indépendants"
+        correcte: true
+        explication: "HTTPS sécurise le trajet de la requête ; une injection SQL exploite la façon dont le serveur construit ses requêtes vers sa base de données, une fois la requête reçue. Rien à voir."
+      - texte: "Non, HTTPS empêche toute donnée malveillante d'atteindre le serveur"
+        correcte: false
+        explication: "HTTPS ne filtre ni n'analyse le contenu d'une requête : il la chiffre pendant le transport, un point c'est tout."
+      - texte: "Non, un certificat HTTPS valide garantit que le site est exempt de failles"
+        correcte: false
+        explication: "Un certificat HTTPS authentifie le serveur (« tu parles bien au bon domaine »), il ne dit rien de la qualité du code qui tourne derrière."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Le même protocole, une couche en plus
+
+HTTPS n'est pas un protocole différent de HTTP : c'est HTTP transporté à l'intérieur d'une connexion chiffrée (TLS). Tout ce qui a été vu dans ce cours (méthodes, codes de statut, en-têtes, cookies) fonctionne à l'identique des deux côtés. Ce que TLS ajoute se limite à trois garanties, apportées avant même que la première requête HTTP ne parte :
+
+<BlocCode
+  langue="text"
+  code={`1. Confidentialité       : le contenu de l'échange est chiffré, illisible en transit
+2. Intégrité              : toute modification du trafic en transit devient détectable
+3. Authentification       : un certificat garantit que le serveur est bien celui qu'il prétend être`}
+/>
+
+## Ce que ça change concrètement
+
+Sans HTTPS, n'importe quel intermédiaire technique sur le trajet (un réseau Wi-Fi public non fiable, par exemple) peut lire ou modifier une requête en clair, y compris un mot de passe envoyé en `POST`. Avec HTTPS, ce même intermédiaire ne voit qu'un flux chiffré illisible.
+
+<Avertissement type="info">
+  L'authentification du serveur, via son certificat, répond à une question précise : « est-ce que je parle bien à cybercursus.fr, ou à un serveur qui usurpe son adresse ? » Elle ne dit rien de la fiabilité du contenu que ce serveur choisit d'envoyer.
+</Avertissement>
+
+## Ce que HTTPS ne protège pas
+
+C'est le point le plus souvent mal compris, et la raison pour laquelle ce chapitre clôt ce cours : HTTPS sécurise le **trajet** d'une requête, pas ce que le serveur en fait une fois qu'elle est arrivée.
+
+Une application qui construit ses requêtes SQL par concaténation, comme vu en détail dans le cours sur les injections SQL, reste exactement aussi vulnérable derrière HTTPS que derrière HTTP. Le chiffrement protège la conversation ; il ne corrige rien dans la façon dont le serveur traite ce qu'il reçoit.
+
+<EncadreARetenir
+  points={[
+    "HTTPS est HTTP transporté dans une connexion chiffrée (TLS), pas un protocole distinct",
+    "TLS apporte trois garanties : confidentialité, intégrité et authentification du serveur",
+    "Un cadenas dans la barre d'adresse confirme le trajet sécurisé, jamais la sécurité du code côté serveur",
+    "Une faille applicative (comme une injection SQL) reste exploitable en HTTPS, exactement comme en HTTP"
+  ]}
+/>

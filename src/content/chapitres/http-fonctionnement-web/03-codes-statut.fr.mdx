@@ -1,0 +1,102 @@
+---
+titre: "Les codes de statut : 200, 301, 404, 500 et les autres"
+titreCourt: "Codes de statut"
+description: "Comment lire la première ligne d'une réponse HTTP, et ce que chaque famille de codes signale vraiment."
+slug: "codes-statut"
+cours: "http-fonctionnement-web"
+ordre: 3
+duree: 7
+niveau: "debutant"
+objectifs:
+  - "Situer un code de statut dans sa famille (2xx, 3xx, 4xx, 5xx) et en déduire son sens général"
+  - "Distinguer une erreur côté client (4xx) d'une erreur côté serveur (5xx)"
+  - "Expliquer la différence entre 401 et 403"
+prerequis: ["anatomie-requete-http"]
+tags: ["http", "codes-statut"]
+quiz:
+  - question: "Un code de statut 4xx signale typiquement quoi ?"
+    type: "unique"
+    reponses:
+      - texte: "Un problème du côté de la requête envoyée par le client"
+        correcte: true
+        explication: "La famille 4xx couvre les erreurs attribuées au client : ressource inexistante (404), requête mal formée (400), accès refusé (401, 403), etc."
+      - texte: "Un problème du côté du serveur qui traite la requête"
+        correcte: false
+        explication: "C'est le rôle de la famille 5xx : une erreur 4xx, elle, pointe vers la requête elle-même, pas vers une défaillance du serveur."
+      - texte: "Une redirection vers une autre adresse"
+        correcte: false
+        explication: "Les redirections appartiennent à la famille 3xx (301, 302), pas 4xx."
+  - question: "Quelle est la différence entre un code 401 et un code 403 ?"
+    type: "unique"
+    reponses:
+      - texte: "401 signifie que l'authentification est requise ou a échoué, 403 que l'identité est connue mais l'accès reste refusé"
+        correcte: true
+        explication: "401 (« Unauthorized », en réalité « non authentifié ») invite à s'authentifier ; 403 (« Forbidden ») s'applique même à un utilisateur authentifié qui n'a pas les droits suffisants."
+      - texte: "401 et 403 sont strictement interchangeables"
+        correcte: false
+        explication: "Ils ne le sont pas : leur distinction renseigne précisément sur la nature du refus (absence d'authentification vs droits insuffisants)."
+      - texte: "401 concerne le serveur, 403 concerne le client"
+        correcte: false
+        explication: "Les deux codes appartiennent à la même famille (4xx, erreurs côté client) : leur différence porte sur la cause précise du refus, pas sur leur origine client/serveur."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Une réponse commence toujours par un code
+
+Symétriquement à la requête vue au chapitre précédent, une réponse HTTP commence par une ligne de statut :
+
+<BlocCode
+  langue="text"
+  code={`HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 1234
+
+<!doctype html>...`}
+/>
+
+Le nombre à trois chiffres (`200` ici) est le **code de statut**. Son premier chiffre indique sa famille, et donne à lui seul une bonne partie de l'information :
+
+<BlocCode
+  langue="text"
+  code={`1xx : information (rarement visible, traitement en cours)
+2xx : succès (la requête a été traitée comme prévu)
+3xx : redirection (la ressource se trouve ailleurs)
+4xx : erreur côté client (la requête elle-même pose problème)
+5xx : erreur côté serveur (la requête était correcte, le serveur a échoué)`}
+/>
+
+## Les codes les plus fréquents
+
+- **200 OK** : la requête a réussi, la réponse contient la ressource demandée.
+- **301 Moved Permanently** : la ressource a définitivement déménagé à une nouvelle adresse (indiquée dans l'en-tête `Location`). C'est ce code que ce site utilise pour rediriger `/` vers `/fr/`.
+- **404 Not Found** : aucune ressource ne correspond au chemin demandé.
+- **500 Internal Server Error** : une erreur inattendue est survenue côté serveur pendant le traitement, sans plus de détail par défaut.
+
+## 401 contre 403 : une confusion fréquente
+
+Ces deux codes se ressemblent, mais ne signalent pas la même chose :
+
+- **401 Unauthorized** : la requête n'est pas authentifiée (ou l'authentification fournie est invalide). Le message implicite est « identifie-toi ».
+- **403 Forbidden** : le serveur sait qui tu es, mais refuse quand même l'accès. Le message implicite est « tu n'as pas le droit, même identifié ».
+
+<Avertissement type="astuce">
+  Ce détail a une valeur pratique en dehors de ce cours : face à une page qui répond 403 sur une ressource, mieux vaut chercher du côté des permissions que de l'authentification. Un 401 orienterait la recherche différemment.
+</Avertissement>
+
+## Pourquoi cette distinction compte
+
+Un serveur mal configuré peut renvoyer des codes trompeurs, par exemple un 200 même en cas d'erreur applicative, ce qui casse la sémantique du protocole pour n'importe quel outil (ou humain) qui l'interprète. À l'inverse, des codes cohérents facilitent le diagnostic, y compris pour repérer un comportement anormal révélateur d'une faille, comme on le verra dans le cours sur les injections SQL.
+
+<EncadreARetenir
+  points={[
+    "Le premier chiffre d'un code de statut situe sa famille : 2xx succès, 3xx redirection, 4xx erreur client, 5xx erreur serveur",
+    "200 confirme un succès, 404 une ressource introuvable, 500 une erreur inattendue côté serveur",
+    "401 signale une authentification manquante ou invalide, 403 un accès refusé malgré une identité connue",
+    "Des codes de statut cohérents facilitent le diagnostic d'un comportement anormal"
+  ]}
+/>

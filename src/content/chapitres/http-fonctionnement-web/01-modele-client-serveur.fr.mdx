@@ -1,0 +1,88 @@
+---
+titre: "Le modèle client-serveur : comment une page arrive dans ton navigateur"
+titreCourt: "Client-serveur"
+description: "Ce qui se passe réellement entre le moment où tu tapes une adresse et celui où la page s'affiche."
+slug: "modele-client-serveur"
+cours: "http-fonctionnement-web"
+ordre: 1
+duree: 8
+niveau: "debutant"
+objectifs:
+  - "Nommer les rôles respectifs du client et du serveur dans une échange web"
+  - "Décrire les grandes étapes entre la saisie d'une adresse et l'affichage de la page"
+  - "Expliquer à quoi sert le DNS dans ce trajet"
+prerequis: []
+tags: ["http", "web"]
+quiz:
+  - question: "Dans le modèle client-serveur du web, quel rôle joue ton navigateur ?"
+    type: "unique"
+    reponses:
+      - texte: "Le client : il envoie une requête et affiche la réponse reçue"
+        correcte: true
+        explication: "Le navigateur est le client : il initie systématiquement l'échange en envoyant une requête, jamais l'inverse."
+      - texte: "Le serveur : il stocke les pages et répond aux requêtes"
+        correcte: false
+        explication: "C'est le rôle du serveur, hébergé ailleurs (chez un hébergeur comme Vercel, par exemple pour ce site), pas celui du navigateur."
+      - texte: "Un intermédiaire neutre entre le client et le serveur"
+        correcte: false
+        explication: "Un intermédiaire neutre correspondrait plutôt à un proxy ou un CDN : le navigateur, lui, est directement l'un des deux acteurs de l'échange."
+  - question: "À quoi sert le DNS dans le trajet d'une requête ?"
+    type: "unique"
+    reponses:
+      - texte: "À traduire un nom de domaine lisible (ex. cybercursus.fr) en adresse IP"
+        correcte: true
+        explication: "Les ordinateurs communiquent par adresses IP ; le DNS est l'annuaire qui fait la correspondance avec les noms de domaine que les humains retiennent."
+      - texte: "À chiffrer la connexion entre le client et le serveur"
+        correcte: false
+        explication: "Le chiffrement est le rôle de HTTPS/TLS, pas du DNS, qui se contente de résoudre un nom en adresse."
+      - texte: "À afficher la page une fois reçue"
+        correcte: false
+        explication: "L'affichage (le rendu de la page) est fait par le navigateur, après la résolution DNS et la réception de la réponse."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Deux rôles, une même conversation
+
+Le web repose sur un modèle simple : un **client** (ton navigateur) envoie une demande, un **serveur** (une machine ailleurs sur le réseau) y répond. Le client initie toujours l'échange ; le serveur ne parle jamais en premier.
+
+Cette dissymétrie a une conséquence directe pour la suite de ce cours : presque toutes les techniques qui suivent, qu'elles soient légitimes ou malveillantes, consistent à envoyer une requête un peu différente de celle attendue, pour observer comment le serveur y répond.
+
+## Le trajet complet, étape par étape
+
+Quand tu tapes `https://cybercursus.fr/fr/` dans la barre d'adresse et que tu appuies sur Entrée, plusieurs étapes s'enchaînent avant que la page ne s'affiche :
+
+<BlocCode
+  langue="text"
+  code={`1. Résolution DNS      : le nom "cybercursus.fr" est traduit en adresse IP
+2. Connexion            : le navigateur établit une connexion avec le serveur à cette adresse
+3. Requête              : le navigateur envoie une requête HTTP ("donne-moi cette page")
+4. Traitement           : le serveur reçoit la requête, prépare une réponse
+5. Réponse              : le serveur renvoie la réponse (le code de la page, entre autres)
+6. Rendu                : le navigateur affiche la page à partir de la réponse reçue`}
+/>
+
+## Le rôle du DNS
+
+Un ordinateur ne comprend pas nativement `cybercursus.fr` : il communique avec des adresses IP, comme `76.76.21.21`. Le **DNS** (Domain Name System) est l'annuaire distribué qui fait cette traduction, à l'étape 1 du trajet ci-dessus.
+
+<Avertissement type="info">
+  Cette résolution est mise en cache à plusieurs niveaux (navigateur, système d'exploitation, box internet) : c'est pour ça qu'un changement de configuration DNS met parfois plusieurs heures à devenir visible pour tous les visiteurs d'un site.
+</Avertissement>
+
+## Ce que ce modèle implique
+
+Le serveur ne peut réagir qu'à ce qu'on lui envoie explicitement dans une requête. Autrement dit, toute la logique de sécurité d'une application web repose, d'une manière ou d'une autre, sur la capacité du serveur à traiter correctement des requêtes qu'il n'a pas anticipées, y compris des requêtes délibérément construites pour le tromper. C'est le fil conducteur du reste de ce cours, et de celui sur les injections SQL.
+
+<EncadreARetenir
+  points={[
+    "Le client (navigateur) initie toujours l'échange ; le serveur ne fait que répondre",
+    "Le DNS traduit un nom de domaine lisible en adresse IP avant toute connexion",
+    "Une page s'affiche après une suite d'étapes : résolution DNS, connexion, requête, réponse, rendu",
+    "Toute la sécurité web repose sur la façon dont un serveur traite des requêtes qu'il n'a pas anticipées"
+  ]}
+/>

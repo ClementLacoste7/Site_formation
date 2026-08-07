@@ -54,6 +54,7 @@ const fils = [
     <BarreProgression cours={cours} chapitres={chapitres} />
 
     <h2 class="mt-8 font-semibold">{t.cours.chapitres}</h2>
+    <p class="mt-1 text-xs" style="color: var(--couleur-texte-attenue);">{t.cours.ordreConseille}</p>
     <div class="mt-3 space-y-2">
       {chapitres.map((chapitre) => (
         <CarteChapitre chapitre={chapitre} cours={cours} domaine={domaine} />

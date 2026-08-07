@@ -57,6 +57,7 @@
   },
   "cours": {
     "chapitres": "Chapitres du cours",
+    "ordreConseille": "À suivre dans l'ordre : le niveau de chaque chapitre reflète sa difficulté propre, pas sa place dans la progression.",
     "minutes": "min",
     "chapitreSingulier": "chapitre",
     "chapitrePluriel": "chapitres"

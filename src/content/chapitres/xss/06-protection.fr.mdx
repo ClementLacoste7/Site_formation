@@ -1,0 +1,103 @@
+---
+titre: "Se protéger : échappement, CSP, sanitisation"
+titreCourt: "Se protéger"
+description: "Trois couches de défense complémentaires contre les trois familles de XSS vues dans ce cours, illustrées sur la faille du chapitre précédent."
+slug: "protection"
+cours: "xss"
+ordre: 6
+duree: 11
+niveau: "debutant"
+objectifs:
+  - "Appliquer l'échappement contextuel pour neutraliser une injection HTML"
+  - "Choisir entre textContent et innerHTML selon le besoin réel d'affichage"
+  - "Expliquer comment une CSP stricte bloque des charges qui ont échappé à l'échappement"
+prerequis: ["vol-de-session"]
+tags: ["xss", "prevention", "en-tetes"]
+quiz:
+  - question: "Pourquoi textContent élimine-t-il une XSS là où innerHTML l'exposait ?"
+    type: "unique"
+    reponses:
+      - texte: "textContent traite toujours sa valeur comme du texte brut, jamais comme du HTML à interpréter"
+        correcte: true
+        explication: "Avec textContent, une chaîne comme <img src=x onerror=...> s'affiche littéralement à l'écran : aucune balise n'est jamais créée, donc aucun code ne peut s'exécuter."
+      - texte: "textContent chiffre automatiquement la valeur affichée"
+        correcte: false
+        explication: "Aucun chiffrement n'intervient ici : la différence est que textContent n'interprète jamais sa valeur comme du HTML, contrairement à innerHTML."
+      - texte: "textContent est simplement une version plus rapide d'innerHTML"
+        correcte: false
+        explication: "La performance n'est pas la raison de cette recommandation : c'est une différence de sécurité, pas de vitesse."
+  - question: "Que change une Content-Security-Policy stricte (sans 'unsafe-inline') face à une charge XSS qui a quand même atteint la page ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle bloque l'exécution des scripts et gestionnaires d'évènements inline, neutralisant de nombreuses charges malgré tout"
+        correcte: true
+        explication: "Une CSP stricte constitue une seconde ligne de défense : même si l'échappement a échoué quelque part, les charges de type <script> inline ou onerror= inline ne s'exécutent plus."
+      - texte: "Elle empêche toute donnée utilisateur d'atteindre le serveur"
+        correcte: false
+        explication: "Une CSP s'applique côté navigateur, sur ce que la page a le droit d'exécuter : elle ne filtre rien de ce qui part vers le serveur."
+      - texte: "Elle remplace l'échappement contextuel, qui devient inutile"
+        correcte: false
+        explication: "Les deux protections se complètent : la CSP est un filet de sécurité, pas un substitut à un échappement correct."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import BacASableWeb from '../../../components/interactif/BacASableWeb.astro';
+
+## Première ligne de défense : l'échappement contextuel
+
+La protection de fond contre toutes les familles de XSS vues dans ce cours consiste à échapper toute donnée non fiable avant de l'insérer dans une page : remplacer les caractères qui ont un sens spécial en HTML par leur équivalent inoffensif.
+
+<BlocCode
+  langue="text"
+  code={`< devient &lt;
+> devient &gt;
+" devient &quot;
+' devient &#39;
+& devient &amp;`}
+/>
+
+Une fois échappée, une charge comme `<img src=x onerror=...>` s'affiche comme du texte littéral, jamais comme une balise active. Le détail qui compte : le contexte d'insertion change les règles. Échapper pour un contexte HTML ne protège pas un contexte JavaScript ou un attribut d'URL, qui ont chacun leurs propres caractères sensibles.
+
+## Préférer textContent à innerHTML
+
+Le réflexe le plus direct, quand aucun HTML n'a besoin d'être inséré : ne jamais utiliser `innerHTML` pour du texte simple. `textContent` ne réalise strictement aucune interprétation HTML, quel que soit son contenu.
+
+<BacASableWeb
+  html={`<input type="text" id="champ" placeholder="Tape ici..." style="width:100%;box-sizing:border-box;padding:6px;" />
+<div id="resultat" style="margin-top:10px;"></div>`}
+  js={`document.getElementById('champ').addEventListener('input', function (e) {
+  // Correction : textContent insere du texte brut, jamais interprete comme du HTML
+  document.getElementById('resultat').textContent = e.target.value;
+});`}
+/>
+
+Tape exactement la même charge qu'au chapitre sur la XSS DOM-based (`<img src=x onerror="console.log('XSS DOM executee')">`) : elle s'affiche cette fois telle quelle, comme texte visible, sans jamais s'exécuter.
+
+<Avertissement type="astuce">
+  Ce bac à sable utilise le même code HTML que celui du chapitre sur la XSS DOM-based, avec une seule ligne modifiée (`textContent` au lieu de `innerHTML`). C'est souvent tout ce qu'il faut corriger, une fois le sink dangereux identifié.
+</Avertissement>
+
+## Deuxième ligne de défense : une CSP stricte
+
+Le cours sur HTTP a introduit l'en-tête `Content-Security-Policy`. Appliquée à la XSS, une CSP stricte (sans la directive `'unsafe-inline'`) empêche l'exécution de tout script ou gestionnaire d'évènement inline, y compris `<script>...</script>` et `onerror="..."`, exactement les techniques utilisées dans les démonstrations de ce cours.
+
+<Avertissement type="info">
+  Une CSP correctement configurée aurait bloqué chacune des démonstrations de ce cours, malgré l'absence d'échappement. C'est pour ça qu'elle est présentée comme une seconde ligne de défense : elle limite les dégâts d'une erreur d'échappement, elle ne dispense jamais de corriger cette erreur.
+</Avertissement>
+
+## Troisième cas : quand du HTML doit vraiment être autorisé
+
+Un champ de commentaire qui autorise du gras ou de l'italique ne peut pas se contenter d'échapper tout le HTML : il doit **sanitiser**, c'est-à-dire ne conserver qu'une liste explicite de balises et d'attributs jugés sûrs (une allowlist), et rejeter tout le reste. Écrire soi-même une liste de balises à bloquer est une erreur classique : la liste est presque toujours incomplète, exactement comme pour la validation d'entrée contre les injections SQL. Utiliser une bibliothèque de sanitisation éprouvée reste la seule approche fiable dans ce cas.
+
+<EncadreARetenir
+  points={[
+    "L'échappement contextuel neutralise une injection en remplaçant les caractères actifs par leur équivalent inoffensif",
+    "textContent élimine le risque à la racine quand aucun HTML n'a besoin d'être inséré",
+    "Une CSP stricte (sans 'unsafe-inline') bloque scripts et gestionnaires d'évènements inline, même si l'échappement a échoué ailleurs",
+    "Quand du HTML doit être autorisé, sanitiser via une allowlist éprouvée, jamais une liste de blocage maison"
+  ]}
+/>

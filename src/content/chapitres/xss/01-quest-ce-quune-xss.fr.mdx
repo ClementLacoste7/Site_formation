@@ -1,0 +1,96 @@
+---
+titre: "Qu'est-ce qu'une XSS et pourquoi c'est dangereux"
+titreCourt: "Qu'est-ce qu'une XSS"
+description: "Le principe commun aux trois familles de XSS : faire exécuter du code par le navigateur d'un autre utilisateur, avec ses propres privilèges."
+slug: "quest-ce-quune-xss"
+cours: "xss"
+ordre: 1
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Définir une XSS et expliquer ce que le sigle recouvre"
+  - "Comprendre pourquoi une XSS s'exécute avec les privilèges de la victime, pas de l'attaquant"
+  - "Distinguer une injection SQL (contre le serveur) d'une XSS (contre les autres visiteurs)"
+prerequis: []
+tags: ["xss"]
+quiz:
+  - question: "Dans une attaque XSS réussie, dans le navigateur de qui le code de l'attaquant s'exécute-t-il ?"
+    type: "unique"
+    reponses:
+      - texte: "Dans le navigateur de la victime, avec ses propres droits et sa propre session"
+        correcte: true
+        explication: "C'est la définition même d'une XSS : le code s'exécute côté client, dans le contexte de sécurité de la victime, pas de l'attaquant."
+      - texte: "Dans le navigateur de l'attaquant uniquement"
+        correcte: false
+        explication: "Si le code ne s'exécutait que chez l'attaquant, il n'y aurait aucun intérêt : la dangerosité d'une XSS vient précisément du fait qu'elle touche d'autres utilisateurs."
+      - texte: "Sur le serveur qui héberge le site vulnérable"
+        correcte: false
+        explication: "C'est la distinction clé avec une injection SQL : une XSS s'exécute côté client (navigateur), pas côté serveur."
+  - question: "Quelle est la différence fondamentale entre une injection SQL et une XSS ?"
+    type: "unique"
+    reponses:
+      - texte: "L'injection SQL trompe le serveur, la XSS trompe le navigateur d'un autre utilisateur"
+        correcte: true
+        explication: "Les deux exploitent le même principe (mélanger code et données non fiables), mais leur cible et leur lieu d'exécution diffèrent complètement."
+      - texte: "L'injection SQL est plus dangereuse que la XSS dans tous les cas"
+        correcte: false
+        explication: "Le niveau de danger dépend du contexte : une XSS qui vole des sessions administrateur peut être au moins aussi grave qu'une injection SQL."
+      - texte: "Il n'existe aucune différence, ce sont deux noms pour la même technique"
+        correcte: false
+        explication: "Ce sont deux familles de vulnérabilités bien distinctes, qui partagent seulement un principe général (données non fiables traitées comme du code)."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import BacASableWeb from '../../../components/interactif/BacASableWeb.astro';
+
+## Le même principe, une cible différente
+
+Le cours sur les injections SQL a posé un principe : un serveur qui mélange du code et des données non fiables peut être trompé. Le **Cross-Site Scripting** (XSS) applique exactement le même principe, mais du côté du navigateur : une page web qui insère une donnée non fiable directement dans le HTML qu'elle affiche peut être amenée à exécuter du code que son auteur n'a jamais écrit.
+
+<BlocCode
+  langue="text"
+  code={`Injection SQL : la donnée non fiable finit dans une requête envoyée à la base de données
+XSS            : la donnée non fiable finit dans du HTML envoyé au navigateur`}
+/>
+
+## Pourquoi « cross-site »
+
+Le nom vient du scénario classique : un attaquant héberge son code sur un site qu'il contrôle, mais le fait exécuter dans le contexte d'un site totalement différent, celui de la victime. D'où « cross-site » (« entre sites ») : le code traverse une frontière qu'il n'aurait jamais dû franchir.
+
+## Ce que ça change concrètement
+
+Une fois qu'un script injecté s'exécute dans le navigateur d'une victime, il hérite de tout ce à quoi cette page a normalement accès : lire le contenu affiché, manipuler le DOM, intercepter ce que la victime tape dans un formulaire, ou lire un cookie non protégé (voir le chapitre sur le vol de session, plus loin dans ce cours).
+
+<Avertissement type="danger">
+  Un script injecté ne s'exécute jamais « à distance » : il tourne dans le navigateur de la victime, avec les mêmes droits que n'importe quel script légitime du site. C'est précisément ce qui le rend dangereux, et ce qui le distingue d'une simple erreur d'affichage.
+</Avertissement>
+
+## Une première exécution, pour de vrai
+
+Le bac à sable ci-dessous s'exécute dans une iframe isolée (aucun accès à ce site ni à tes données, voir les mentions légales), mais le mécanisme est le même que dans une vraie XSS : une valeur non fiable est insérée directement dans le HTML de la page via `innerHTML`, sans aucun échappement.
+
+<BacASableWeb
+  html={`<p>Message du jour : <span id="zone"></span></p>`}
+  js={`// Une donnee non fiable, inseree telle quelle dans le HTML de la page
+const donneeNonFiable = "<img src=x onerror=\\"console.log('XSS executee')\\">";
+document.getElementById('zone').innerHTML = donneeNonFiable;`}
+/>
+
+Essaie de modifier `donneeNonFiable` : tant qu'elle finit dans `innerHTML` sans être échappée, n'importe quel contenu que tu y places s'exécute comme du HTML actif, y compris du JavaScript.
+
+<Avertissement type="astuce">
+  Remarque le payload utilisé : `<img src=x onerror="...">`, pas `<script>...</script>`. C'est volontaire, pas une préférence esthétique : les navigateurs n'exécutent jamais un `<script>` inséré via `innerHTML` (c'est une protection intégrée). Un gestionnaire d'évènement comme `onerror` ou `onload`, en revanche, s'exécute normalement dès son insertion dans le DOM. Retiens ce détail : il explique pourquoi les charges XSS réelles utilisent rarement une simple balise `<script>`.
+</Avertissement>
+
+<EncadreARetenir
+  points={[
+    "Une XSS fait exécuter du code par le navigateur d'une victime, pas par le serveur",
+    "Le code injecté hérite des privilèges et du contexte de la victime dans la page",
+    "Le mécanisme racine est le même que pour une injection SQL : une donnée non fiable traitée comme du code",
+    "Les trois chapitres suivants détaillent les trois grandes familles de XSS : réfléchie, stockée, DOM-based"
+  ]}
+/>

@@ -1,0 +1,95 @@
+---
+titre: "XSS basée sur le DOM : quand tout se passe côté client"
+titreCourt: "XSS DOM-based"
+description: "Aucun serveur impliqué : la faille vit entièrement dans le JavaScript qui s'exécute déjà dans le navigateur."
+slug: "xss-dom-based"
+cours: "xss"
+ordre: 4
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Expliquer pourquoi une XSS DOM-based peut exister sans qu'aucune donnée n'atteigne jamais le serveur"
+  - "Identifier une source et un sink dangereux dans du code JavaScript"
+  - "Observer en direct l'exécution d'une charge tapée dans un champ de saisie"
+prerequis: ["xss-stockee"]
+tags: ["xss", "dom"]
+quiz:
+  - question: "Qu'est-ce qui distingue une XSS DOM-based des deux familles précédentes ?"
+    type: "unique"
+    reponses:
+      - texte: "La faille se situe entièrement côté client, sans qu'aucune donnée n'ait besoin de transiter par le serveur"
+        correcte: true
+        explication: "Même un site entièrement statique, sans aucun serveur applicatif, peut être vulnérable à une XSS DOM-based si son JavaScript manipule le DOM dangereusement."
+      - texte: "Elle ne peut se produire que sur des sites utilisant une base de données"
+        correcte: false
+        explication: "C'est l'inverse : une XSS DOM-based ne nécessite justement aucune base de données ni aucun traitement serveur."
+      - texte: "Elle nécessite obligatoirement un formulaire de connexion"
+        correcte: false
+        explication: "Aucun formulaire de connexion n'est requis : n'importe quelle donnée manipulée par du JavaScript côté client peut être en cause."
+  - question: "Dans le vocabulaire des XSS DOM-based, que désigne un « sink » ?"
+    type: "unique"
+    reponses:
+      - texte: "Un point du code où une donnée est écrite d'une façon qui peut être interprétée comme du HTML ou du JavaScript actif"
+        correcte: true
+        explication: "innerHTML, document.write ou eval sont des sinks classiques : écrire une donnée non fiable à cet endroit déclenche son exécution."
+      - texte: "La fonction qui valide les données avant de les afficher"
+        correcte: false
+        explication: "C'est l'inverse d'un sink : une fonction de validation ou d'échappement est une protection, pas le point dangereux lui-même."
+      - texte: "Le serveur qui reçoit la requête HTTP"
+        correcte: false
+        explication: "Le terme « sink » désigne un point du code JavaScript côté client, pas un composant serveur."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import BacASableWeb from '../../../components/interactif/BacASableWeb.astro';
+
+## Une faille sans aucun aller-retour serveur
+
+Les deux chapitres précédents impliquaient tous les deux un serveur : soit pour refléter une valeur reçue, soit pour la stocker et la resservir. Une **XSS basée sur le DOM** n'a besoin ni de l'un ni de l'autre : la faille vit entièrement dans le JavaScript qui tourne déjà dans le navigateur.
+
+## Le vocabulaire : source et sink
+
+Deux notions suffisent à décrire n'importe quelle XSS DOM-based :
+
+- Une **source** : l'endroit d'où vient une donnée que le site ne contrôle pas (`location.hash`, un champ de saisie, `document.referrer`, un message reçu via `postMessage`).
+- Un **sink** : l'endroit où cette donnée est écrite d'une façon qui peut être interprétée comme du code actif (`innerHTML`, `document.write`, `eval`).
+
+<BlocCode
+  langue="text"
+  code={`const valeur = champDeSaisie.value;   // source : donnee non fiable
+element.innerHTML = valeur;            // sink : ecriture dangereuse`}
+/>
+
+Dès qu'une donnée voyage d'une source vers un sink sans passer par un traitement qui neutralise le HTML actif, la faille existe, indépendamment de tout serveur.
+
+## La démonstration : tape, regarde s'exécuter
+
+Contrairement aux démonstrations précédentes, celle-ci est directement pilotée par ce que tu tapes. Le champ ci-dessous écrit sa valeur dans la page en temps réel, via `innerHTML` :
+
+<BacASableWeb
+  html={`<input type="text" id="champ" placeholder="Tape ici..." style="width:100%;box-sizing:border-box;padding:6px;" />
+<div id="resultat" style="margin-top:10px;"></div>`}
+  js={`document.getElementById('champ').addEventListener('input', function (e) {
+  // Sink dangereux : le texte tape est ecrit directement dans le DOM
+  document.getElementById('resultat').innerHTML = e.target.value;
+});`}
+/>
+
+Tape `<img src=x onerror="console.log('XSS DOM executee')">` dans le champ : le message apparaît dans la console dès que tu termines de taper la balise, sans rechargement de page, sans aucun serveur impliqué.
+
+<Avertissement type="attention">
+  Ce même code fonctionnerait à l'identique sur un site 100 % statique, hébergé sans aucun backend. C'est le piège de cette famille de XSS : l'absence de serveur applicatif ne met jamais un site à l'abri des failles côté client.
+</Avertissement>
+
+<EncadreARetenir
+  points={[
+    "Une XSS DOM-based ne nécessite aucun aller-retour avec un serveur : la faille vit entièrement dans le JavaScript du navigateur",
+    "Une source (location.hash, un champ de saisie...) fournit une donnée non fiable",
+    "Un sink (innerHTML, document.write, eval...) l'écrit d'une façon qui l'exécute",
+    "Un site purement statique peut être vulnérable à une XSS DOM-based"
+  ]}
+/>

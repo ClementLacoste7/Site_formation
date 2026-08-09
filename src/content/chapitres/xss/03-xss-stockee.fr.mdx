@@ -1,0 +1,91 @@
+---
+titre: "XSS stockée : la charge qui persiste"
+titreCourt: "XSS stockée"
+description: "La charge est enregistrée côté serveur (un commentaire, un profil) et s'exécute pour chaque visiteur, sans lien piégé nécessaire."
+slug: "xss-stockee"
+cours: "xss"
+ordre: 3
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Expliquer pourquoi une XSS stockée touche tous les visiteurs d'une page, sans action individuelle"
+  - "Identifier les points d'entrée typiques d'une XSS stockée (commentaires, profils, avis)"
+  - "Comparer la portée d'une XSS stockée à celle d'une XSS réfléchie"
+prerequis: ["xss-reflechie"]
+tags: ["xss", "stockee"]
+quiz:
+  - question: "Pourquoi une XSS stockée est-elle généralement considérée comme plus dangereuse qu'une XSS réfléchie ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce qu'elle s'exécute pour chaque visiteur de la page, sans qu'aucun lien piégé ne soit nécessaire"
+        correcte: true
+        explication: "Une fois la charge enregistrée côté serveur, elle est servie à tout le monde automatiquement : la portée est nettement plus large qu'une XSS réfléchie, qui ne touche qu'une victime à la fois."
+      - texte: "Parce qu'elle utilise obligatoirement JavaScript, contrairement à la XSS réfléchie"
+        correcte: false
+        explication: "Les deux familles peuvent exploiter du JavaScript de la même façon : ce n'est pas ce qui les distingue."
+      - texte: "Parce qu'elle contourne systématiquement HTTPS"
+        correcte: false
+        explication: "HTTPS ne joue aucun rôle dans cette distinction (voir le cours sur HTTP et le fonctionnement du web) : les deux familles de XSS fonctionnent identiquement en HTTP ou en HTTPS."
+  - question: "Lequel de ces points d'entrée est un candidat typique pour une XSS stockée ?"
+    type: "unique"
+    reponses:
+      - texte: "Un champ de commentaire affiché à tous les visiteurs d'un article"
+        correcte: true
+        explication: "Tout contenu saisi par un utilisateur et réaffiché ensuite à d'autres (commentaires, avis, nom de profil) est un candidat direct à une XSS stockée si le contenu n'est pas échappé."
+      - texte: "Le numéro de version affiché dans le pied de page du site"
+        correcte: false
+        explication: "Cette valeur n'est jamais fournie par un utilisateur : elle n'est pas exploitable comme point d'entrée d'une injection."
+      - texte: "Un identifiant de session déjà présent dans un cookie"
+        correcte: false
+        explication: "Un cookie de session est une cible potentielle de vol (voir plus loin dans ce cours), pas un point d'entrée pour stocker une charge."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import BacASableWeb from '../../../components/interactif/BacASableWeb.astro';
+
+## Une charge qui n'a plus besoin de lien piégé
+
+Le chapitre précédent montrait une charge qui n'existe que le temps d'une requête. Une **XSS stockée** change ce point précis : la charge est enregistrée quelque part côté serveur (une base de données, un fichier), puis renvoyée à **chaque** visiteur qui charge la page concernée, sans qu'aucune action individuelle ne soit nécessaire au-delà de la visite elle-même.
+
+## Des points d'entrée très communs
+
+N'importe quel contenu saisi par un utilisateur et réaffiché plus tard à d'autres est un candidat : un commentaire, un avis produit, un nom de profil, un message dans un forum.
+
+<BlocCode
+  langue="text"
+  code={`1. L'attaquant poste un commentaire contenant une charge XSS
+2. Le serveur enregistre ce commentaire tel quel, sans l'échapper
+3. Chaque visiteur qui affiche la page reçoit la charge dans le HTML
+4. Le navigateur de chaque visiteur exécute la charge automatiquement`}
+/>
+
+<Avertissement type="danger">
+  Une XSS stockée sur une page très visitée touche potentiellement des milliers d'utilisateurs avant même d'être détectée, contrairement à une XSS réfléchie qui ne touche qu'une victime à la fois.
+</Avertissement>
+
+## La démonstration
+
+Le bac à sable ci-dessous simule un commentaire déjà enregistré en base de données, affiché à l'ouverture de la page, exactement comme le ferait une vraie section de commentaires :
+
+<BacASableWeb
+  html={`<h3>Commentaires</h3><div id="commentaires"></div>`}
+  js={`// Simule un commentaire deja enregistre en base de donnees,
+// servi a TOUS les visiteurs de la page au chargement
+const commentaireStocke = "Super article ! <img src=x onerror=\\"console.log('XSS stockee executee')\\">";
+document.getElementById('commentaires').innerHTML = commentaireStocke;`}
+/>
+
+Contrairement à la démonstration du chapitre précédent, il n'y a ici aucune notion de lien à cliquer : la charge s'exécute dès que la page se charge, pour n'importe quel visiteur.
+
+<EncadreARetenir
+  points={[
+    "Une XSS stockée enregistre la charge côté serveur, elle s'exécute ensuite pour chaque visiteur",
+    "Aucune action individuelle (clic sur un lien) n'est nécessaire, contrairement à une XSS réfléchie",
+    "Commentaires, avis, profils : tout contenu utilisateur réaffiché à d'autres est un point d'entrée typique",
+    "La portée d'une XSS stockée est généralement bien plus large que celle d'une XSS réfléchie"
+  ]}
+/>

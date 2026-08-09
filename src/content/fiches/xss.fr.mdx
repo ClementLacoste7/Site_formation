@@ -1,0 +1,48 @@
+---
+titre: "Fiche de révision : Cross-Site Scripting (XSS)"
+description: "L'essentiel à retenir sur la XSS : réfléchie, stockée, DOM-based, le vol de session, et comment s'en protéger."
+slug: "xss"
+coursLie: "xss"
+tags: ["xss"]
+questions:
+  - question: "Qu'est-ce qu'une XSS, et où s'exécute le code injecté ?"
+    reponse: "Une XSS fait exécuter du code par le navigateur d'une victime, pas par le serveur. Le code hérite des privilèges et du contexte de la victime dans la page, contrairement à une injection SQL qui vise le serveur."
+  - question: "Quelle est la différence entre une XSS réfléchie et une XSS stockée ?"
+    reponse: "Réfléchie : la donnée vient d'un paramètre de requête, renvoyée telle quelle sans être stockée, une victime doit cliquer sur un lien piégé. Stockée : la charge est enregistrée côté serveur et s'exécute pour tous les visiteurs de la page, sans lien nécessaire."
+  - question: "Qu'est-ce qu'une XSS basée sur le DOM ?"
+    reponse: "Une faille entièrement côté client : une donnée non fiable (source, ex. un champ de saisie) est écrite dans le DOM d'une façon dangereuse (sink, ex. innerHTML), sans qu'aucune donnée n'ait besoin de transiter par un serveur."
+  - question: "Pourquoi un payload <script> inséré via innerHTML ne s'exécute-t-il pas ?"
+    reponse: "Les navigateurs rendent inertes les balises <script> insérées via innerHTML, par protection intégrée. Les charges réelles utilisent plutôt des gestionnaires d'évènements comme onerror ou onload, qui s'exécutent normalement dès leur insertion."
+  - question: "Comment une XSS permet-elle de voler une session utilisateur ?"
+    reponse: "Un script injecté lit document.cookie et exfiltre sa valeur vers un serveur contrôlé par l'attaquant, qui la réutilise ensuite comme son propre cookie pour usurper la session de la victime, sans jamais connaître son mot de passe."
+  - question: "Quel attribut de cookie neutralise précisément ce vol de session ?"
+    reponse: "HttpOnly : il rend le cookie invisible à document.cookie, donc illisible par un script injecté, quelle que soit la famille de XSS exploitée par ailleurs."
+  - question: "Quelle est la protection de fond contre la XSS ?"
+    reponse: "L'échappement contextuel de toute donnée non fiable avant insertion dans la page, et préférer textContent à innerHTML dès qu'aucun HTML n'a besoin d'être inséré : textContent ne réalise jamais d'interprétation HTML."
+  - question: "Que change une Content-Security-Policy stricte face à une XSS ?"
+    reponse: "Sans 'unsafe-inline', elle bloque l'exécution des scripts et gestionnaires d'évènements inline (dont onerror), neutralisant de nombreuses charges même si l'échappement a échoué quelque part. Elle complète l'échappement, elle ne le remplace pas."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Le sink à éviter
+
+<BlocCode
+  langue="text"
+  code={`// Dangereux : interprete la valeur comme du HTML actif
+element.innerHTML = valeurNonFiable;`}
+/>
+
+## Le réflexe qui neutralise le risque
+
+<BlocCode
+  langue="text"
+  code={`// Sûr : traite toujours la valeur comme du texte brut
+element.textContent = valeurNonFiable;`}
+/>
+
+<Avertissement type="astuce">
+  Une charge comme `<img src=x onerror="...">` s'exécute via innerHTML, mais s'affiche comme texte littéral et inoffensif via textContent. Une seule ligne fait toute la différence.
+</Avertissement>

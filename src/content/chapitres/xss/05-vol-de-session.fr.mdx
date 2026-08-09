@@ -1,0 +1,102 @@
+---
+titre: "Voler une session par XSS : la démonstration concrète"
+titreCourt: "Voler une session"
+description: "Ce que devient une XSS quand la charge lit et exfiltre un cookie de session non protégé : usurper une connexion sans jamais connaître le mot de passe."
+slug: "vol-de-session"
+cours: "xss"
+ordre: 5
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Relier une XSS à la notion de cookie de session vue dans le cours sur HTTP"
+  - "Décrire les étapes d'un vol de session par XSS, de l'injection à l'usurpation"
+  - "Expliquer pourquoi l'attribut HttpOnly neutralise précisément cette attaque"
+prerequis: ["xss-dom-based"]
+tags: ["xss", "cookies", "authentification"]
+quiz:
+  - question: "Une fois qu'une charge XSS a lu un cookie de session non protégé, que fait l'attaquant du contenu obtenu ?"
+    type: "unique"
+    reponses:
+      - texte: "Il l'exfiltre vers un serveur qu'il contrôle, puis l'utilise comme son propre cookie pour usurper la session de la victime"
+        correcte: true
+        explication: "Un identifiant de session copié dans le navigateur de l'attaquant suffit généralement à se faire passer pour la victime, sans jamais avoir eu besoin de son mot de passe."
+      - texte: "Il le déchiffre pour retrouver le mot de passe original de la victime"
+        correcte: false
+        explication: "Un cookie de session n'est pas un mot de passe chiffré : c'est un identifiant arbitraire que le serveur associe à une session ouverte, il n'y a rien à déchiffrer."
+      - texte: "Il le transmet automatiquement au serveur légitime, qui invalide la session de la victime"
+        correcte: false
+        explication: "Rien de tel ne se produit automatiquement : l'attaquant doit lui-même exploiter la valeur volée pour usurper la session."
+  - question: "Pourquoi l'attribut HttpOnly d'un cookie neutralise-t-il précisément cette attaque ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce qu'il rend le cookie invisible à document.cookie, donc illisible par un script injecté via XSS"
+        correcte: true
+        explication: "HttpOnly ne bloque pas la XSS elle-même, mais empêche le script injecté de lire la valeur du cookie de session, ce qui casse cette chaîne d'exploitation précise."
+      - texte: "Parce qu'il empêche toute exécution de JavaScript sur la page"
+        correcte: false
+        explication: "HttpOnly ne bloque aucun script : il restreint uniquement l'accès à la valeur d'un cookie spécifique depuis JavaScript."
+      - texte: "Parce qu'il chiffre automatiquement la valeur du cookie"
+        correcte: false
+        explication: "HttpOnly ne chiffre rien (voir le cours sur HTTP et le fonctionnement du web) : c'est une restriction de lecture, pas un mécanisme de chiffrement."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import BacASableWeb from '../../../components/interactif/BacASableWeb.astro';
+
+## Pourquoi les quatre chapitres précédents mènent ici
+
+Le cours sur HTTP a montré comment un cookie de session permet à un serveur de reconnaître un visiteur d'une requête à l'autre. Ce chapitre relie ce mécanisme aux trois familles de XSS vues jusqu'ici : peu importe laquelle est exploitée, une fois qu'un script s'exécute dans le navigateur d'une victime authentifiée, ce script peut tenter de lire son cookie de session.
+
+<Avertissement type="danger">
+  Voler un cookie de session équivaut, pour un attaquant, à se connecter à la place de la victime, sans jamais avoir eu besoin de son mot de passe. C'est l'une des conséquences les plus graves d'une XSS.
+</Avertissement>
+
+## Les étapes de l'exploitation
+
+<BlocCode
+  langue="text"
+  code={`1. La victime se connecte normalement, le site pose un cookie de session
+2. La victime charge une page contenant une charge XSS (peu importe la famille)
+3. La charge lit document.cookie et envoie sa valeur vers un serveur controle par l'attaquant
+4. L'attaquant reutilise cette valeur comme son propre cookie
+5. Le serveur legitime ne voit aucune difference : il reconnait "la victime"`}
+/>
+
+## La démonstration
+
+Le bac à sable ci-dessous simule les deux bouts de la chaîne : la valeur de session que le vrai site aurait déjà posée après connexion, puis une charge XSS injectée (via `innerHTML`, la même faille que dans les chapitres précédents) qui la lit.
+
+<Avertissement type="info">
+  Petite adaptation technique : l'isolation de ce bac à sable (invariant de sécurité de ce site) va plus loin qu'une page ordinaire, au point que `document.cookie` y est totalement désactivé, y compris en lecture ou en écriture. La démonstration simule donc la valeur de session via une variable JavaScript ordinaire plutôt qu'un vrai cookie : le principe de lecture et d'exfiltration reste rigoureusement identique.
+</Avertissement>
+
+<BacASableWeb
+  html={`<h3>Commentaires</h3><div id="zone"></div>`}
+  js={`// Etape 1 : le site pose deja cette valeur de session apres connexion
+// (simulee via une variable : document.cookie est desactive dans ce
+// bac a sable sandboxe, voir la remarque ci-dessus)
+window.cookieDeSession = "session_id=a3f9c2e1_utilisateur_authentifie";
+
+// Etape 2 : une charge XSS injectee lit cette valeur et l'exfiltre
+const commentaireInjecte = "<img src=x onerror=\\"console.log('Requete envoyee vers attaquant.test : ' + window.cookieDeSession)\\">";
+document.getElementById('zone').innerHTML = commentaireInjecte;`}
+/>
+
+En réalité, cette dernière ligne serait un appel réseau silencieux (`fetch(...)` ou `new Image().src = ...`) vers un serveur que l'attaquant contrôle, jamais visible pour la victime. Ce bac à sable se contente de l'afficher en clair dans la console, pour rendre la fuite visible.
+
+## Le seul détail qui aurait tout changé
+
+Si ce cookie avait été posé avec l'attribut `HttpOnly` (vu dans le cours sur HTTP), la ligne `document.cookie` à l'intérieur du script injecté n'aurait tout simplement pas contenu `session_id` : la valeur reste invisible à JavaScript, quelle que soit la faille XSS exploitée par ailleurs.
+
+<EncadreARetenir
+  points={[
+    "Peu importe la famille de XSS exploitée : une fois un script exécuté chez la victime, il peut tenter de lire son cookie de session",
+    "Un cookie de session volé permet à l'attaquant d'usurper la connexion de la victime, sans connaître son mot de passe",
+    "L'exfiltration se fait typiquement vers un serveur contrôlé par l'attaquant, silencieusement",
+    "HttpOnly ne bloque pas la XSS elle-même, mais rend le cookie de session illisible depuis un script injecté"
+  ]}
+/>

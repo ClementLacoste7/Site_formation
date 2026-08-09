@@ -1,0 +1,96 @@
+---
+titre: "XSS réfléchie : injecter via l'URL"
+titreCourt: "XSS réfléchie"
+description: "La donnée non fiable vient d'un paramètre d'URL, renvoyée telle quelle dans la page : il suffit d'un lien piégé."
+slug: "xss-reflechie"
+cours: "xss"
+ordre: 2
+duree: 10
+niveau: "debutant"
+objectifs:
+  - "Décrire le trajet d'une XSS réfléchie, du lien piégé à l'exécution"
+  - "Expliquer pourquoi une XSS réfléchie nécessite que la victime clique sur un lien"
+  - "Construire une charge XSS simple qui s'exécute dans un contexte HTML"
+prerequis: ["quest-ce-quune-xss"]
+tags: ["xss", "reflechie", "requetes"]
+quiz:
+  - question: "D'où vient la donnée non fiable dans une XSS réfléchie ?"
+    type: "unique"
+    reponses:
+      - texte: "D'un paramètre de la requête (typiquement dans l'URL), renvoyé tel quel par le serveur dans sa réponse"
+        correcte: true
+        explication: "Le serveur « réfléchit » (renvoie) une valeur reçue en entrée sans l'échapper : d'où le nom de cette famille de XSS."
+      - texte: "D'une valeur enregistrée en base de données lors d'une visite précédente"
+        correcte: false
+        explication: "C'est le principe d'une XSS stockée (chapitre suivant), pas d'une XSS réfléchie : ici, rien n'est conservé côté serveur."
+      - texte: "D'un cookie déjà présent dans le navigateur de la victime"
+        correcte: false
+        explication: "Un cookie peut être une cible de vol via XSS (voir plus loin dans ce cours), mais ce n'est pas la source de l'injection ici."
+  - question: "Pourquoi une XSS réfléchie nécessite-t-elle une action de la victime (cliquer sur un lien) ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que la charge n'existe que dans la requête envoyée, elle doit donc être incluse dans le lien que la victime utilise"
+        correcte: true
+        explication: "Rien n'est stocké côté serveur : sans que la victime envoie elle-même la requête piégée, la charge ne peut jamais atteindre son navigateur."
+      - texte: "Parce que les navigateurs bloquent par défaut les scripts venant de requêtes automatiques"
+        correcte: false
+        explication: "Ce n'est pas un mécanisme de blocage du navigateur qui est en cause : c'est simplement que la charge n'existe nulle part avant que quelqu'un envoie la requête qui la contient."
+      - texte: "Parce qu'un clic humain est requis pour valider un certificat HTTPS"
+        correcte: false
+        explication: "Le certificat HTTPS n'a aucun rapport avec ce mécanisme : une XSS réfléchie fonctionnerait de la même façon en HTTP."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import BacASableWeb from '../../../components/interactif/BacASableWeb.astro';
+
+## Le trajet d'une XSS réfléchie
+
+Imagine une page de résultats de recherche qui affiche le terme recherché, extrait directement de l'URL :
+
+<BlocCode langue="text" code={`https://exemple.test/recherche?q=injection+sql`} />
+
+Si le serveur insère la valeur de `q` dans la page sans l'échapper, la page générée ressemble à :
+
+<BlocCode langue="text" code={`<p>Résultats pour : injection sql</p>`} />
+
+Un attaquant qui contrôle la valeur de `q` contrôle donc une partie du HTML renvoyé. Il ne lui reste qu'à convaincre une victime de cliquer sur un lien contenant sa charge :
+
+<BlocCode
+  langue="text"
+  code={`https://exemple.test/recherche?q=<img src=x onerror="voleSession()">`}
+/>
+
+## Pourquoi « réfléchie »
+
+Le serveur ne fait que **refléter** (renvoyer) la valeur reçue, sans jamais la conserver. C'est ce qui distingue cette famille des deux autres : rien n'est stocké, la charge n'existe que le temps de cette requête précise, et seule une personne qui clique sur le lien piégé est affectée.
+
+<Avertissement type="info">
+  C'est aussi ce qui rend une XSS réfléchie plus difficile à exploiter à grande échelle qu'une XSS stockée : il faut convaincre chaque victime de cliquer sur un lien spécifique, souvent via un e-mail ou un message trompeur.
+</Avertissement>
+
+## La démonstration
+
+Le bac à sable ci-dessous simule ce que fait le serveur une fois la requête reçue : il prend une valeur (représentant le paramètre `q` déjà extrait de l'URL) et l'insère directement dans la page.
+
+<BacASableWeb
+  html={`<p>Resultats de recherche pour : <span id="zone"></span></p>`}
+  js={`// Simule le parametre "q" deja extrait de l'URL par le serveur,
+// puis reinjecte tel quel dans la page (c'est la faille)
+const parametreRecu = "<img src=x onerror=\\"console.log('XSS reflechie executee')\\">";
+document.getElementById('zone').innerHTML = parametreRecu;`}
+/>
+
+Modifie `parametreRecu` pour construire ta propre charge. Tant que le serveur (ici simulé) ne fait aucune vérification, n'importe quelle valeur atteint la page telle quelle.
+
+<EncadreARetenir
+  points={[
+    "Dans une XSS réfléchie, la donnée non fiable vient d'un paramètre de la requête, typiquement l'URL",
+    "Le serveur renvoie cette valeur telle quelle, sans jamais la stocker",
+    "Une victime doit cliquer sur un lien piégé pour être affectée : rien ne persiste entre deux requêtes",
+    "Le chapitre suivant montre la variante où la charge est stockée et touche tous les visiteurs"
+  ]}
+/>

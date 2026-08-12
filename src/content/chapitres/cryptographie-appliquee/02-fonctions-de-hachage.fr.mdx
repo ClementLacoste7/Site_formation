@@ -1,0 +1,90 @@
+---
+titre: "Les fonctions de hachage : MD5, SHA, à quoi ça sert"
+titreCourt: "Fonctions de hachage"
+description: "Les propriétés qui définissent une bonne fonction de hachage, et pourquoi MD5 et SHA-1 sont aujourd'hui déconseillés."
+slug: "fonctions-de-hachage"
+cours: "cryptographie-appliquee"
+ordre: 2
+duree: 10
+niveau: "debutant"
+objectifs:
+  - "Citer les propriétés attendues d'une fonction de hachage (taille fixe, déterminisme, effet avalanche)"
+  - "Observer l'effet avalanche sur un exemple concret"
+  - "Expliquer pourquoi MD5 et SHA-1 sont déconseillés pour un usage sensible aujourd'hui"
+prerequis: ["chiffrer-hacher-encoder"]
+tags: ["cryptographie", "hachage"]
+quiz:
+  - question: "Qu'appelle-t-on « l'effet avalanche » d'une fonction de hachage ?"
+    type: "unique"
+    reponses:
+      - texte: "Un tout petit changement dans l'entrée produit une empreinte totalement différente"
+        correcte: true
+        explication: "Changer un seul caractère (y compris la casse) doit bouleverser l'empreinte de façon imprévisible : c'est ce qui empêche de deviner une entrée à partir de similarités dans son empreinte."
+      - texte: "La fonction devient de plus en plus lente à mesure que l'entrée grandit"
+        correcte: false
+        explication: "La vitesse n'est pas ce que désigne l'effet avalanche : c'est une propriété de sensibilité de la sortie aux changements de l'entrée."
+      - texte: "Plusieurs fonctions de hachage s'enchaînent automatiquement les unes après les autres"
+        correcte: false
+        explication: "L'effet avalanche ne concerne qu'une seule fonction de hachage et sa réaction à un petit changement d'entrée, pas un enchaînement de fonctions."
+  - question: "Pourquoi MD5 et SHA-1 sont-ils déconseillés pour un usage sensible aujourd'hui ?"
+    type: "unique"
+    reponses:
+      - texte: "Des collisions (deux entrées différentes donnant la même empreinte) ont été démontrées, ce qui casse une propriété attendue"
+        correcte: true
+        explication: "Une fonction de hachage sûre doit rendre les collisions extrêmement improbables à trouver : pour MD5 (et dans une moindre mesure SHA-1), des collisions ont été construites délibérément, cassant cette garantie."
+      - texte: "Ils sont trop lents pour un usage moderne"
+        correcte: false
+        explication: "C'est l'inverse : MD5 et SHA-1 sont réputés pour leur rapidité, ce qui les rend d'ailleurs mal adaptés au hachage de mots de passe (voir le chapitre suivant)."
+      - texte: "Ils ne produisent pas une empreinte de taille fixe"
+        correcte: false
+        explication: "MD5 et SHA-1 produisent bien une empreinte de taille fixe (128 et 160 bits respectivement) : ce n'est pas ce qui leur est reproché."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Ce qu'on attend d'une bonne fonction de hachage
+
+Trois propriétés définissent une fonction de hachage utile en sécurité :
+
+- **Taille fixe** : quelle que soit la taille de l'entrée, la sortie a toujours la même longueur.
+- **Déterminisme** : la même entrée produit toujours exactement la même empreinte.
+- **Effet avalanche** : un changement infime de l'entrée (même un seul caractère) doit produire une empreinte radicalement différente, sans aucun lien visible avec l'empreinte d'origine.
+
+## L'effet avalanche, en direct
+
+<ConsolePython codeInitial={`import hashlib
+
+for texte in ["password", "Password", "password "]:
+    empreinte = hashlib.sha256(texte.encode()).hexdigest()
+    print(f"{texte!r:15} -> {empreinte}")`} />
+
+Une seule majuscule, ou une espace en trop, et l'empreinte n'a plus rien en commun avec la précédente. C'est volontaire : si des entrées proches produisaient des empreintes proches, un attaquant pourrait s'en servir pour deviner l'entrée d'origine par approximations successives.
+
+## MD5, SHA-1, SHA-256 : même principe, pas la même confiance
+
+<ConsolePython codeInitial={`import hashlib
+
+message = b"test"
+for nom, algo in [("MD5", hashlib.md5), ("SHA-1", hashlib.sha1), ("SHA-256", hashlib.sha256)]:
+    empreinte = algo(message).hexdigest()
+    print(f"{nom:8} : {empreinte}  ({len(empreinte)} caracteres)")`} />
+
+MD5 (1992) et SHA-1 (1995) sont plus anciens et surtout plus courts, donc plus rapides à calculer. Cette rapidité, combinée à des faiblesses découvertes depuis (des **collisions**, c'est-à-dire deux entrées différentes produisant volontairement la même empreinte, ont été construites), les rend impropres à un usage sensible aujourd'hui.
+
+<Avertissement type="attention">
+  MD5 et SHA-1 restent parfois utilisés pour des usages non sensibles (vérifier qu'un téléchargement n'a pas été corrompu par erreur, par exemple). Pour tout ce qui touche à la sécurité (mots de passe, signatures), la famille SHA-2 (SHA-256 et au-delà) est la référence actuelle.
+</Avertissement>
+
+<EncadreARetenir
+  points={[
+    "Une fonction de hachage produit une sortie de taille fixe, de façon déterministe",
+    "L'effet avalanche garantit qu'un changement minime de l'entrée bouleverse totalement l'empreinte",
+    "MD5 et SHA-1 sont rapides mais vulnérables à des collisions démontrées : à éviter pour un usage sensible",
+    "SHA-256 (famille SHA-2) est la référence actuelle pour un usage lié à la sécurité"
+  ]}
+/>

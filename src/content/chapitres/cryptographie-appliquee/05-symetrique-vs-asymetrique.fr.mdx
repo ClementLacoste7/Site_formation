@@ -1,0 +1,99 @@
+---
+titre: "Symétrique vs asymétrique : les deux familles de chiffrement"
+titreCourt: "Symétrique vs asymétrique"
+description: "Une clé unique partagée par les deux parties, ou une paire de clés dont une seule reste secrète : deux approches, deux problèmes résolus différemment."
+slug: "symetrique-vs-asymetrique"
+cours: "cryptographie-appliquee"
+ordre: 5
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Décrire le principe du chiffrement symétrique et son point faible (la distribution de la clé)"
+  - "Décrire le principe du chiffrement asymétrique et pourquoi il résout ce point faible"
+  - "Expliquer pourquoi les systèmes réels combinent les deux plutôt que de choisir l'un ou l'autre"
+prerequis: ["le-salage"]
+tags: ["cryptographie", "chiffrement"]
+quiz:
+  - question: "Quel est le point faible principal du chiffrement symétrique ?"
+    type: "unique"
+    reponses:
+      - texte: "La même clé sert à chiffrer et déchiffrer : il faut la transmettre à l'autre partie sans qu'un attaquant l'intercepte"
+        correcte: true
+        explication: "C'est le problème de la distribution de clé : si le canal utilisé pour transmettre la clé est déjà compromis, chiffrer les données qui suivent ne sert plus à rien."
+      - texte: "Il est beaucoup trop lent pour chiffrer de grandes quantités de données"
+        correcte: false
+        explication: "C'est l'inverse : le chiffrement symétrique est nettement plus rapide que l'asymétrique, c'est d'ailleurs pour ça qu'il reste utilisé pour le gros du trafic (voir le chapitre suivant sur TLS)."
+      - texte: "Il ne peut chiffrer que des messages très courts"
+        correcte: false
+        explication: "La longueur du message n'est pas une limite propre au chiffrement symétrique : son point faible concerne la distribution de la clé, pas la taille des données."
+  - question: "Pourquoi les systèmes réels (comme TLS) combinent-ils chiffrement symétrique et asymétrique plutôt que de n'utiliser que l'un des deux ?"
+    type: "unique"
+    reponses:
+      - texte: "L'asymétrique résout la distribution de clé mais est trop lent pour tout chiffrer ; le symétrique est rapide mais a besoin d'une clé déjà partagée"
+        correcte: true
+        explication: "L'approche hybride utilise l'asymétrique juste pour échanger une clé symétrique de session en sécurité, puis bascule sur le symétrique, rapide, pour le reste des échanges."
+      - texte: "Parce que la réglementation impose l'utilisation des deux techniques simultanément"
+        correcte: false
+        explication: "Ce choix est purement technique (vitesse et distribution de clé), pas une contrainte réglementaire."
+      - texte: "Parce que le chiffrement asymétrique seul serait trop facile à casser"
+        correcte: false
+        explication: "Ce n'est pas une question de robustesse : bien dimensionné, l'asymétrique seul serait sûr, mais bien trop lent pour chiffrer de gros volumes de données en continu."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Chiffrement symétrique : une seule clé, dans les deux sens
+
+Dans un chiffrement **symétrique**, la même clé sert à chiffrer et à déchiffrer. C'est simple et rapide, mais ça suppose un problème résolu au préalable : comment les deux parties se mettent-elles d'accord sur cette clé, sans qu'un tiers qui écoute la conversation ne l'obtienne aussi ?
+
+<ConsolePython codeInitial={`# Chiffrement symetrique jouet (XOR), a but pedagogique uniquement :
+# jamais utilise tel quel en pratique, l'algorithme reel (AES) est
+# infiniment plus robuste. Le point a retenir : LA MEME cle sert aux
+# deux operations.
+
+def xor_chiffrer(texte, cle):
+    return bytes(octet ^ cle for octet in texte.encode())
+
+message = "Message secret"
+cle = 42  # la meme cle chiffre ET dechiffre
+
+chiffre = xor_chiffrer(message, cle)
+print("Chiffre (octets) :", list(chiffre))
+
+dechiffre = bytes(octet ^ cle for octet in chiffre).decode()
+print("Dechiffre :", dechiffre)`} />
+
+<Avertissement type="attention">
+  Ce chiffrement XOR à clé unique est un jouet pédagogique, pas une recommandation : il se casse en quelques lignes de code. Un algorithme symétrique réel (AES, par exemple) applique le même principe de « clé unique dans les deux sens », avec une robustesse mathématique sans commune mesure.
+</Avertissement>
+
+## Chiffrement asymétrique : deux clés, une seule reste secrète
+
+Le chiffrement **asymétrique** utilise une paire de clés mathématiquement liées : une **clé publique**, qu'on peut diffuser librement, et une **clé privée**, qui ne quitte jamais son propriétaire. Ce que la clé publique chiffre, seule la clé privée correspondante peut le déchiffrer.
+
+<BlocCode
+  langue="text"
+  code={`Analogie : la cle publique est un cadenas ouvert, distribue a qui veut.
+Tout le monde peut le refermer sur une boite (chiffrer), mais seul le
+proprietaire de la cle privee correspondante peut l'ouvrir (dechiffrer).`}
+/>
+
+Ce mécanisme résout directement le problème de distribution de clé : aucun secret ne circule jamais sur le réseau, seule la clé publique voyage.
+
+## Pourquoi pas juste de l'asymétrique, alors ?
+
+L'asymétrique est nettement plus coûteux en calcul que le symétrique, de plusieurs ordres de grandeur. L'utiliser pour chiffrer un flux entier de données serait bien trop lent en pratique. La solution retenue par la quasi-totalité des systèmes réels, dont TLS (chapitre suivant), est **hybride** : l'asymétrique sert uniquement à échanger en sécurité une clé symétrique éphémère, puis tout le reste de la conversation bascule sur le symétrique, rapide.
+
+<EncadreARetenir
+  points={[
+    "Le chiffrement symétrique utilise une seule clé pour chiffrer et déchiffrer : rapide, mais pose un problème de distribution",
+    "Le chiffrement asymétrique utilise une paire clé publique/clé privée : résout la distribution, mais coûteux en calcul",
+    "Une approche hybride combine les deux : l'asymétrique échange une clé, le symétrique chiffre le gros du trafic",
+    "C'est exactement l'approche que TLS utilise en pratique, détaillée au chapitre suivant"
+  ]}
+/>

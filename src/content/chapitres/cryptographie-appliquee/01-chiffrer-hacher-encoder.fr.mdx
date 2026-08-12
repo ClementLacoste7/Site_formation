@@ -1,0 +1,95 @@
+---
+titre: "Chiffrer, hacher, encoder : trois choses qu'on confond tout le temps"
+titreCourt: "Chiffrer, hacher, encoder"
+description: "Trois opérations qui transforment des données, mais avec des propriétés radicalement différentes : réversible avec clé, irréversible, ou réversible sans rien du tout."
+slug: "chiffrer-hacher-encoder"
+cours: "cryptographie-appliquee"
+ordre: 1
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Définir chiffrement, hachage et encodage par leur propriété distinctive"
+  - "Expliquer pourquoi l'encodage (Base64) n'apporte aucune sécurité"
+  - "Reconnaître à quelle catégorie appartient une opération donnée"
+prerequis: []
+tags: ["cryptographie"]
+quiz:
+  - question: "Qu'est-ce qui distingue fondamentalement le chiffrement du hachage ?"
+    type: "unique"
+    reponses:
+      - texte: "Le chiffrement est réversible avec la bonne clé, le hachage est irréversible par construction"
+        correcte: true
+        explication: "Chiffrer un message permet de le déchiffrer avec la clé adéquate. Hacher un message ne permet jamais de retrouver le message d'origine à partir de l'empreinte."
+      - texte: "Le hachage utilise toujours une clé secrète, contrairement au chiffrement"
+        correcte: false
+        explication: "C'est l'inverse qui est généralement vrai : le chiffrement repose sur une clé, le hachage (dans sa forme la plus simple) n'en utilise aucune."
+      - texte: "Il n'existe aucune différence : ce sont deux noms pour la même opération"
+        correcte: false
+        explication: "Ce sont deux opérations aux propriétés opposées sur un point essentiel : la réversibilité."
+  - question: "Pourquoi l'encodage Base64 n'apporte-t-il aucune sécurité ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que n'importe qui peut le décoder sans avoir besoin d'aucun secret"
+        correcte: true
+        explication: "Base64 est une simple transformation de format, sans clé ni secret : décoder une valeur encodée est à la portée de n'importe qui, instantanément."
+      - texte: "Parce que Base64 ne fonctionne qu'avec du texte, jamais avec des données binaires"
+        correcte: false
+        explication: "Base64 fonctionne au contraire très bien avec des données binaires : c'est même l'un de ses usages les plus courants (encoder une image dans du texte, par exemple)."
+      - texte: "Parce que Base64 est une technique de hachage trop faible"
+        correcte: false
+        explication: "Base64 n'est ni du chiffrement ni du hachage : c'est un encodage, une catégorie à part entière avec des propriétés différentes des deux autres."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Trois mots, trois propriétés différentes
+
+Ces trois termes reviennent partout dès qu'on parle de sécurité, et sont presque systématiquement confondus. Chacun répond pourtant à un besoin précis, avec une propriété qui les distingue :
+
+<BlocCode
+  langue="text"
+  code={`Chiffrement : reversible AVEC la bonne cle    -> confidentialite
+Hachage      : irreversible, par construction  -> integrite / verification
+Encodage     : reversible SANS aucune cle       -> format de transport`}
+/>
+
+## L'erreur la plus fréquente : confondre encodage et sécurité
+
+Le Base64 (souvent croisé dans une URL ou un en-tête HTTP) a l'air « chiffré » aux yeux d'un débutant : illisible au premier coup d'œil, composé de lettres et de chiffres. Il ne protège pourtant absolument rien : aucune clé n'est nécessaire pour revenir à la valeur d'origine.
+
+<Avertissement type="attention">
+  Stocker un mot de passe encodé en Base64 plutôt qu'en clair n'apporte aucune protection réelle : n'importe qui peut le décoder en une fraction de seconde, sans outil particulier.
+</Avertissement>
+
+## La démonstration
+
+<ConsolePython codeInitial={`import base64, hashlib
+
+message = "mot de passe"
+
+# Encodage : reversible par n'importe qui, sans aucun secret
+encode = base64.b64encode(message.encode()).decode()
+decode = base64.b64decode(encode).decode()
+print("Encode :", encode)
+print("Decode :", decode)
+
+# Hachage : irreversible par construction, aucune fonction "dehacher" n'existe
+empreinte = hashlib.sha256(message.encode()).hexdigest()
+print("Empreinte SHA-256 :", empreinte)
+print("Retrouver le message a partir de l'empreinte : impossible directement")`} />
+
+Le décodage Base64 ne demande rien de plus que l'algorithme public. Retrouver le message à partir de son empreinte SHA-256, en revanche, n'a pas de solution directe : le chapitre 3 de ce cours montre les méthodes réellement utilisées pour y arriver malgré tout.
+
+<EncadreARetenir
+  points={[
+    "Le chiffrement est réversible avec la bonne clé : il protège la confidentialité",
+    "Le hachage est irréversible par construction : il sert à vérifier, pas à cacher",
+    "L'encodage (Base64...) est réversible sans aucune clé : ce n'est pas un mécanisme de sécurité",
+    "Confondre encodage et chiffrement est une erreur de sécurité fréquente et grave"
+  ]}
+/>

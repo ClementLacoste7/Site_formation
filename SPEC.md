@@ -794,11 +794,11 @@ Objectif : 30 à 40 chapitres publiés avant la candidature AdSense.
 | Ordre | Cours | Chapitres | Priorité |
 |---|---|---|---|
 | 1 | Fondamentaux de la cybersécurité | 5 | Moyenne |
-| 2 | HTTP et fonctionnement du web | 6 | **Haute** |
+| 2 | HTTP et fonctionnement du web | 6 (rédigés) | **Haute** |
 | 3 | Injections SQL | 6 (rédigés) | **Haute** |
-| 4 | Cross-Site Scripting (XSS) | 5 | Haute |
+| 4 | Cross-Site Scripting (XSS) | 6 (rédigés) | Haute |
 | 5 | Authentification et sessions | 5 | Moyenne |
-| 6 | Cryptographie appliquée | 5 | Moyenne |
+| 6 | Cryptographie appliquée | 6 (rédigés) | Moyenne |
 | 7 | Reconnaissance et méthodologie | 4 | Basse |
 
 **Ordre de rédaction recommandé :** cours 2, puis 3, puis 4. Ce sont ceux qui se positionnent le plus vite en référencement et qui exploitent le mieux les blocs interactifs.

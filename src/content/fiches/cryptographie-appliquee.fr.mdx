@@ -1,0 +1,50 @@
+---
+titre: "Fiche de révision : Cryptographie appliquée"
+description: "L'essentiel à retenir : chiffrement vs hachage vs encodage, casser un hash, le salage, symétrique/asymétrique, et TLS en pratique."
+slug: "cryptographie-appliquee"
+coursLie: "cryptographie-appliquee"
+tags: ["cryptographie"]
+questions:
+  - question: "Quelle est la différence entre chiffrement, hachage et encodage ?"
+    reponse: "Le chiffrement est réversible avec la bonne clé (confidentialité). Le hachage est irréversible par construction (vérification). L'encodage (Base64) est réversible sans aucune clé : ce n'est pas un mécanisme de sécurité."
+  - question: "Qu'est-ce que l'effet avalanche d'une fonction de hachage ?"
+    reponse: "Un changement infime de l'entrée (un seul caractère) produit une empreinte totalement différente, sans lien visible avec l'empreinte d'origine."
+  - question: "Pourquoi MD5 et SHA-1 sont-ils déconseillés aujourd'hui pour un usage sensible ?"
+    reponse: "Des collisions (deux entrées différentes produisant la même empreinte) ont été démontrées pour les deux, cassant une garantie attendue d'une fonction de hachage sûre."
+  - question: "Que signifie « casser un hash » ?"
+    reponse: "Deviner une entrée, la hacher, et comparer le résultat à l'empreinte cible, jusqu'à trouver une correspondance. Il n'existe aucune opération inverse au hachage."
+  - question: "Quelle est la différence entre attaque par dictionnaire, force brute et rainbow table ?"
+    reponse: "Dictionnaire : teste des mots de passe réellement utilisés. Force brute : teste systématiquement toutes les combinaisons d'un espace donné. Rainbow table : précalcule les empreintes à l'avance, réutilisables instantanément ensuite."
+  - question: "À quoi sert le sel dans le stockage d'un mot de passe, et doit-il rester secret ?"
+    reponse: "Le sel rend chaque empreinte unique même pour un mot de passe partagé par deux comptes, ce qui rend les rainbow tables inutilisables. Il n'a pas besoin d'être secret : il est stocké en clair à côté de l'empreinte."
+  - question: "Quelle est la différence entre chiffrement symétrique et asymétrique ?"
+    reponse: "Symétrique : une seule clé chiffre et déchiffre, rapide mais pose un problème de distribution de la clé. Asymétrique : une paire clé publique/clé privée résout ce problème, mais est beaucoup plus lent à calculer."
+  - question: "Pourquoi TLS combine-t-il chiffrement symétrique et asymétrique ?"
+    reponse: "L'asymétrique authentifie le serveur (via son certificat) et échange en sécurité une clé de session, puis le symétrique, rapide, chiffre le reste du trafic. C'est l'approche hybride typique des systèmes réels."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Trois opérations, trois propriétés
+
+<BlocCode
+  langue="text"
+  code={`Chiffrement : reversible AVEC la bonne cle
+Hachage      : irreversible, par construction
+Encodage     : reversible SANS aucune cle (Base64, etc.)`}
+/>
+
+## Un mot de passe correctement stocké
+
+<BlocCode
+  langue="text"
+  code={`sel = valeur_aleatoire_unique_par_utilisateur()
+empreinte = hachage_lent(sel + mot_de_passe)
+stocker(sel, empreinte)  // le sel n'est pas secret`}
+/>
+
+<Avertissement type="astuce">
+  Retiens l'enchaînement complet : Base64 n'est pas de la sécurité, un hash sans sel expose les mots de passe partagés, et TLS n'est que le trajet, jamais une garantie sur ce que fait le serveur une fois les données arrivées.
+</Avertissement>

@@ -1,0 +1,101 @@
+---
+titre: "Casser un hash : dictionnaire, force brute, rainbow tables"
+titreCourt: "Casser un hash"
+description: "Puisqu'un hash ne se déchiffre pas, le casser consiste à deviner l'entrée et comparer les empreintes : trois façons de deviner plus ou moins efficacement."
+slug: "casser-un-hash"
+cours: "cryptographie-appliquee"
+ordre: 3
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Expliquer pourquoi « casser un hash » signifie deviner, jamais déchiffrer"
+  - "Distinguer attaque par dictionnaire, force brute et rainbow table par leur méthode"
+  - "Observer une attaque par dictionnaire réussie sur un exemple concret"
+prerequis: ["fonctions-de-hachage"]
+tags: ["cryptographie", "hachage"]
+quiz:
+  - question: "Que signifie réellement « casser un hash », puisqu'un hachage est irréversible ?"
+    type: "unique"
+    reponses:
+      - texte: "Deviner une entrée, la hacher, et comparer le résultat à l'empreinte cible jusqu'à trouver une correspondance"
+        correcte: true
+        explication: "Il n'existe aucune opération inverse au hachage : casser un hash consiste toujours à deviner puis vérifier, jamais à déchiffrer directement l'empreinte."
+      - texte: "Utiliser la clé secrète associée à l'empreinte pour la déchiffrer"
+        correcte: false
+        explication: "Une fonction de hachage n'utilise généralement aucune clé (voir le chapitre 1) : il n'y a donc rien à déchiffrer avec quoi que ce soit."
+      - texte: "Modifier l'algorithme de hachage pour le rendre réversible"
+        correcte: false
+        explication: "L'algorithme de hachage lui-même n'est jamais modifié par l'attaquant : c'est l'entrée qui est devinée, pas l'algorithme qui est altéré."
+  - question: "Quel est le principal levier d'une rainbow table par rapport à une attaque par force brute classique ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle échange du temps de calcul contre de l'espace de stockage, en précalculant les empreintes à l'avance"
+        correcte: true
+        explication: "Une rainbow table est construite une fois, à l'avance, pour être réutilisée instantanément ensuite : le coût de calcul est déplacé avant l'attaque plutôt que pendant."
+      - texte: "Elle ne fonctionne que sur des mots de passe de moins de 4 caractères"
+        correcte: false
+        explication: "Rien ne limite une rainbow table à une longueur aussi courte : sa limite pratique est la taille de la table elle-même, pas la longueur du mot de passe visé."
+      - texte: "Elle nécessite un accès direct à la base de données visée pendant l'attaque"
+        correcte: false
+        explication: "Une rainbow table est utilisée hors ligne, une fois les empreintes obtenues : aucun accès en direct à la base n'est nécessaire pendant la recherche elle-même."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Deviner, pas déchiffrer
+
+Puisqu'un hachage n'a pas d'opération inverse (chapitre 1), « casser » une empreinte ne peut vouloir dire qu'une chose : essayer des entrées candidates, les hacher avec le même algorithme, et comparer le résultat à l'empreinte cible. Trois méthodes structurent la façon dont ces candidats sont choisis.
+
+## Attaque par dictionnaire : miser sur les mots de passe courants
+
+<ConsolePython codeInitial={`import hashlib
+
+# L'empreinte a "casser" (dans un cas reel, elle viendrait d'une fuite de donnees)
+hash_cible = hashlib.sha256(b"soleil123").hexdigest()
+print("Empreinte a casser :", hash_cible)
+
+dictionnaire = ["123456", "motdepasse", "azerty", "soleil123", "password"]
+
+for candidat in dictionnaire:
+    if hashlib.sha256(candidat.encode()).hexdigest() == hash_cible:
+        print("Trouve ! Le mot de passe est :", candidat)
+        break
+else:
+    print("Aucune correspondance dans ce dictionnaire.")`} />
+
+Un dictionnaire de quelques milliers de mots de passe réels (issus de fuites précédentes) suffit à casser une proportion surprenante de mots de passe, en une fraction de seconde. Essaie de changer `soleil123` par une valeur absente du dictionnaire : la recherche échoue.
+
+## Force brute : essayer toutes les combinaisons possibles
+
+Quand le mot de passe ne figure dans aucun dictionnaire, la force brute essaie systématiquement toutes les combinaisons possibles d'un espace donné, par exemple tous les codes à 4 chiffres :
+
+<BlocCode
+  langue="text"
+  code={`pour chaque combinaison de 0000 a 9999 :
+    si hash(combinaison) == empreinte_cible :
+        trouve !`}
+/>
+
+Efficace sur un petit espace (4 chiffres = 10 000 possibilités, instantané), la force brute devient vite impraticable : un mot de passe de 10 caractères mêlant majuscules, minuscules, chiffres et symboles représente un espace de plusieurs dizaines de milliards de milliards de combinaisons.
+
+## Rainbow tables : précalculer une fois, réutiliser indéfiniment
+
+Une rainbow table déplace le coût de calcul avant l'attaque : au lieu de hacher chaque candidat au moment de casser une empreinte précise, elle précalcule à l'avance d'immenses tables reliant des empreintes à leurs entrées, réutilisables ensuite instantanément contre n'importe quelle empreinte du même algorithme.
+
+<Avertissement type="info">
+  Le chapitre suivant montre la protection qui rend les rainbow tables inutilisables : le salage. C'est l'une des raisons pour lesquelles cette technique, redoutable dans les années 2000, a perdu beaucoup de son efficacité contre des systèmes correctement configurés aujourd'hui.
+</Avertissement>
+
+<EncadreARetenir
+  points={[
+    "Casser un hash signifie deviner une entrée et comparer son empreinte, jamais déchiffrer directement",
+    "Une attaque par dictionnaire mise sur les mots de passe réellement utilisés, souvent très efficace",
+    "La force brute essaie systématiquement toutes les combinaisons, praticable seulement sur un petit espace",
+    "Une rainbow table précalcule les empreintes à l'avance, échangeant du calcul contre du stockage réutilisable"
+  ]}
+/>

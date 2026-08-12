@@ -1,0 +1,94 @@
+---
+titre: "Le salage : pourquoi deux mots de passe identiques donnent des empreintes différentes"
+titreCourt: "Le salage"
+description: "Le hachage est déterministe : même entrée, même empreinte. Le sel casse volontairement cette prévisibilité, sans être lui-même un secret."
+slug: "le-salage"
+cours: "cryptographie-appliquee"
+ordre: 4
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Expliquer le problème que pose le déterminisme du hachage pour des mots de passe stockés"
+  - "Décrire le rôle d'un sel et pourquoi il n'a pas besoin d'être secret"
+  - "Comprendre pourquoi le salage rend les rainbow tables inutilisables"
+prerequis: ["casser-un-hash"]
+tags: ["cryptographie", "hachage", "authentification"]
+quiz:
+  - question: "Quel problème pose le déterminisme du hachage pour une base de mots de passe ?"
+    type: "unique"
+    reponses:
+      - texte: "Deux utilisateurs avec le même mot de passe ont exactement la même empreinte, ce qui la rend visible et exploitable en masse"
+        correcte: true
+        explication: "Sans salage, une seule rainbow table craque simultanément tous les comptes partageant un mot de passe courant : le déterminisme du hachage travaille alors contre la sécurité."
+      - texte: "Le hachage devient plus lent à mesure que la base de données grandit"
+        correcte: false
+        explication: "La performance n'est pas le problème ici : c'est la prévisibilité des empreintes identiques qui pose un risque de sécurité."
+      - texte: "Les empreintes finissent par se répéter aléatoirement même pour des mots de passe différents"
+        correcte: false
+        explication: "C'est l'inverse qui devrait arriver (et arrive en pratique) : des entrées différentes produisent des empreintes différentes, sauf collision extrêmement rare."
+  - question: "Pourquoi le sel n'a-t-il pas besoin d'être gardé secret ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que son rôle est de rendre chaque empreinte unique, pas de servir de clé secrète"
+        correcte: true
+        explication: "Le sel est stocké en clair à côté de l'empreinte : sa valeur n'a pas besoin d'être cachée, seule sa présence (et son caractère aléatoire et unique par utilisateur) compte."
+      - texte: "Parce qu'il est toujours identique pour tous les utilisateurs d'un même site"
+        correcte: false
+        explication: "C'est l'inverse qui est recommandé : un sel unique par utilisateur, pas un sel partagé, sinon le problème du chapitre reste entier pour tous les comptes partageant ce sel commun."
+      - texte: "Parce qu'il est automatiquement effacé après le calcul de l'empreinte"
+        correcte: false
+        explication: "Le sel doit au contraire être conservé indéfiniment : il est nécessaire pour recalculer la même empreinte lors de chaque tentative de connexion future."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Le prix du déterminisme
+
+Le chapitre 2 présentait le déterminisme comme une propriété nécessaire d'une fonction de hachage : la même entrée doit toujours produire la même empreinte. Appliqué tel quel à des mots de passe, ce déterminisme devient un problème : deux utilisateurs qui choisissent le même mot de passe se retrouvent avec exactement la même empreinte en base.
+
+<Avertissement type="danger">
+  Un attaquant qui repère deux empreintes identiques dans une base de données sait immédiatement que ces deux comptes partagent le même mot de passe, sans même avoir besoin de le casser. Une seule rainbow table, calculée une fois, compromet alors tous les comptes partageant un mot de passe courant.
+</Avertissement>
+
+## Le sel : une valeur aléatoire, unique, mais pas secrète
+
+Un **sel** est une valeur aléatoire générée pour chaque utilisateur, combinée au mot de passe avant hachage, puis stockée en clair à côté de l'empreinte (elle n'a rien de secret : son seul rôle est de rendre chaque empreinte unique).
+
+<ConsolePython codeInitial={`import hashlib, secrets
+
+mot_de_passe = "soleil123"
+
+# Sans sel : deux comptes avec le meme mot de passe ont la meme empreinte
+empreinte1 = hashlib.sha256(mot_de_passe.encode()).hexdigest()
+empreinte2 = hashlib.sha256(mot_de_passe.encode()).hexdigest()
+print("Sans sel, memes empreintes ?", empreinte1 == empreinte2)
+
+# Avec un sel different, genere aleatoirement pour chaque utilisateur
+sel_alice = secrets.token_hex(8)
+sel_bob = secrets.token_hex(8)
+empreinte_alice = hashlib.sha256((sel_alice + mot_de_passe).encode()).hexdigest()
+empreinte_bob = hashlib.sha256((sel_bob + mot_de_passe).encode()).hexdigest()
+
+print("Avec sel, memes empreintes ?", empreinte_alice == empreinte_bob)
+print("Sel d'Alice :", sel_alice, "-> empreinte :", empreinte_alice)
+print("Sel de Bob  :", sel_bob,   "-> empreinte :", empreinte_bob)`} />
+
+Même mot de passe, sels différents, empreintes totalement différentes. Une rainbow table précalculée pour l'algorithme seul devient inutile : il faudrait en recalculer une par sel, ce qui annule l'intérêt même de la précalculation.
+
+## Ce que le salage ne règle pas
+
+Le salage empêche la réutilisation d'une même rainbow table entre comptes, mais ne ralentit en rien une attaque par force brute ciblée sur un compte précis : SHA-256 reste une fonction volontairement rapide, calculable des milliards de fois par seconde sur du matériel dédié. C'est pour cette raison que le stockage de mots de passe en production utilise des fonctions délibérément lentes et coûteuses (bcrypt, scrypt, Argon2), hors du cadre de ce cours mais construites sur les mêmes principes de sel et d'empreinte.
+
+<EncadreARetenir
+  points={[
+    "Sans sel, deux mots de passe identiques produisent la même empreinte : une fuite en révèle l'existence en masse",
+    "Un sel aléatoire et unique par utilisateur rend chaque empreinte unique, même pour un mot de passe partagé",
+    "Le sel n'a pas besoin d'être secret : il est stocké en clair, son rôle est l'unicité, pas la confidentialité",
+    "Le salage rend les rainbow tables précalculées inutiles, mais ne ralentit pas une attaque ciblée sur un seul compte"
+  ]}
+/>

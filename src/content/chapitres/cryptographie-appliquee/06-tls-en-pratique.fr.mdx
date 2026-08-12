@@ -1,0 +1,89 @@
+---
+titre: "TLS en pratique : ce qui se passe derrière le cadenas"
+titreCourt: "TLS en pratique"
+description: "Le cours sur HTTP annonçait trois garanties. Voici comment TLS les tient réellement, en combinant tout ce que ce cours vient de couvrir."
+slug: "tls-en-pratique"
+cours: "cryptographie-appliquee"
+ordre: 6
+duree: 10
+niveau: "avance"
+objectifs:
+  - "Décrire les grandes étapes d'une négociation TLS"
+  - "Expliquer le rôle du certificat et de l'autorité de certification"
+  - "Relier chaque étape de TLS aux notions vues dans ce cours (hachage, salage, symétrique, asymétrique)"
+prerequis: ["symetrique-vs-asymetrique"]
+tags: ["cryptographie", "https"]
+quiz:
+  - question: "Quel est le rôle du certificat présenté par un serveur lors d'une négociation TLS ?"
+    type: "unique"
+    reponses:
+      - texte: "Prouver, via la signature d'une autorité de confiance, que la clé publique présentée appartient bien au domaine attendu"
+        correcte: true
+        explication: "Sans certificat vérifié, un attaquant pourrait présenter sa propre clé publique en se faisant passer pour le vrai serveur : la signature de l'autorité de certification permet au navigateur de détecter ce genre de usurpation."
+      - texte: "Chiffrer directement l'ensemble du trafic échangé pendant toute la session"
+        correcte: false
+        explication: "C'est la clé symétrique dérivée pendant la négociation qui chiffre le trafic (chapitre précédent), pas le certificat lui-même."
+      - texte: "Accélérer la vitesse de la connexion HTTPS"
+        correcte: false
+        explication: "Le certificat n'a aucun rôle de performance : son rôle est l'authentification du serveur, pas la vitesse de la connexion."
+  - question: "Pourquoi une négociation TLS utilise-t-elle à la fois de l'asymétrique et du symétrique ?"
+    type: "unique"
+    reponses:
+      - texte: "L'asymétrique authentifie le serveur et échange en sécurité une clé, puis le symétrique chiffre rapidement le reste du trafic"
+        correcte: true
+        explication: "C'est exactement l'approche hybride vue au chapitre précédent, appliquée concrètement : TLS ne fait pas exception, il en est un des exemples les plus répandus."
+      - texte: "Pour respecter une norme qui impose l'usage des deux techniques sans raison technique"
+        correcte: false
+        explication: "Le choix est purement pratique : vitesse du symétrique, résolution de la distribution de clé par l'asymétrique. Ce n'est pas une contrainte arbitraire."
+      - texte: "Parce que l'asymétrique seul ne serait pas assez sûr pour HTTPS"
+        correcte: false
+        explication: "La raison est la performance, pas la robustesse : l'asymétrique seul serait sûr, mais bien trop lent pour chiffrer tout le trafic d'une session."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Ce que ce cours permet enfin d'expliquer complètement
+
+Le cours sur HTTP annonçait trois garanties apportées par HTTPS (confidentialité, intégrité, authentification du serveur), sans détailler comment elles sont obtenues. Avec le hachage, le salage et les deux familles de chiffrement vus dans ce cours, la mécanique complète devient lisible.
+
+## Les grandes étapes d'une négociation TLS
+
+<BlocCode
+  langue="text"
+  code={`1. Le navigateur contacte le serveur et propose les algorithmes qu'il supporte
+2. Le serveur repond et presente son certificat (sa cle publique, signee)
+3. Le navigateur verifie la signature du certificat aupres d'une autorite de confiance
+4. Navigateur et serveur derivent ensemble une cle symetrique de session,
+   via un echange qui s'appuie sur la cryptographie asymetrique
+5. Toute la suite de la conversation est chiffree avec cette cle symetrique,
+   avec des controles d'integrite bases sur du hachage a chaque message`}
+/>
+
+## Le certificat : une clé publique, plus une signature de confiance
+
+Un certificat contient la clé publique du serveur, mais aussi une **signature** produite par une autorité de certification (CA) reconnue par le navigateur. Cette signature répond précisément à la question posée au chapitre 5 : comment savoir que la clé publique reçue appartient vraiment au bon serveur, et pas à un attaquant qui s'interpose ?
+
+<Avertissement type="info">
+  Sans cette vérification, un attaquant positionné entre le navigateur et le serveur (sur un réseau Wi-Fi public non fiable, par exemple) pourrait présenter sa propre clé publique en se faisant passer pour le vrai site. La chaîne de confiance construite par les autorités de certification est ce qui rend cette usurpation détectable.
+</Avertissement>
+
+## L'approche hybride, en pratique
+
+L'étape 4 ci-dessus est exactement l'approche hybride du chapitre précédent : l'asymétrique intervient une seule fois, pour établir une clé partagée en sécurité, sans jamais faire circuler cette clé en clair sur le réseau. Une fois cette clé de session obtenue, tout bascule sur du chiffrement symétrique, largement plus rapide, pour le reste des échanges.
+
+## Ce que TLS ne fait toujours pas
+
+Comme le rappelait le dernier chapitre du cours sur HTTP : TLS sécurise ce trajet précis, du navigateur jusqu'au serveur. Il ne dit rien de ce que le serveur fait ensuite du contenu qu'il reçoit : une application vulnérable aux injections SQL ou aux XSS le reste très exactement autant derrière ce mécanisme, aussi robuste soit-il.
+
+<EncadreARetenir
+  points={[
+    "TLS combine hachage, chiffrement symétrique et asymétrique pour tenir les trois garanties vues dans le cours sur HTTP",
+    "Le certificat, signé par une autorité de confiance, authentifie le serveur",
+    "Une clé de session symétrique est établie via un échange asymétrique, puis chiffre le reste du trafic",
+    "TLS sécurise le trajet des données, jamais la logique applicative qui les traite une fois arrivées"
+  ]}
+/>

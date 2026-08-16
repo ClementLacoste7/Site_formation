@@ -797,7 +797,7 @@ Objectif : 30 à 40 chapitres publiés avant la candidature AdSense.
 | 2 | HTTP et fonctionnement du web | 6 (rédigés) | **Haute** |
 | 3 | Injections SQL | 6 (rédigés) | **Haute** |
 | 4 | Cross-Site Scripting (XSS) | 6 (rédigés) | Haute |
-| 5 | Authentification et sessions | 5 | Moyenne |
+| 5 | Authentification et sessions | 6 (rédigés) | Moyenne |
 | 6 | Cryptographie appliquée | 6 (rédigés) | Moyenne |
 | 7 | Reconnaissance et méthodologie | 4 | Basse |
 

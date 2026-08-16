@@ -1,0 +1,127 @@
+---
+titre: "Les JWT : structure, forge de token, faille alg:none"
+titreCourt: "Les JWT"
+description: "Un JWT n'est jamais chiffré, seulement encodé et signé. La confusion des deux ouvre la voie à la faille la plus classique du format."
+slug: "les-jwt"
+cours: "authentification-sessions"
+ordre: 3
+duree: 12
+niveau: "intermediaire"
+objectifs:
+  - "Décrire la structure en trois parties d'un JWT"
+  - "Expliquer pourquoi le contenu d'un JWT n'est jamais secret, contrairement à sa signature"
+  - "Comprendre le mécanisme de la faille alg:none et pourquoi elle a existé"
+prerequis: ["sessions-et-cookies"]
+tags: ["authentification"]
+quiz:
+  - question: "Pourquoi ne faut-il jamais placer une donnée secrète (mot de passe, numéro de carte) dans la charge utile d'un JWT ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que la charge utile est seulement encodée en Base64, pas chiffrée : n'importe qui peut la décoder"
+        correcte: true
+        explication: "Comme vu dans le cours sur la cryptographie, l'encodage est réversible sans aucune clé. Seule la signature protège l'intégrité du JWT, jamais la confidentialité de son contenu."
+      - texte: "Parce que les JWT ont une taille maximale trop petite pour des données sensibles"
+        correcte: false
+        explication: "La taille n'est pas le problème : même une donnée très courte reste lisible par n'importe qui, puisqu'aucun chiffrement n'entre en jeu."
+      - texte: "Parce que les navigateurs affichent automatiquement le contenu des JWT à l'écran"
+        correcte: false
+        explication: "Les navigateurs n'affichent rien automatiquement : le risque vient du fait que quiconque intercepte ou récupère le token peut le décoder lui-même, pas d'un affichage automatique."
+  - question: "Sur quoi repose précisément la faille alg:none ?"
+    type: "unique"
+    reponses:
+      - texte: "Un vérificateur mal implémenté fait confiance au champ alg fourni par le token lui-même, et saute la vérification de signature si sa valeur est none"
+        correcte: true
+        explication: "Le token annonce lui-même l'algorithme à utiliser pour le vérifier : un vérificateur qui suit aveuglément cette annonce, plutôt que d'imposer l'algorithme attendu côté serveur, peut être trompé pour ignorer toute vérification."
+      - texte: "L'algorithme HS256 lui-même contient une faille mathématique connue"
+        correcte: false
+        explication: "HS256 n'est pas en cause : la faille vient de l'implémentation du vérificateur, pas d'une faiblesse de l'algorithme de signature légitime."
+      - texte: "Elle nécessite un accès physique au serveur qui émet les tokens"
+        correcte: false
+        explication: "Aucun accès physique n'est nécessaire : la charge forgée est envoyée normalement, comme n'importe quelle requête, au serveur qui l'accepte à tort."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Une alternative aux sessions côté serveur
+
+Le chapitre précédent décrivait une session dont l'état (qui est connecté, avec quels droits) vit côté serveur, le cookie ne portant qu'un identifiant. Un **JWT** (JSON Web Token) inverse cette logique : l'état lui-même voyage dans le token, signé pour empêcher toute modification, mais jamais chiffré.
+
+## Structure : trois parties séparées par des points
+
+<BlocCode langue="text" code={`entete.charge_utile.signature`} />
+
+Chaque partie est encodée en Base64url (une variante de Base64 compatible avec les URL). L'entête précise l'algorithme de signature utilisé, la charge utile contient les données (identité, rôle, expiration), la signature garantit que ni l'entête ni la charge n'ont été modifiés depuis leur émission par le serveur.
+
+## Encoder, décoder : aucun secret nécessaire
+
+<ConsolePython codeInitial={`import base64, json
+
+def base64url_encode(data):
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode()
+
+def base64url_decode(s):
+    s += '=' * (-len(s) % 4)
+    return base64.urlsafe_b64decode(s)
+
+# Construire un JWT "normal", comme le ferait un vrai serveur apres connexion
+entete = {"alg": "HS256"}
+charge = {"utilisateur": "alice", "role": "user"}
+jwt = base64url_encode(json.dumps(entete).encode()) + "." + base64url_encode(json.dumps(charge).encode()) + ".signature_valide_ici"
+print("JWT :", jwt)
+
+# Decoder : la charge utile n'est PAS chiffree, juste encodee
+entete_b64, charge_b64, signature = jwt.split(".")
+print("Entete decodee :", json.loads(base64url_decode(entete_b64)))
+print("Charge decodee :", json.loads(base64url_decode(charge_b64)))`} />
+
+Décoder l'entête et la charge ne demande aucun secret : seule la vérification de la signature en demande un. C'est exactement la même logique que le Base64 du cours sur la cryptographie, appliquée ici au format JWT.
+
+## La faille alg:none
+
+Certaines premières bibliothèques JWT faisaient une erreur précise : elles faisaient confiance au champ `alg` **du token lui-même** pour savoir comment le vérifier, au lieu d'imposer l'algorithme attendu côté serveur. Un token annonçant `alg: none` était alors accepté sans aucune vérification de signature.
+
+<ConsolePython codeInitial={`import base64, json
+
+def base64url_encode(data):
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode()
+
+def base64url_decode(s):
+    s += '=' * (-len(s) % 4)
+    return base64.urlsafe_b64decode(s)
+
+# Forger un token avec alg:none et un role modifie, sans connaitre aucun secret
+entete_forge = base64url_encode(json.dumps({"alg": "none"}).encode())
+charge_forgee = base64url_encode(json.dumps({"utilisateur": "alice", "role": "admin"}).encode())
+jwt_forge = entete_forge + "." + charge_forgee + "."  # signature vide
+print("Token force :", jwt_forge)
+
+def verificateur_vulnerable(token):
+    entete_b64, charge_b64, signature = token.split(".")
+    entete = json.loads(base64url_decode(entete_b64))
+    if entete.get("alg") == "none":
+        # Bug : aucune signature n'est verifiee dans ce cas precis
+        return json.loads(base64url_decode(charge_b64))
+    return None  # verification normale de la signature omise ici
+
+resultat = verificateur_vulnerable(jwt_forge)
+print("Le verificateur vulnerable accepte le token force avec :", resultat)`} />
+
+Sans jamais connaître la clé secrète du serveur, la charge utile a été modifiée (`role` passe de `user` à `admin`), et le vérificateur vulnérable l'accepte quand même.
+
+<Avertissement type="astuce">
+  La correction est simple une fois le problème identifié : le serveur doit imposer lui-même l'algorithme attendu (« je vérifie toujours en HS256 »), sans jamais faire confiance à ce que le token prétend être. Les bibliothèques JWT modernes appliquent cette correction par défaut.
+</Avertissement>
+
+<EncadreARetenir
+  points={[
+    "Un JWT a trois parties : entête, charge utile, signature, séparées par des points",
+    "L'entête et la charge utile sont encodées, jamais chiffrées : n'importe qui peut les lire sans aucun secret",
+    "Seule la signature garantit l'intégrité du token, jamais la confidentialité de son contenu",
+    "La faille alg:none exploite un vérificateur qui fait confiance à l'algorithme annoncé par le token lui-même"
+  ]}
+/>

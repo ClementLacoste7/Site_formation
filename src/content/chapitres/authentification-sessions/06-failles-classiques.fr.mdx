@@ -1,0 +1,93 @@
+---
+titre: "Les failles classiques : énumération de comptes, fixation de session"
+titreCourt: "Failles classiques"
+description: "Deux failles qui ne cassent aucune cryptographie : elles exploitent simplement des détails de comportement qu'on oublie de traiter comme sensibles."
+slug: "failles-classiques"
+cours: "authentification-sessions"
+ordre: 6
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Reconnaître une énumération de comptes à partir d'un message d'erreur"
+  - "Décrire le mécanisme d'une fixation de session, du dépôt à l'exploitation"
+  - "Appliquer les correctifs simples des deux failles à un cas concret"
+prerequis: ["oauth-connexion-tierce"]
+tags: ["authentification", "cookies"]
+quiz:
+  - question: "Pourquoi un message « identifiant introuvable » distinct de « mot de passe incorrect » constitue-t-il une faille d'énumération ?"
+    type: "unique"
+    reponses:
+      - texte: "Il révèle, sans authentification, si un identifiant donné existe dans le système, ce qui permet de dresser une liste d'utilisateurs réels"
+        correcte: true
+        explication: "Cette liste sert ensuite à cibler des attaques ultérieures : credential stuffing, phishing personnalisé, ou tentatives de connexion ciblées sur des comptes confirmés existants."
+      - texte: "Il ralentit le temps de réponse du serveur de façon mesurable"
+        correcte: false
+        explication: "Le problème n'est pas une question de performance : c'est l'information révélée par le contenu du message qui pose un risque, pas sa vitesse d'affichage."
+      - texte: "Il oblige l'utilisateur à réessayer sa connexion plusieurs fois"
+        correcte: false
+        explication: "Le nombre de tentatives nécessaires à l'utilisateur légitime n'est pas la question : le risque touche ce que le message révèle à un attaquant, quel que soit l'utilisateur visé."
+  - question: "À quel moment précis une fixation de session doit-elle être neutralisée pour être inefficace ?"
+    type: "unique"
+    reponses:
+      - texte: "À la connexion réussie de la victime, en régénérant l'identifiant de session à ce moment précis"
+        correcte: true
+        explication: "C'est exactement la règle vue au chapitre 2 : régénérer l'identifiant à la connexion empêche l'identifiant fixé à l'avance par l'attaquant de devenir valide une fois la victime authentifiée."
+      - texte: "Au moment où l'attaquant tente de fixer un identifiant, en bloquant toute requête contenant un paramètre de session dans l'URL"
+        correcte: false
+        explication: "Bloquer ce paramètre aide, mais la protection déterminante reste la régénération systématique à la connexion, qui neutralise la faille même si un identifiant a été fixé en amont."
+      - texte: "Uniquement lors de la déconnexion de la victime"
+        correcte: false
+        explication: "Attendre la déconnexion laisse toute la durée de la session ouverte à l'exploitation par l'attaquant : la régénération doit intervenir dès la connexion, pas à la fin."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Énumération de comptes : un message d'erreur trop précis
+
+Un formulaire de connexion qui distingue « identifiant introuvable » de « mot de passe incorrect » révèle, sans jamais réussir à se connecter, si un identifiant précis existe dans le système :
+
+<BlocCode
+  langue="text"
+  code={`Vulnerable :
+  "Aucun compte associe a cet identifiant"        -> l'identifiant n'existe pas
+  "Mot de passe incorrect"                        -> l'identifiant existe !
+
+Corrige :
+  "Identifiant ou mot de passe incorrect"          -> aucune information revelee`}
+/>
+
+Répété sur une liste de milliers d'adresses e-mail plausibles, ce détail permet de dresser une liste de comptes confirmés réellement existants, exploitable ensuite pour du phishing ciblé ou une attaque par dictionnaire concentrée sur des comptes qu'on sait réels.
+
+<Avertissement type="info">
+  Le même piège existe sur un formulaire d'inscription (« cette adresse est déjà utilisée ») ou de réinitialisation de mot de passe : le principe reste identique, seul le formulaire change.
+</Avertissement>
+
+## Fixation de session : imposer un identifiant avant la connexion
+
+Le chapitre 2 de ce cours mentionnait déjà la raison d'être de la régénération de session à la connexion. Voici le mécanisme complet qu'elle neutralise :
+
+<BlocCode
+  langue="text"
+  code={`1. L'attaquant obtient un identifiant de session valide mais non authentifie
+   (parfois en visitant simplement le site, parfois via un lien piege)
+2. L'attaquant impose cet identifiant a la victime (lien contenant l'identifiant,
+   ou tout autre moyen accepte par l'application)
+3. La victime se connecte normalement, sous cet identifiant impose
+4. Si l'identifiant n'est pas regenere a la connexion, l'attaquant,
+   qui le connaissait deja, herite automatiquement de la session authentifiee`}
+/>
+
+La faille ne nécessite jamais de voler quoi que ce soit après coup, contrairement à un vol de session classique : l'attaquant connaît l'identifiant depuis le début, il attend simplement que la victime l'authentifie à sa place.
+
+<EncadreARetenir
+  points={[
+    "Un message d'erreur trop précis sur un formulaire de connexion permet de dresser une liste de comptes réellement existants",
+    "Un message générique, identique pour identifiant inconnu et mot de passe incorrect, neutralise l'énumération",
+    "Une fixation de session impose un identifiant connu de l'attaquant avant même la connexion de la victime",
+    "Régénérer systématiquement l'identifiant à la connexion neutralise une fixation de session, quelle que soit sa préparation en amont"
+  ]}
+/>

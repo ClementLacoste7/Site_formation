@@ -1,0 +1,81 @@
+---
+titre: "OAuth et connexion tierce : le principe, les pièges"
+titreCourt: "OAuth"
+description: "« Se connecter avec Google » ne prouve rien par magie : c'est un protocole d'autorisation précis, avec un paramètre dont l'absence ouvre la porte à un vol de compte."
+slug: "oauth-connexion-tierce"
+cours: "authentification-sessions"
+ordre: 5
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Distinguer autorisation (OAuth) et authentification (OpenID Connect)"
+  - "Décrire les grandes étapes du parcours de redirection OAuth"
+  - "Expliquer le rôle du paramètre state contre le détournement de flux"
+prerequis: ["authentification-deux-facteurs"]
+tags: ["authentification"]
+quiz:
+  - question: "Que fait fondamentalement OAuth, au sens strict du protocole ?"
+    type: "unique"
+    reponses:
+      - texte: "Il autorise une application à accéder à certaines données d'un compte, sans nécessairement authentifier qui que ce soit"
+        correcte: true
+        explication: "OAuth est un protocole d'autorisation délégué. L'authentification (« qui es-tu ») est un usage courant construit par-dessus, notamment via OpenID Connect, pas le rôle initial d'OAuth."
+      - texte: "Il chiffre les échanges entre l'application et le fournisseur d'identité"
+        correcte: false
+        explication: "Le chiffrement du trajet relève de HTTPS (vu dans le cours sur HTTP), pas d'OAuth lui-même, qui porte sur l'autorisation d'accès."
+      - texte: "Il remplace entièrement le besoin d'un mot de passe pour l'utilisateur final"
+        correcte: false
+        explication: "OAuth délègue la connexion à un fournisseur tiers (qui, lui, vérifie un mot de passe ou un autre facteur de son côté) : il ne supprime pas le besoin d'authentification, il le déplace."
+  - question: "À quoi sert le paramètre state dans un parcours OAuth ?"
+    type: "unique"
+    reponses:
+      - texte: "À vérifier que la redirection reçue correspond bien à une requête initiée par cette même session, empêchant un attaquant d'imposer sa propre autorisation à la victime"
+        correcte: true
+        explication: "Sans state, un attaquant peut initier lui-même un flux OAuth et piéger la victime pour qu'elle termine ce flux à sa place, liant le compte de l'attaquant à la session de la victime."
+      - texte: "À indiquer au fournisseur d'identité la langue préférée de l'utilisateur"
+        correcte: false
+        explication: "Le paramètre state n'a aucun rôle de préférence utilisateur : c'est une protection contre le détournement du flux d'autorisation."
+      - texte: "À chiffrer le jeton d'accès renvoyé par le fournisseur"
+        correcte: false
+        explication: "state ne chiffre rien : c'est une valeur de corrélation, vérifiée en clair, pas un mécanisme de chiffrement."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Autorisation, pas authentification
+
+Le bouton « Se connecter avec Google » repose sur **OAuth**, un protocole conçu à l'origine pour l'**autorisation** : permettre à une application d'accéder à certaines données d'un compte (« autorise cette application à lire ton adresse e-mail »), sans jamais lui révéler le mot de passe du compte. L'utiliser pour se connecter (prouver une identité) est un usage construit par-dessus, formalisé par une extension nommée OpenID Connect.
+
+<Avertissement type="info">
+  Cette distinction n'est pas qu'un détail de vocabulaire : un jeton d'accès OAuth mal vérifié comme preuve d'identité, sans passer par les garanties d'OpenID Connect, peut laisser une application se faire passer pour authentifiée alors qu'elle ne l'est pas réellement.
+</Avertissement>
+
+## Le parcours de redirection
+
+<BlocCode
+  langue="text"
+  code={`1. L'application redirige l'utilisateur vers le fournisseur (Google, GitHub...)
+   avec un parametre "state" genere pour cette tentative precise
+2. L'utilisateur s'authentifie chez le fournisseur et autorise l'acces demande
+3. Le fournisseur redirige l'utilisateur vers l'application, avec un code
+   d'autorisation et le meme parametre "state"
+4. L'application verifie que "state" correspond bien a la tentative qu'elle
+   a initiee, puis echange le code contre un jeton d'acces (cote serveur)`}
+/>
+
+## Le piège sans le paramètre state
+
+Sans vérification de `state`, un attaquant peut démarrer lui-même un flux OAuth vers l'étape 1, récupérer le code d'autorisation qui lui est destiné à l'étape 3, puis piéger sa victime pour qu'elle poursuive ce flux à sa place (par exemple en lui envoyant le lien de redirection). L'application, ne vérifiant aucune correspondance, associe alors le compte tiers de l'attaquant à la session de la victime : un détournement de compte sans jamais avoir touché à son mot de passe.
+
+<EncadreARetenir
+  points={[
+    "OAuth est un protocole d'autorisation, pas d'authentification à l'origine ; OpenID Connect ajoute cette garantie",
+    "Le parcours repose sur une redirection en plusieurs étapes vers un fournisseur, puis retour vers l'application",
+    "Le paramètre state lie la redirection reçue à la tentative initiée par cette session précise",
+    "Sans vérification de state, un attaquant peut détourner le flux pour lier son propre compte à la session d'une victime"
+  ]}
+/>

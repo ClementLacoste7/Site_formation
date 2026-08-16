@@ -1,0 +1,83 @@
+---
+titre: "Sessions et cookies : maintenir un utilisateur connecté"
+titreCourt: "Sessions et cookies"
+description: "Le cycle de vie complet d'une session : création à la connexion, régénération, expiration, et ce qui doit changer d'un état à l'autre."
+slug: "sessions-et-cookies"
+cours: "authentification-sessions"
+ordre: 2
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Décrire le cycle de vie complet d'une session, de la connexion à l'expiration"
+  - "Expliquer pourquoi l'identifiant de session doit changer au moment de la connexion"
+  - "Justifier l'existence d'une expiration de session, même pour un cookie valide"
+prerequis: ["mots-de-passe"]
+tags: ["authentification", "cookies"]
+quiz:
+  - question: "Que doit-il se passer sur l'identifiant de session au moment précis où un utilisateur se connecte avec succès ?"
+    type: "unique"
+    reponses:
+      - texte: "Un nouvel identifiant de session doit être généré, remplaçant celui utilisé avant la connexion"
+        correcte: true
+        explication: "Régénérer l'identifiant à la connexion empêche un attaquant d'avoir fixé à l'avance l'identifiant qu'utilisera la victime une fois connectée (voir le chapitre sur la fixation de session, plus loin dans ce cours)."
+      - texte: "L'identifiant de session doit rester strictement identique pour ne pas perturber l'utilisateur"
+        correcte: false
+        explication: "C'est l'inverse qui protège : garder le même identifiant avant et après connexion est précisément le problème exploité par une fixation de session."
+      - texte: "Le cookie doit être supprimé et aucune session ne doit être créée avant le prochain rechargement"
+        correcte: false
+        explication: "Une session doit bien être établie immédiatement après une connexion réussie : ce n'est pas sa suppression qui est en cause, mais la nécessité de la régénérer plutôt que de réutiliser l'ancienne."
+  - question: "Pourquoi une session valide devrait-elle quand même expirer après un certain temps ?"
+    type: "unique"
+    reponses:
+      - texte: "Pour limiter la fenêtre d'exploitation si le cookie de session venait à être volé ou oublié sur un appareil partagé"
+        correcte: true
+        explication: "Une session qui n'expire jamais reste utilisable indéfiniment par quiconque en obtient l'identifiant, y compris longtemps après que la victime a quitté l'appareil ou changé de mot de passe."
+      - texte: "Parce que les navigateurs suppriment automatiquement les cookies après 24 heures"
+        correcte: false
+        explication: "Les navigateurs ne suppriment rien automatiquement selon une règle de 24 heures : la durée de vie d'un cookie est définie par le serveur qui le pose."
+      - texte: "Parce qu'une session sans expiration ralentit le serveur"
+        correcte: false
+        explication: "La performance n'est pas en jeu ici : l'expiration est une mesure de sécurité, pas d'optimisation."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Ce que le cours sur HTTP a déjà posé
+
+Le chapitre sur les cookies et sessions du cours HTTP a expliqué le mécanisme de base : un cookie de session permet à un serveur de reconnaître un visiteur d'une requête à l'autre, sur un protocole qui ne conserve autrement aucune mémoire. Ce chapitre va plus loin : le cycle de vie complet d'une session, pas seulement son principe.
+
+## Le cycle de vie d'une session, étape par étape
+
+<BlocCode
+  langue="text"
+  code={`1. Visite anonyme     : une session est deja creee, non authentifiee
+2. Connexion reussie   : l'identifiant de session EST REGENERE (jamais reutilise)
+3. Session active      : chaque requete verifie que l'identifiant reste valide
+4. Deconnexion         : la session est invalidee cote serveur, pas juste effacee cote client
+5. Expiration          : au-dela d'une duree fixe, la session devient invalide meme sans deconnexion explicite`}
+/>
+
+## Pourquoi régénérer l'identifiant à la connexion
+
+C'est le point le plus souvent oublié. Si l'identifiant de session reste identique avant et après la connexion, un attaquant qui parvient à imposer à l'avance un identifiant connu de lui (voir le chapitre sur la fixation de session, en fin de cours) n'a plus qu'à attendre que la victime se connecte sous ce même identifiant pour en hériter automatiquement.
+
+<Avertissement type="attention">
+  « Se déconnecter » doit invalider la session côté serveur, pas seulement supprimer le cookie côté navigateur. Un identifiant encore valide côté serveur reste exploitable s'il a été intercepté avant la déconnexion, même après que l'utilisateur a cliqué sur « Déconnexion ».
+</Avertissement>
+
+## Pourquoi une session doit quand même expirer
+
+Même correctement protégée (HttpOnly, Secure, SameSite, vus dans le cours sur HTTP), une session qui ne connaît aucune limite de durée reste une fenêtre d'exploitation permanente si son identifiant est un jour compromis : appareil partagé oublié, cookie intercepté, ou tout simplement un utilisateur qui ne se déconnecte jamais explicitement. Une expiration, même généreuse, borne cette fenêtre dans le temps.
+
+<EncadreARetenir
+  points={[
+    "Une session traverse un cycle de vie complet : création anonyme, régénération à la connexion, expiration",
+    "L'identifiant de session doit toujours changer au moment précis de la connexion, jamais être réutilisé",
+    "Se déconnecter doit invalider la session côté serveur, pas seulement supprimer le cookie côté client",
+    "Une expiration borne dans le temps l'impact d'un identifiant de session compromis"
+  ]}
+/>

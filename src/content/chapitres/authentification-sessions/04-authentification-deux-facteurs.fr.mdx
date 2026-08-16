@@ -1,0 +1,97 @@
+---
+titre: "Authentification à deux facteurs : TOTP, ce qui la contourne"
+titreCourt: "2FA (TOTP)"
+description: "Comment un code à 6 chiffres qui change toutes les 30 secondes se calcule, et pourquoi sa présence ne rend pas un compte inattaquable."
+slug: "authentification-deux-facteurs"
+cours: "authentification-sessions"
+ordre: 4
+duree: 11
+niveau: "avance"
+objectifs:
+  - "Expliquer le principe d'un code TOTP à partir d'un secret partagé et de l'heure courante"
+  - "Comprendre pourquoi le hachage (HMAC) intervient dans le calcul d'un code TOTP"
+  - "Identifier les techniques qui contournent un 2FA malgré sa présence"
+prerequis: ["les-jwt"]
+tags: ["authentification"]
+quiz:
+  - question: "D'où un code TOTP tire-t-il le fait de changer toutes les 30 secondes ?"
+    type: "unique"
+    reponses:
+      - texte: "Le calcul intègre le temps courant divisé en tranches de 30 secondes comme entrée, en plus du secret partagé"
+        correcte: true
+        explication: "TOTP signifie « Time-based One-Time Password » : la tranche de temps courante fait partie du calcul, exactement comme le ferait un compteur incrémenté à chaque code."
+      - texte: "Le serveur envoie un nouveau secret toutes les 30 secondes à l'application d'authentification"
+        correcte: false
+        explication: "Le secret est partagé une seule fois, au moment de l'activation du 2FA (scan du QR code) : il ne change jamais ensuite, seul le temps utilisé dans le calcul évolue."
+      - texte: "L'application d'authentification interroge le serveur toutes les 30 secondes pour obtenir le prochain code"
+        correcte: false
+        explication: "Aucune communication réseau n'est nécessaire pour générer un code TOTP : c'est justement tout l'intérêt du mécanisme, il fonctionne hors ligne."
+  - question: "Quelle est la technique la plus efficace pour contourner un 2FA basé sur TOTP, malgré sa présence ?"
+    type: "unique"
+    reponses:
+      - texte: "Le phishing en temps réel : relayer immédiatement le code saisi par la victime vers le vrai site avant son expiration"
+        correcte: true
+        explication: "TOTP protège contre la réutilisation d'un code volé plus tard, mais pas contre un relais immédiat : une fausse page de connexion peut transmettre le code à la seconde même où la victime le saisit."
+      - texte: "Casser directement l'algorithme HMAC-SHA-1 utilisé par TOTP"
+        correcte: false
+        explication: "HMAC-SHA-1 n'est pas cassé dans ce contexte : les contournements réels du 2FA visent le processus humain (phishing) ou l'implémentation, pas les mathématiques de l'algorithme."
+      - texte: "Deviner le secret partagé par force brute avant l'activation du 2FA"
+        correcte: false
+        explication: "Le secret partagé est un nombre suffisamment grand pour rendre cette approche impraticable : les contournements réels exploitent d'autres maillons, notamment humains."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Un deuxième facteur, indépendant du mot de passe
+
+Un mot de passe (chapitre 1) prouve « ce que tu connais ». Un 2FA basé sur TOTP ajoute « ce que tu possèdes » : un secret partagé une seule fois avec ton application d'authentification (généralement via un QR code), qui permet ensuite de générer un code à usage unique, hors ligne, sans aucune connexion réseau.
+
+## Comment un code TOTP se calcule réellement
+
+TOTP combine deux éléments vus dans le cours sur la cryptographie : une fonction de hachage (via HMAC, une variante qui intègre une clé secrète) et une notion de temps découpé en tranches fixes.
+
+<ConsolePython codeInitial={`import hmac, hashlib, struct, time, base64
+
+def totp(secret_b32, temps=None, periode=30, chiffres=6):
+    cle = base64.b32decode(secret_b32.upper())
+    tranche = int((temps or time.time()) // periode)
+    message = struct.pack(">Q", tranche)
+    empreinte = hmac.new(cle, message, hashlib.sha1).digest()
+    decalage = empreinte[-1] & 0x0F
+    code_brut = struct.unpack(">I", empreinte[decalage:decalage + 4])[0] & 0x7fffffff
+    return str(code_brut % (10 ** chiffres)).zfill(chiffres)
+
+# Secret partage une seule fois, au moment du scan du QR code
+secret = "JBSWY3DPEHPK3PXP"
+
+print("Code TOTP actuel :", totp(secret))
+print("Code dans 30s (tranche suivante) :", totp(secret, temps=time.time() + 30))
+print("Ce code change automatiquement toutes les 30 secondes, sans reseau.")`} />
+
+Le secret ne change jamais : seule la tranche de temps utilisée dans le calcul évolue, ce qui suffit à produire un code totalement différent à chaque tranche, exactement comme l'effet avalanche du chapitre 2 du cours sur la cryptographie.
+
+## Ce qui contourne malgré tout un 2FA
+
+<Avertissement type="danger">
+  La technique la plus efficace ne casse aucune mathématique : le phishing en temps réel présente une fausse page de connexion à la victime, récupère mot de passe et code TOTP au moment même où elle les saisit, et les relaie instantanément vers le vrai site avant l'expiration du code.
+</Avertissement>
+
+Trois autres angles fréquents :
+
+- **Absence de limitation de tentatives** : un code à 6 chiffres ne représente qu'un million de possibilités, un nombre bien trop faible sans limitation stricte des essais.
+- **Codes de secours mal protégés** : les codes de récupération fournis à l'activation du 2FA contournent totalement TOTP s'ils sont stockés sans précaution.
+- **Jeton « se souvenir de cet appareil »** : un cookie de confiance qui dispense du 2FA pendant plusieurs jours redevient une cible aussi intéressante qu'un vol de session classique (chapitre 2) s'il est mal protégé.
+
+<EncadreARetenir
+  points={[
+    "TOTP calcule un code à partir d'un secret partagé une seule fois et de la tranche de temps courante, via HMAC",
+    "Aucune connexion réseau n'est nécessaire pour générer ou vérifier un code TOTP",
+    "Le phishing en temps réel reste le contournement le plus efficace, en relayant immédiatement le code volé",
+    "Rate-limiting, codes de secours et jetons « appareil de confiance » sont des maillons tout aussi critiques que l'algorithme lui-même"
+  ]}
+/>

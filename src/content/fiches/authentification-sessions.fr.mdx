@@ -1,0 +1,47 @@
+---
+titre: "Fiche de révision : Authentification et gestion des sessions"
+description: "L'essentiel à retenir : stockage des mots de passe, sessions, JWT, 2FA/TOTP, OAuth, énumération et fixation de session."
+slug: "authentification-sessions"
+coursLie: "authentification-sessions"
+tags: ["authentification"]
+questions:
+  - question: "Pourquoi la longueur d'un mot de passe protège-t-elle mieux que sa seule complexité ?"
+    reponse: "L'espace de recherche croît de façon exponentielle avec chaque caractère ajouté. Une phrase de passe longue, même avec un alphabet restreint, dépasse largement un mot de passe court mais complexe en nombre de combinaisons possibles."
+  - question: "Pourquoi l'identifiant de session doit-il changer au moment précis de la connexion ?"
+    reponse: "Pour empêcher une fixation de session : si un attaquant a fixé à l'avance l'identifiant qu'utilisera la victime, ne pas le régénérer à la connexion le lui laisse hériter automatiquement de la session authentifiée."
+  - question: "Le contenu d'un JWT est-il secret ?"
+    reponse: "Non : l'entête et la charge utile sont seulement encodées en Base64url, jamais chiffrées. N'importe qui peut les décoder sans aucun secret. Seule la signature garantit que le contenu n'a pas été modifié."
+  - question: "En quoi consiste la faille alg:none d'un JWT ?"
+    reponse: "Un vérificateur mal implémenté fait confiance au champ alg annoncé par le token lui-même : un token avec alg:none est alors accepté sans aucune vérification de signature, permettant de forger n'importe quelle charge utile."
+  - question: "Comment se calcule un code TOTP, et pourquoi change-t-il toutes les 30 secondes ?"
+    reponse: "Via HMAC appliqué à un secret partagé et à la tranche de temps courante (généralement 30 secondes). Seule la tranche de temps change à chaque calcul, ce qui suffit à produire un code totalement différent, comme un effet avalanche."
+  - question: "Quel est le contournement le plus efficace d'un 2FA basé sur TOTP ?"
+    reponse: "Le phishing en temps réel : une fausse page de connexion récupère le code au moment où la victime le saisit, et le relaie immédiatement vers le vrai site avant son expiration."
+  - question: "OAuth authentifie-t-il un utilisateur ?"
+    reponse: "Pas à l'origine : OAuth est un protocole d'autorisation (accès à des données), pas d'authentification. C'est OpenID Connect, construit par-dessus, qui ajoute une garantie d'identité vérifiable."
+  - question: "Pourquoi un message d'erreur générique protège-t-il contre l'énumération de comptes ?"
+    reponse: "Un message distinct pour identifiant inconnu et mot de passe incorrect révèle, sans authentification réussie, si un compte existe. Un message générique identique dans les deux cas ne révèle rien."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Le cycle de vie d'une session, en une ligne
+
+<BlocCode
+  langue="text"
+  code={`anonyme -> [connexion : regenerer l'identifiant] -> active -> deconnexion ou expiration`}
+/>
+
+## Ce qu'un JWT protège, et ce qu'il ne protège pas
+
+<BlocCode
+  langue="text"
+  code={`Signature : garantit l'integrite (non modifie)
+Contenu    : jamais confidentiel (encode, pas chiffre)`}
+/>
+
+<Avertissement type="astuce">
+  Trois réflexes suffisent à couvrir la moitié de ce cours : régénérer l'identifiant de session à la connexion, ne jamais mettre de secret dans un JWT, et renvoyer un message d'erreur générique sur un formulaire de connexion.
+</Avertissement>

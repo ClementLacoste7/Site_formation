@@ -1,0 +1,96 @@
+---
+titre: "Mots de passe : stockage, politiques, erreurs courantes"
+titreCourt: "Mots de passe"
+description: "Comment stocker un mot de passe correctement, pourquoi la longueur protège mieux que la complexité, et les pièges de politique les plus fréquents."
+slug: "mots-de-passe"
+cours: "authentification-sessions"
+ordre: 1
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Appliquer les principes de stockage vus dans le cours sur la cryptographie à un mot de passe réel"
+  - "Comparer, chiffres à l'appui, l'apport de la longueur face à celui de la complexité"
+  - "Repérer les erreurs de politique de mot de passe les plus fréquentes"
+prerequis: []
+tags: ["authentification", "hachage"]
+quiz:
+  - question: "Pourquoi une politique qui exige une majuscule, un chiffre et un symbole est-elle souvent moins efficace qu'annoncé ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle pousse vers des substitutions prévisibles (a -> @, o -> 0) que les outils de cassage anticipent déjà"
+        correcte: true
+        explication: "Les listes utilisées pour casser des mots de passe intègrent ces substitutions classiques : la contrainte de complexité gagne peu face à un attaquant qui les connaît déjà."
+      - texte: "Elle rend le hachage du mot de passe plus lent à calculer"
+        correcte: false
+        explication: "La politique de composition n'a aucun effet sur la vitesse de hachage : ce sont deux sujets indépendants."
+      - texte: "Elle est incompatible avec le salage vu dans le cours sur la cryptographie"
+        correcte: false
+        explication: "Salage et politique de composition sont deux protections indépendantes, parfaitement compatibles entre elles."
+  - question: "Pourquoi un service qui propose de « te renvoyer ton mot de passe par e-mail » en cas d'oubli est-il un signal d'alerte ?"
+    type: "unique"
+    reponses:
+      - texte: "Il ne peut renvoyer le mot de passe en clair que s'il l'a stocké d'une façon réversible, jamais haché correctement"
+        correcte: true
+        explication: "Un mot de passe correctement haché (voir le cours sur la cryptographie) ne peut jamais être retrouvé pour être renvoyé tel quel : sa seule existence prouve un stockage non conforme."
+      - texte: "Parce que l'e-mail n'est jamais un canal sécurisé, quel que soit son contenu"
+        correcte: false
+        explication: "Le problème précis ici n'est pas le canal e-mail en général, mais le fait que le mot de passe en clair doit exister quelque part côté serveur pour pouvoir être renvoyé."
+      - texte: "Parce que cette pratique est plus lente que l'envoi d'un lien de réinitialisation"
+        correcte: false
+        explication: "La vitesse n'est pas en cause : le problème est structurel (stockage réversible), pas une question de performance perçue."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Ce que le cours sur la cryptographie a déjà posé
+
+Un mot de passe ne doit jamais être stocké en clair, ni de façon réversible : seule une empreinte salée (chapitre 4 du cours sur la cryptographie appliquée) doit être conservée. Ce chapitre applique ce principe à des décisions concrètes : comment choisir une politique de mot de passe, et quelles erreurs évitent la plupart des applications qui se croient sûres.
+
+<Avertissement type="danger">
+  Un service capable de te renvoyer ton mot de passe original par e-mail en cas d'oubli ne peut techniquement le faire que s'il l'a stocké en clair ou de façon réversible, jamais correctement haché. C'est un signal d'alarme immédiat sur la qualité de son stockage.
+</Avertissement>
+
+## Longueur contre complexité : une comparaison chiffrée
+
+Les politiques classiques imposent majuscule, chiffre et symbole. Une politique plus récente, recommandée notamment par le NIST, privilégie la longueur : une phrase de passe simple mais longue résiste souvent bien mieux qu'un mot de passe court mais « complexe ».
+
+<ConsolePython codeInitial={`def espace_de_recherche(taille_alphabet, longueur):
+    return taille_alphabet ** longueur
+
+# Mot de passe "complexe" typique : majuscules, minuscules, chiffres, symboles
+alphabet_complexe = 26 + 26 + 10 + 10  # environ 72 caracteres possibles
+mdp_complexe = espace_de_recherche(alphabet_complexe, 8)   # ex: "P@ssw0rd"
+
+# Phrase de passe simple : minuscules et espaces seulement
+alphabet_phrase = 26 + 1  # 27 caracteres possibles
+mdp_phrase = espace_de_recherche(alphabet_phrase, 28)  # ex: "le chat dort sur le canape"
+
+vitesse = 10_000_000_000  # 10 milliards d'essais/seconde, materiel dedie realiste
+
+print(f"Mot de passe complexe (8 car.)      : {mdp_complexe:.2e} combinaisons")
+print(f"  temps estime : {mdp_complexe/vitesse/3600:.1f} heures")
+print()
+print(f"Phrase de passe (28 car., minuscules) : {mdp_phrase:.2e} combinaisons")
+print(f"  temps estime : {mdp_phrase/vitesse/3600/24/365:.2e} annees")`} />
+
+La phrase de passe, pourtant composée d'un alphabet bien plus restreint, l'emporte largement grâce à sa longueur : l'espace de recherche croît de façon exponentielle avec chaque caractère ajouté, bien plus vite qu'avec un alphabet élargi.
+
+## Trois erreurs courantes, au-delà du stockage
+
+- **Politique de complexité sans limite de longueur minimale généreuse** : favorise des mots de passe courts mais « valides », au détriment de phrases longues naturellement plus robustes.
+- **Aucune vérification contre les mots de passe déjà compromis** : un mot de passe techniquement « complexe » mais présent dans une fuite connue reste un très mauvais choix, quelle que soit sa composition.
+- **Aucune limite de tentatives** : sans limitation, une attaque par dictionnaire ou force brute (cours sur la cryptographie, chapitre 3) peut s'exécuter directement contre le formulaire de connexion, pas seulement hors ligne contre une empreinte volée.
+
+<EncadreARetenir
+  points={[
+    "Un mot de passe doit toujours être stocké haché et salé, jamais en clair ni de façon réversible",
+    "Pouvoir renvoyer un mot de passe oublié par e-mail signale presque toujours un stockage non conforme",
+    "La longueur augmente l'espace de recherche plus efficacement que la seule complexité de composition",
+    "Vérifier contre les mots de passe déjà compromis et limiter les tentatives comptent autant que la politique de composition"
+  ]}
+/>

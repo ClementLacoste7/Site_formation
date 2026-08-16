@@ -1,0 +1,98 @@
+---
+titre: "Cartographier une application web : points d'entrée, technologies"
+titreCourt: "Cartographier une appli web"
+description: "Une application se cartographie avant de se tester : ses points d'entrée, et ce que ses réponses HTTP révèlent sans le vouloir sur sa pile technique."
+slug: "cartographier-une-application-web"
+cours: "reconnaissance-methodologie"
+ordre: 4
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Lister les sources typiques de points d'entrée d'une application web"
+  - "Identifier des indices de technologie dans des en-têtes HTTP courants"
+  - "Comprendre pourquoi masquer ces indices reste une mesure complémentaire, pas une protection suffisante"
+prerequis: ["reconnaissance-active"]
+tags: ["methodologie", "en-tetes"]
+quiz:
+  - question: "Pourquoi robots.txt et sitemap.xml sont-ils des points de départ utiles pour cartographier une application ?"
+    type: "unique"
+    reponses:
+      - texte: "Ils listent souvent des chemins que le site préfère ne pas voir indexés, révélant l'existence de zones qui ne sont pas destinées à être découvertes au hasard"
+        correcte: true
+        explication: "Un robots.txt qui exclut /admin/ des moteurs de recherche confirme, involontairement, l'existence de ce chemin : une information gratuite pour la cartographie."
+      - texte: "Ils contiennent systématiquement les identifiants de connexion administrateur"
+        correcte: false
+        explication: "Ces fichiers ne contiennent jamais d'identifiants : leur utilité vient des chemins qu'ils mentionnent, pas de secrets qu'ils exposeraient directement."
+      - texte: "Ils sont générés automatiquement et n'existent que sur les sites vulnérables"
+        correcte: false
+        explication: "robots.txt et sitemap.xml sont des standards utilisés par la quasi-totalité des sites web, y compris ce site : leur présence n'indique rien sur une éventuelle vulnérabilité."
+  - question: "Pourquoi masquer les en-têtes qui révèlent une technologie (comme X-Powered-By) reste une mesure complémentaire, pas une protection suffisante ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que d'autres indices (comportement, messages d'erreur, structure des URL) permettent souvent de déduire la même information autrement"
+        correcte: true
+        explication: "Masquer un en-tête ralentit la reconnaissance, mais ne corrige aucune faille sous-jacente : c'est une mesure de défense en profondeur, jamais un substitut à un correctif réel."
+      - texte: "Parce qu'il est techniquement impossible de supprimer ces en-têtes"
+        correcte: false
+        explication: "La plupart des serveurs et frameworks permettent de désactiver ou modifier ces en-têtes : ce n'est pas une impossibilité technique, mais une mesure aux effets limités."
+      - texte: "Parce que la loi interdit de masquer les technologies utilisées par un site"
+        correcte: false
+        explication: "Rien n'interdit légalement de masquer ces informations : la limite est purement technique (d'autres indices subsistent), pas juridique."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Deux questions à répondre : où, et avec quoi
+
+Cartographier une application web répond à deux questions distinctes : quels sont ses points d'entrée (où une donnée peut-elle atteindre le serveur), et avec quelles technologies est-elle construite (ce qui oriente les failles à rechercher en priorité).
+
+## Trouver les points d'entrée
+
+- **robots.txt et sitemap.xml** : révèlent souvent des chemins que le site préfère ne pas voir indexés, ou au contraire liste exhaustivement les pages publiques.
+- **Formulaires et champs de saisie** : chaque champ est un point d'entrée potentiel, au sens du premier chapitre du cours sur les injections SQL.
+- **Paramètres d'URL et appels d'API** : visibles en observant le trafic normal de l'application, souvent bien plus nombreux que les seuls formulaires visibles.
+
+## Ce que les en-têtes HTTP révèlent sans le vouloir
+
+Le chapitre sur les en-têtes du cours HTTP a introduit leur rôle général. En reconnaissance, ils deviennent une source d'indices sur la pile technique de la cible :
+
+<ConsolePython codeInitial={`en_tetes_reponse = {
+    "Server": "nginx/1.18.0",
+    "X-Powered-By": "PHP/7.4.3",
+    "Set-Cookie": "PHPSESSID=abc123; path=/",
+    "X-Generator": "WordPress 5.8"
+}
+
+indices = []
+if "Server" in en_tetes_reponse:
+    indices.append(f"Serveur web : {en_tetes_reponse['Server']}")
+if "X-Powered-By" in en_tetes_reponse:
+    indices.append(f"Langage / framework : {en_tetes_reponse['X-Powered-By']}")
+if "PHPSESSID" in en_tetes_reponse.get("Set-Cookie", ""):
+    indices.append("Session PHP native detectee (nom de cookie par defaut)")
+if "X-Generator" in en_tetes_reponse:
+    indices.append(f"CMS : {en_tetes_reponse['X-Generator']}")
+
+print("Indices de technologie trouves dans ces en-tetes :")
+for indice in indices:
+    print(" -", indice)`} />
+
+Un simple nom de cookie par défaut (`PHPSESSID`, `JSESSIONID`, `ASP.NET_SessionId`) suffit souvent à identifier un langage serveur, sans qu'aucun en-tête explicite ne soit nécessaire.
+
+<Avertissement type="astuce">
+  Beaucoup d'équipes de sécurité masquent volontairement ces en-têtes (numéro de version en particulier) en durcissement. C'est une mesure complémentaire utile, jamais suffisante seule : elle ralentit la reconnaissance sans corriger la moindre faille sous-jacente, et d'autres indices (comportement, structure des erreurs) permettent souvent de contourner ce masquage.
+</Avertissement>
+
+<EncadreARetenir
+  points={[
+    "Cartographier une application répond à deux questions : où sont ses points d'entrée, avec quoi est-elle construite",
+    "robots.txt, sitemap.xml, formulaires et paramètres d'URL sont des sources de points d'entrée",
+    "Des en-têtes HTTP ordinaires (Server, X-Powered-By, nom de cookie par défaut) révèlent souvent la pile technique",
+    "Masquer ces indices reste une mesure de défense en profondeur, jamais un substitut à la correction des failles réelles"
+  ]}
+/>

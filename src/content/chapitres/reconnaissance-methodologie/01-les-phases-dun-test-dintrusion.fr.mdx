@@ -1,0 +1,85 @@
+---
+titre: "Les phases d'un test d'intrusion : de la reconnaissance au rapport"
+titreCourt: "Les phases d'un pentest"
+description: "Un test d'intrusion suit une méthodologie précise, pas une série d'essais au hasard. Tout commence par une autorisation écrite, avant la moindre action technique."
+slug: "les-phases-dun-test-dintrusion"
+cours: "reconnaissance-methodologie"
+ordre: 1
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Citer les grandes phases d'un test d'intrusion dans leur ordre logique"
+  - "Expliquer pourquoi l'autorisation écrite précède toute action technique, sans exception"
+  - "Distinguer ce que chaque phase produit pour la suite de la méthodologie"
+prerequis: []
+tags: ["methodologie"]
+quiz:
+  - question: "Quelle est la toute première étape d'un test d'intrusion, avant même la reconnaissance ?"
+    type: "unique"
+    reponses:
+      - texte: "Le cadrage et l'obtention d'une autorisation écrite précisant le périmètre exact"
+        correcte: true
+        explication: "Sans autorisation écrite explicite, décrivant le périmètre exact, toute action technique qui suit est illégale, quelle que soit l'intention derrière : c'est un préalable absolu, jamais une formalité secondaire."
+      - texte: "Le scan de ports du système cible"
+        correcte: false
+        explication: "Un scan de ports est une action technique de reconnaissance active : il ne peut légalement intervenir qu'après l'autorisation, jamais avant."
+      - texte: "La rédaction du rapport final"
+        correcte: false
+        explication: "Le rapport est la dernière étape, pas la première : il restitue les résultats de toutes les phases précédentes."
+  - question: "Pourquoi distingue-t-on une phase de reconnaissance d'une phase d'exploitation ?"
+    type: "unique"
+    reponses:
+      - texte: "La reconnaissance rassemble de l'information sur la cible, l'exploitation utilise cette information pour tenter de compromettre une faille identifiée"
+        correcte: true
+        explication: "Séparer ces deux phases structure la démarche : on ne tente pas d'exploiter une faille avant d'avoir cartographié la cible, au risque de rater des angles d'attaque plus pertinents."
+      - texte: "La reconnaissance est illégale, l'exploitation est toujours légale"
+        correcte: false
+        explication: "C'est l'inverse qui compte : les deux phases sont couvertes par la même autorisation écrite, ou également illégales en son absence. Aucune des deux n'est légale par défaut."
+      - texte: "L'exploitation précède toujours la reconnaissance dans une méthodologie standard"
+        correcte: false
+        explication: "L'ordre logique est l'inverse : on reconnaît la cible avant de tenter de l'exploiter, pas après."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Une méthodologie, pas une série d'essais
+
+Les cours précédents de ce site ont détaillé des failles précises : injections SQL, XSS, faiblesses d'authentification. Un vrai test d'intrusion ne consiste pas à essayer ces techniques au hasard sur une cible : il suit une méthodologie structurée, où chaque phase prépare la suivante.
+
+<BlocCode
+  langue="text"
+  code={`0. Cadrage et autorisation ecrite  (prealable absolu, voir plus bas)
+1. Reconnaissance passive (OSINT)   -> chapitre 2
+2. Reconnaissance active            -> chapitre 3
+3. Cartographie et enumeration      -> chapitre 4
+4. Recherche et exploitation        -> chapitre 5
+5. Rapport et restitution           -> chapitre 6`}
+/>
+
+## Le préalable qui rend tout le reste légal, ou pas
+
+<Avertissement type="danger">
+  Rien de ce qui suit dans ce cours, ni dans les cours précédents de ce site, ne devient légal par la simple intention pédagogique ou « éthique » de la personne qui l'exécute. Une autorisation écrite explicite, décrivant précisément le périmètre autorisé (quels systèmes, quelles techniques, quelle période), doit exister avant la moindre action technique contre un système qui n'est pas le sien. En son absence, ces techniques restent des infractions, quel que soit le résultat obtenu.
+</Avertissement>
+
+Ce document d'autorisation (souvent appelé « lettre d'engagement » ou « get out of jail free card ») précise généralement : les systèmes explicitement dans le périmètre (et ceux explicitement exclus), les techniques autorisées ou interdites (une attaque par déni de service est presque toujours exclue, par exemple), la fenêtre temporelle, et les contacts d'urgence en cas d'incident imprévu.
+
+## Ce que chaque phase produit pour la suivante
+
+- **Reconnaissance** (passive puis active) : une liste de cibles, services et technologies identifiés, sans jugement de valeur sur leur sécurité à ce stade.
+- **Cartographie** : une compréhension structurée de l'application (points d'entrée, paramètres, technologies), à partir de laquelle chercher des failles a un sens.
+- **Exploitation** : la confirmation qu'une faille identifiée a un impact réel, pas seulement théorique.
+- **Rapport** : la traduction de tout ce travail en un document exploitable par une équipe qui n'a pas participé au test.
+
+<EncadreARetenir
+  points={[
+    "Une autorisation écrite explicite précède toujours toute action technique, sans aucune exception",
+    "La méthodologie s'enchaîne : reconnaissance, cartographie, exploitation, rapport",
+    "Chaque phase produit une information nécessaire à la phase suivante, dans cet ordre",
+    "Les techniques et le périmètre autorisés sont définis à l'avance, pas improvisés en cours de mission"
+  ]}
+/>

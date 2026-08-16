@@ -1,0 +1,87 @@
+---
+titre: "Le rapport : la partie que personne n'aime et qui fait tout le métier"
+titreCourt: "Le rapport"
+description: "Une faille non reproductible ou sans recommandation claire n'a quasiment aucune valeur pour le client, aussi impressionnante soit-elle techniquement."
+slug: "le-rapport"
+cours: "reconnaissance-methodologie"
+ordre: 6
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Citer les sections attendues d'un rapport de test d'intrusion"
+  - "Expliquer pourquoi des étapes de reproduction précises comptent autant que la faille elle-même"
+  - "Comprendre le rôle d'un résumé exécutif face à un public non technique"
+prerequis: ["de-la-faille-a-lexploitation"]
+tags: ["methodologie"]
+quiz:
+  - question: "Pourquoi une faille sans étapes de reproduction précises a-t-elle peu de valeur dans un rapport ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que l'équipe technique qui doit corriger la faille ne peut ni la confirmer ni vérifier que son correctif fonctionne réellement"
+        correcte: true
+        explication: "Sans reproduction fiable, une faille reste une affirmation invérifiable : l'équipe corrective ne sait ni où regarder précisément, ni comment s'assurer que le correctif appliqué règle bien le problème."
+      - texte: "Parce que la loi impose un format standardisé pour tout rapport de sécurité"
+        correcte: false
+        explication: "Il n'existe pas d'obligation légale de format : le besoin de reproduction précise vient d'une nécessité pratique, pas d'une contrainte réglementaire."
+      - texte: "Parce qu'un rapport sans étapes de reproduction ne peut pas être facturé"
+        correcte: false
+        explication: "La facturation d'une prestation n'a aucun rapport avec cette exigence : elle vient de l'utilité réelle du rapport pour l'équipe qui doit agir dessus."
+  - question: "À qui s'adresse en priorité le résumé exécutif d'un rapport de test d'intrusion ?"
+    type: "unique"
+    reponses:
+      - texte: "À un public non technique (direction, décideurs) qui doit comprendre l'ampleur du risque sans entrer dans le détail technique"
+        correcte: true
+        explication: "Le résumé exécutif traduit les résultats en enjeux compréhensibles sans expertise technique, pour appuyer des décisions (budget, priorités) prises par des personnes qui ne liront pas les détails techniques du corps du rapport."
+      - texte: "Aux développeurs qui devront corriger chaque faille techniquement"
+        correcte: false
+        explication: "Les développeurs s'appuient plutôt sur la section technique détaillée, avec ses étapes de reproduction précises : le résumé exécutif leur est en général moins directement utile."
+      - texte: "Aux autres testeurs qui reproduiront le test l'année suivante"
+        correcte: false
+        explication: "Ce résumé n'est pas destiné à guider un futur test : son public est décisionnel, pas technique ou méthodologique."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Ce que le client retient réellement
+
+Une faille brillante techniquement, mais mal documentée, n'a presque aucune valeur pour l'entreprise qui a commandé le test. Le rapport est le véritable livrable d'un test d'intrusion : l'exploitation n'est que la preuve qui l'alimente.
+
+## Les sections attendues
+
+<BlocCode
+  langue="text"
+  code={`1. Resume executif        : l'essentiel, sans jargon, pour un public non technique
+2. Perimetre et methodologie : ce qui a ete teste, comment, et ce qui ne l'a pas ete
+3. Pour chaque faille :
+   - Description            : de quoi il s'agit
+   - Severite                : impact estime (souvent via un score comme le CVSS)
+   - Etapes de reproduction  : precises, verifiables independamment
+   - Impact                  : ce que la faille permet reellement (voir chapitre precedent)
+   - Recommandation          : comment corriger, pas seulement "corriger ce point"
+4. Conclusion et priorisation : par ou commencer, compte tenu des ressources disponibles`}
+/>
+
+## Pourquoi les étapes de reproduction comptent autant que la faille
+
+<Avertissement type="danger">
+  Une faille décrite sans étapes de reproduction précises et vérifiables place l'équipe technique dans une impasse : elle ne peut ni confirmer le problème, ni s'assurer qu'un correctif appliqué le résout réellement. Une faille techniquement impressionnante mais mal documentée peut avoir moins de valeur pratique qu'une faille simple, mais parfaitement reproductible.
+</Avertissement>
+
+Les étapes doivent permettre à quelqu'un qui n'a pas participé au test de reproduire le problème seul, sans avoir à deviner un détail manquant.
+
+## Le résumé exécutif : un public différent, un besoin différent
+
+Le corps technique du rapport s'adresse aux personnes qui corrigeront les failles. Le résumé exécutif s'adresse à un tout autre public : des décideurs qui doivent comprendre l'ampleur du risque, sans expertise technique, pour prioriser du temps et un budget de correction. Un bon résumé exécutif tient en quelques paragraphes, sans jamais sacrifier l'exactitude à la simplicité.
+
+<EncadreARetenir
+  points={[
+    "Le rapport est le véritable livrable d'un test d'intrusion, pas seulement la preuve d'une exploitation réussie",
+    "Chaque faille documente description, sévérité, étapes de reproduction, impact réel et recommandation",
+    "Sans étapes de reproduction précises, une faille ne peut être ni confirmée ni vérifiée après correction",
+    "Le résumé exécutif s'adresse à un public décisionnel non technique, distinct du corps technique du rapport"
+  ]}
+/>

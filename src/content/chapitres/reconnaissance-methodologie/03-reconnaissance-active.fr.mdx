@@ -1,0 +1,88 @@
+---
+titre: "Reconnaissance active : scan de ports, découverte de services"
+titreCourt: "Reconnaissance active"
+description: "Dès qu'une requête part vers la cible, on quitte l'OSINT : la reconnaissance active identifie ce qui tourne réellement, service par service."
+slug: "reconnaissance-active"
+cours: "reconnaissance-methodologie"
+ordre: 3
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Expliquer ce qu'un scan de ports détermine, et comment"
+  - "Distinguer les états ouvert, fermé et filtré d'un port"
+  - "Justifier pourquoi la reconnaissance active exige une autorisation plus stricte que l'OSINT"
+prerequis: ["osint"]
+tags: ["methodologie", "osint"]
+quiz:
+  - question: "Qu'est-ce qu'un scan de ports détermine concrètement ?"
+    type: "unique"
+    reponses:
+      - texte: "Quels ports réseau répondent sur une machine, et donc quels services y sont potentiellement accessibles"
+        correcte: true
+        explication: "Un service (serveur web, base de données, SSH...) écoute sur un port précis : le scan révèle lesquels sont accessibles, une base pour identifier ensuite ces services plus précisément."
+      - texte: "Le contenu exact des fichiers stockés sur le serveur cible"
+        correcte: false
+        explication: "Un scan de ports ne lit aucun fichier : il détermine seulement quels services réseau sont accessibles, rien sur leur contenu interne."
+      - texte: "Les mots de passe utilisés par les comptes du serveur cible"
+        correcte: false
+        explication: "Aucun mot de passe n'est révélé par un scan de ports : cette information n'a aucun rapport avec l'état des ports réseau."
+  - question: "Quelle est la différence entre un port « fermé » et un port « filtré » ?"
+    type: "unique"
+    reponses:
+      - texte: "Un port fermé répond explicitement qu'aucun service n'écoute ; un port filtré ne répond pas du tout, généralement bloqué par un pare-feu"
+        correcte: true
+        explication: "Cette absence de réponse (filtré) rend le diagnostic plus incertain qu'un refus explicite (fermé) : impossible de savoir si un service existe derrière un filtrage sans autre indice."
+      - texte: "Un port fermé est toujours sécurisé, un port filtré est toujours vulnérable"
+        correcte: false
+        explication: "Ni l'un ni l'autre état ne détermine à lui seul un niveau de sécurité : ce sont des états réseau, pas des verdicts de sécurité."
+      - texte: "Il n'existe aucune différence, ce sont deux termes pour le même état"
+        correcte: false
+        explication: "Ce sont deux états bien distincts, avec des implications différentes pour la suite du diagnostic."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## La frontière avec l'OSINT
+
+Dès qu'une requête part réellement vers la cible, la reconnaissance devient **active** : on quitte le terrain des sources tierces publiques pour interagir directement avec l'infrastructure visée, même sans tenter d'exploiter quoi que ce soit à ce stade.
+
+<Avertissement type="danger">
+  Cette interaction directe change la nature légale de l'action : la reconnaissance active exige une autorisation au moins aussi stricte que l'exploitation elle-même. Un simple scan de ports contre un système sans autorisation constitue déjà une infraction dans la plupart des juridictions, indépendamment de toute tentative d'exploitation ultérieure.
+</Avertissement>
+
+## Ce qu'un scan de ports détermine
+
+Un service réseau (serveur web, base de données, SSH) écoute sur un numéro de port précis. Un scan de ports teste systématiquement une plage de numéros pour déterminer lesquels répondent, et comment :
+
+<BlocCode
+  langue="text"
+  code={`PORT     ETAT      SERVICE
+22/tcp   ouvert    ssh
+80/tcp   ouvert    http
+443/tcp  ouvert    https
+3306/tcp filtre    mysql
+8080/tcp ferme     -`}
+/>
+
+Trois états structurent le résultat :
+
+- **Ouvert** : un service répond activement sur ce port.
+- **Fermé** : la machine répond, mais explicitement qu'aucun service n'écoute à cet endroit.
+- **Filtré** : aucune réponse n'est obtenue, généralement parce qu'un pare-feu bloque silencieusement la requête. Impossible de distinguer, sans autre indice, un service caché d'une absence réelle.
+
+## Au-delà du port : identifier le service
+
+Trouver un port ouvert ne dit pas encore ce qui tourne dessus. La détection de service va plus loin en analysant la réponse du service lui-même (une « bannière » qu'il renvoie souvent spontanément), pour en déduire le logiciel et parfois sa version précise, une information qui prépare directement la cartographie du chapitre suivant.
+
+<EncadreARetenir
+  points={[
+    "La reconnaissance devient active dès qu'une requête part réellement vers la cible, même sans exploitation",
+    "Un scan de ports détermine quels services réseau sont accessibles sur une machine",
+    "Un port filtré, sans réponse, rend le diagnostic plus incertain qu'un port explicitement fermé",
+    "La détection de service va au-delà du port ouvert, pour identifier le logiciel et sa version"
+  ]}
+/>

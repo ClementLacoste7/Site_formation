@@ -1,0 +1,85 @@
+---
+titre: "OSINT : ce qu'on trouve sans rien toucher"
+titreCourt: "OSINT"
+description: "La reconnaissance passive n'envoie jamais la moindre requête vers la cible : elle se limite à ce que des sources publiques révèlent déjà."
+slug: "osint"
+cours: "reconnaissance-methodologie"
+ordre: 2
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Définir l'OSINT par sa propriété distinctive : aucune interaction directe avec la cible"
+  - "Citer plusieurs sources publiques exploitées en reconnaissance passive"
+  - "Expliquer pourquoi une offre d'emploi peut constituer une fuite d'information"
+prerequis: ["les-phases-dun-test-dintrusion"]
+tags: ["methodologie", "osint"]
+quiz:
+  - question: "Qu'est-ce qui définit précisément une technique comme relevant de l'OSINT ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle n'envoie strictement aucune requête directe vers l'infrastructure de la cible : seules des sources publiques tierces sont consultées"
+        correcte: true
+        explication: "C'est cette absence totale d'interaction avec la cible qui distingue l'OSINT de la reconnaissance active (chapitre suivant), pas la nature technique ou non de l'information trouvée."
+      - texte: "Elle nécessite un outil payant spécialisé pour être menée correctement"
+        correcte: false
+        explication: "L'OSINT s'appuie souvent sur des outils gratuits (moteurs de recherche, bases WHOIS publiques) : le coût de l'outil n'entre pas dans sa définition."
+      - texte: "Elle ne peut porter que sur des informations techniques, jamais sur des personnes"
+        correcte: false
+        explication: "L'OSINT couvre aussi bien l'infrastructure technique que les personnes (réseaux sociaux, offres d'emploi) : rien ne la limite au seul aspect technique."
+  - question: "En quoi une offre d'emploi publiée par une entreprise peut-elle constituer une fuite d'information exploitable ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle révèle souvent les technologies précises utilisées en interne (langages, frameworks, outils), utiles pour cibler une reconnaissance ultérieure"
+        correcte: true
+        explication: "Une offre qui recherche un développeur maîtrisant précisément telle version d'un framework informe indirectement sur la pile technique réellement déployée, une information qu'un scan seul mettrait plus de temps à révéler."
+      - texte: "Elle contient systématiquement les identifiants de connexion des employés"
+        correcte: false
+        explication: "Une offre d'emploi ne contient jamais d'identifiants : le risque porte sur les informations indirectes qu'elle révèle sur la stack technique, pas sur des secrets directs."
+      - texte: "Elle est retirée automatiquement dès qu'un poste est pourvu, limitant tout risque"
+        correcte: false
+        explication: "Le retrait éventuel d'une offre ne supprime pas l'information déjà indexée par des moteurs de recherche ou archivée ailleurs : le risque persiste au-delà de sa publication active."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Aucune requête vers la cible
+
+L'**OSINT** (Open Source Intelligence, renseignement en sources ouvertes) rassemble de l'information exclusivement via des sources publiques tierces : jamais en envoyant une requête directe vers l'infrastructure de la cible. C'est cette propriété, pas la nature de l'information trouvée, qui la définit comme « passive ».
+
+## Des sources variées, souvent sous-estimées
+
+- **DNS et WHOIS publics** : sous-domaines, plages d'adresses IP associées, dates de création de domaine.
+- **Journaux de certificats (certificate transparency)** : tout certificat TLS émis publiquement est enregistré, révélant parfois des sous-domaines jamais destinés à être connus.
+- **Moteurs de recherche avec opérateurs avancés** : `site:`, `filetype:`, `intitle:` permettent de retrouver des documents ou pages qu'un simple parcours du site n'exposerait pas.
+- **Offres d'emploi** : révèlent souvent la pile technique précise recherchée (« maîtrise de Symfony 5, MySQL, Docker »).
+- **Dépôts de code publics** : historique de commits, clés d'API oubliées, noms d'hôtes internes mentionnés dans des messages de commit ou de la documentation.
+- **Réseaux sociaux professionnels** : profils d'employés mentionnant des outils ou technologies internes dans leur expérience.
+
+<BlocCode
+  langue="text"
+  code={`Exemples d'operateurs de recherche avances (a titre illustratif) :
+site:exemple.test filetype:pdf
+site:exemple.test intitle:"index of"
+site:github.com "exemple.test" api_key`}
+/>
+
+<Avertissement type="info">
+  Aucune de ces recherches ne touche l'infrastructure de la cible : elles interrogent des services tiers (moteurs de recherche, GitHub, autorités de certification) qui ont déjà indexé l'information publiquement. C'est précisément ce qui les classe comme reconnaissance passive.
+</Avertissement>
+
+## Ce que l'OSINT prépare pour la suite
+
+Les informations collectées ici (sous-domaines potentiels, technologies probables, noms d'employés) orientent directement la reconnaissance active du chapitre suivant : plutôt que de scanner une cible à l'aveugle, cette étape permet de savoir plus précisément où regarder.
+
+<EncadreARetenir
+  points={[
+    "L'OSINT ne touche jamais directement l'infrastructure de la cible : seules des sources publiques tierces sont consultées",
+    "DNS, WHOIS, certificats, moteurs de recherche, dépôts de code et offres d'emploi sont des sources OSINT courantes",
+    "Une information en apparence anodine (une offre d'emploi) peut révéler la pile technique réelle d'une organisation",
+    "Les résultats de l'OSINT orientent la reconnaissance active qui suit, plutôt que de la remplacer"
+  ]}
+/>

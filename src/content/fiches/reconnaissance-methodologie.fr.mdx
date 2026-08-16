@@ -1,0 +1,42 @@
+---
+titre: "Fiche de révision : Reconnaissance et méthodologie d'un test d'intrusion"
+description: "L'essentiel à retenir : les phases d'un pentest, OSINT vs reconnaissance active, cartographie, scénarios d'attaque et rapport."
+slug: "reconnaissance-methodologie"
+coursLie: "reconnaissance-methodologie"
+tags: ["methodologie"]
+questions:
+  - question: "Quelle est la toute première étape d'un test d'intrusion ?"
+    reponse: "Le cadrage et l'obtention d'une autorisation écrite précisant le périmètre exact. Sans elle, toute action technique qui suit est illégale, quelle que soit l'intention."
+  - question: "Qu'est-ce qui définit l'OSINT comme reconnaissance passive ?"
+    reponse: "Aucune requête n'est envoyée directement vers l'infrastructure de la cible : seules des sources publiques tierces (DNS, WHOIS, moteurs de recherche, dépôts de code) sont consultées."
+  - question: "Quels sont les trois états possibles d'un port lors d'un scan ?"
+    reponse: "Ouvert (un service répond), fermé (la machine répond qu'aucun service n'écoute), filtré (aucune réponse, généralement un pare-feu qui bloque silencieusement)."
+  - question: "Que peuvent révéler des en-têtes HTTP ordinaires lors de la cartographie d'une application ?"
+    reponse: "La pile technique : Server et X-Powered-By nomment souvent le serveur et le langage, et même un simple nom de cookie par défaut (PHPSESSID, JSESSIONID) trahit un langage serveur."
+  - question: "Pourquoi une faille mineure isolément peut-elle devenir critique une fois chaînée à d'autres ?"
+    reponse: "Son impact réel dépend de ce qu'elle permet d'atteindre ensuite, pas seulement de sa gravité technique prise seule : une XSS réfléchie combinée à un vol de session peut ouvrir l'accès à une zone bien plus sensible."
+  - question: "Pourquoi les étapes de reproduction comptent-elles autant que la faille elle-même dans un rapport ?"
+    reponse: "Sans elles, l'équipe technique ne peut ni confirmer le problème ni vérifier qu'un correctif le résout réellement : une faille non reproductible a très peu de valeur pratique, aussi impressionnante soit-elle."
+  - question: "À qui s'adresse le résumé exécutif d'un rapport de test d'intrusion ?"
+    reponse: "À un public non technique (direction, décideurs), pour qu'il comprenne l'ampleur du risque et priorise budget et ressources, sans avoir besoin d'expertise technique."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Les six phases, dans l'ordre
+
+<BlocCode
+  langue="text"
+  code={`0. Cadrage et autorisation ecrite
+1. Reconnaissance passive (OSINT)
+2. Reconnaissance active
+3. Cartographie et enumeration
+4. Recherche et exploitation (scenarios d'attaque)
+5. Rapport et restitution`}
+/>
+
+<Avertissement type="danger">
+  Aucune de ces phases n'est légale sans autorisation écrite explicite précisant le périmètre. C'est un préalable absolu, pas une formalité.
+</Avertissement>

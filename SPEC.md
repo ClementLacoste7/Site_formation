@@ -799,7 +799,7 @@ Objectif : 30 à 40 chapitres publiés avant la candidature AdSense.
 | 4 | Cross-Site Scripting (XSS) | 6 (rédigés) | Haute |
 | 5 | Authentification et sessions | 6 (rédigés) | Moyenne |
 | 6 | Cryptographie appliquée | 6 (rédigés) | Moyenne |
-| 7 | Reconnaissance et méthodologie | 4 | Basse |
+| 7 | Reconnaissance et méthodologie | 6 (rédigés) | Basse |
 
 **Ordre de rédaction recommandé :** cours 2, puis 3, puis 4. Ce sont ceux qui se positionnent le plus vite en référencement et qui exploitent le mieux les blocs interactifs.
 

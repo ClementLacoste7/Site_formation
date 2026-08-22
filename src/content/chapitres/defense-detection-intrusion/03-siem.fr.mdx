@@ -1,0 +1,98 @@
+---
+titre: "SIEM : centraliser et corréler les événements"
+titreCourt: "SIEM"
+description: "Un évènement isolé est souvent du bruit. Le même évènement, replacé dans un ensemble corrélé, devient un signal : c'est tout l'apport d'un SIEM."
+slug: "siem"
+cours: "defense-detection-intrusion"
+ordre: 3
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Définir le rôle d'un SIEM au-delà du simple stockage centralisé de logs"
+  - "Expliquer pourquoi un évènement isolé est rarement suffisant pour conclure à une attaque"
+  - "Construire une corrélation simple sur un flux d'évènements multi-comptes"
+prerequis: ["detecter-une-attaque-web"]
+tags: ["defense", "logs"]
+quiz:
+  - question: "Quel est l'apport principal d'un SIEM par rapport à des logs simplement stockés côte à côte ?"
+    type: "unique"
+    reponses:
+      - texte: "Il normalise des formats hétérogènes et corrèle des évènements entre plusieurs sources pour révéler des patterns invisibles isolément"
+        correcte: true
+        explication: "Stocker des logs ne suffit pas à détecter quoi que ce soit : c'est la normalisation (formats et horodatages unifiés) et la corrélation entre sources qui transforment des données brutes en signal exploitable."
+      - texte: "Il empêche automatiquement toute connexion suspecte détectée"
+        correcte: false
+        explication: "Un SIEM détecte et alerte, il n'agit généralement pas seul pour bloquer une connexion : cette action revient à d'autres systèmes, ou à une équipe humaine."
+      - texte: "Il supprime automatiquement les faux positifs des règles de détection"
+        correcte: false
+        explication: "Un SIEM ne juge pas seul de la pertinence d'une alerte : affiner les règles pour réduire les faux positifs reste un travail humain, vu au chapitre suivant."
+  - question: "Pourquoi trois échecs de connexion sur trois comptes différents, depuis la même adresse IP, constitue-t-il un signal plus fort qu'un seul échec isolé ?"
+    type: "unique"
+    reponses:
+      - texte: "Un utilisateur légitime se trompe généralement sur son propre compte, pas sur plusieurs comptes différents depuis la même origine"
+        correcte: true
+        explication: "Ce pattern (une même source, plusieurs comptes distincts) correspond typiquement à une tentative de credential stuffing, pas à une simple erreur de frappe d'un utilisateur légitime sur son propre compte."
+      - texte: "Trois échecs suffisent toujours à déclencher un blocage automatique du compte"
+        correcte: false
+        explication: "Le blocage automatique dépend d'une politique définie séparément (chapitre suivant sur les règles) : ce n'est pas une conséquence garantie de ce seul pattern."
+      - texte: "Parce que le nombre trois est un seuil universellement standardisé en sécurité"
+        correcte: false
+        explication: "Il n'existe aucun seuil universel : c'est la diversité des comptes touchés depuis une même source, pas un nombre magique, qui rend ce pattern suspect."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Au-delà du simple stockage
+
+Un **SIEM** (Security Information and Event Management) centralise les logs de sources hétérogènes (serveurs web, pare-feu, systèmes d'authentification), les normalise dans un format commun, puis en corrèle les évènements. Sans corrélation, un SIEM ne serait qu'un très gros fichier de logs, pas un outil de détection.
+
+## Un évènement isolé est souvent du bruit
+
+Un échec de connexion, pris seul, ne dit presque rien : une faute de frappe explique la quasi-totalité des cas. Le même échec, replacé dans un ensemble plus large, change de sens :
+
+<ConsolePython codeInitial={`from collections import defaultdict
+
+evenements = [
+    {"heure": "14:20:01", "ip": "198.51.100.23", "compte": "alice", "resultat": "echec"},
+    {"heure": "14:20:03", "ip": "198.51.100.23", "compte": "bob",   "resultat": "echec"},
+    {"heure": "14:20:05", "ip": "198.51.100.23", "compte": "carol", "resultat": "echec"},
+    {"heure": "14:20:08", "ip": "198.51.100.23", "compte": "admin", "resultat": "succes"},
+    {"heure": "14:21:00", "ip": "203.0.113.7",   "compte": "alice", "resultat": "echec"},
+]
+
+# Correlation : regrouper les echecs par adresse IP source
+echecs_par_ip = defaultdict(list)
+for evenement in evenements:
+    if evenement["resultat"] == "echec":
+        echecs_par_ip[evenement["ip"]].append(evenement["compte"])
+
+for ip, comptes in echecs_par_ip.items():
+    if len(comptes) >= 3:
+        print(f"ALERTE : {ip} a echoue sur {len(comptes)} comptes differents : {comptes}")
+        print("  -> pattern de credential stuffing (comptes multiples, meme source)")
+    else:
+        print(f"bruit  : {ip} -> {len(comptes)} echec(s), rien de concluant seul")`} />
+
+L'échec isolé de `203.0.113.7` sur le compte d'Alice reste du bruit. Les trois échecs de `198.51.100.23` sur trois comptes distincts, en quelques secondes, forment un pattern nettement plus parlant.
+
+<Avertissement type="attention">
+  Remarque aussi la connexion réussie sur le compte « admin », juste après la rafale d'échecs depuis la même adresse. Prise isolément, une connexion réussie ne déclenche jamais rien. Corrélée à ce contexte précis, elle mérite une vérification immédiate : c'est exactement ce qu'une analyse isolée, ligne par ligne, aurait manqué.
+</Avertissement>
+
+## Ce que corréler exige en amont
+
+Cette corrélation ne fonctionne que si les évènements partagent un format exploitable : mêmes noms de champs, horodatages sur la même échelle. C'est le rôle de la normalisation, souvent la partie la moins visible mais la plus déterminante du travail d'un SIEM.
+
+<EncadreARetenir
+  points={[
+    "Un SIEM centralise, normalise et corrèle des logs de sources hétérogènes, il ne se contente pas de les stocker",
+    "Un évènement isolé (un échec de connexion) est généralement du bruit sans contexte",
+    "Plusieurs échecs sur des comptes différents depuis une même source forment un pattern de credential stuffing reconnaissable",
+    "La normalisation des formats et horodatages est la condition silencieuse de toute corrélation"
+  ]}
+/>

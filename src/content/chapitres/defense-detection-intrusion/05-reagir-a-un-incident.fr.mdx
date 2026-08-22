@@ -1,0 +1,81 @@
+---
+titre: "Réagir à un incident : les premières heures"
+titreCourt: "Réagir à un incident"
+description: "Les premières décisions, prises sous pression, déterminent souvent ce qu'il restera possible d'analyser ensuite. Certains réflexes naturels sont pourtant les mauvais."
+slug: "reagir-a-un-incident"
+cours: "defense-detection-intrusion"
+ordre: 5
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Situer les grandes phases d'une réponse à incident, de l'identification au retour à la normale"
+  - "Expliquer pourquoi contenir une menace diffère d'éteindre purement et simplement un système"
+  - "Justifier la priorité donnée à la préservation des preuves avant toute action corrective"
+prerequis: ["regles-de-detection"]
+tags: ["defense"]
+quiz:
+  - question: "Pourquoi éteindre immédiatement une machine compromise est-il souvent une mauvaise première réaction ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle détruit des preuves volatiles (mémoire, connexions actives) qui auraient pu révéler comment l'attaquant a opéré"
+        correcte: true
+        explication: "Une partie des indices disparaît définitivement à l'extinction. Isoler la machine du réseau, plutôt que l'éteindre, préserve généralement bien plus d'informations exploitables pour l'analyse."
+      - texte: "Éteindre une machine est toujours illégal sans l'accord préalable d'une autorité judiciaire"
+        correcte: false
+        explication: "Aucune obligation légale de ce type ne s'applique de façon générale : le problème mis en avant ici est la perte de preuves, pas une question de légalité de l'action elle-même."
+      - texte: "Cela avertit automatiquement l'attaquant que sa présence a été détectée"
+        correcte: false
+        explication: "Ce n'est pas la raison principale invoquée ici : la perte de preuves volatiles reste l'argument central contre une extinction immédiate."
+  - question: "En quoi contenir une menace diffère-t-il d'éradiquer complètement l'incident ?"
+    type: "unique"
+    reponses:
+      - texte: "Contenir limite la propagation ou l'impact immédiat, sans nécessairement avoir encore compris ni éliminé la cause complète"
+        correcte: true
+        explication: "La confusion entre les deux pousse parfois à agir trop vite : isoler un système compromis (containment) n'implique pas encore d'avoir compris tous les mécanismes de persistance de l'attaquant (eradication), une étape ultérieure distincte."
+      - texte: "Ce sont deux termes strictement interchangeables décrivant la même action"
+        correcte: false
+        explication: "Ce sont deux phases distinctes d'une réponse à incident, avec des objectifs différents, pas deux noms pour la même chose."
+      - texte: "Contenir intervient toujours après l'éradication complète de la menace"
+        correcte: false
+        explication: "L'ordre est l'inverse dans une réponse structurée : on contient d'abord pour limiter les dégâts, on éradique ensuite une fois la situation mieux comprise."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Les phases d'une réponse à incident
+
+<BlocCode
+  langue="text"
+  code={`1. Identification  : confirmer qu'un incident reel est en cours (pas un faux positif)
+2. Confinement      : limiter la propagation ou l'impact, sans tout eteindre au hasard
+3. Eradication       : comprendre et eliminer la cause complete, pas seulement ses symptomes
+4. Retour a la normale : restaurer les systemes, avec surveillance renforcee temporaire
+5. Retour d'experience : voir le chapitre suivant`}
+/>
+
+Les alertes des chapitres précédents de ce cours alimentent directement la première phase : une règle de détection bien réglée transforme un signal noyé dans les logs en un incident identifié à temps pour agir.
+
+## Le réflexe à corriger : éteindre n'est pas contenir
+
+<Avertissement type="danger">
+  Éteindre immédiatement une machine compromise détruit des preuves volatiles (mémoire, connexions réseau actives, processus en cours) qui auraient pu révéler comment l'attaquant a opéré. Isoler la machine du réseau, sans l'éteindre, préserve généralement bien plus d'informations exploitables pour la suite de l'analyse.
+</Avertissement>
+
+Confiner une menace signifie limiter sa portée immédiate (couper l'accès réseau, révoquer une session compromise identifiée au chapitre sur l'authentification), pas encore avoir compris ni corrigé sa cause complète. Cette compréhension complète, l'éradication, vient ensuite, une fois la situation stabilisée.
+
+## Documenter en temps réel, pas après coup
+
+Chaque action prise pendant un incident (ce qui a été isolé, à quelle heure, par qui) doit être consignée au fur et à mesure, pas reconstituée de mémoire ensuite. Cette chronologie devient la matière première du rapport post-incident, objet du dernier chapitre de ce cours.
+
+<EncadreARetenir
+  points={[
+    "Une réponse à incident s'enchaîne : identification, confinement, éradication, retour à la normale",
+    "Isoler une machine compromise préserve les preuves volatiles, contrairement à l'éteindre immédiatement",
+    "Contenir limite l'impact immédiat, éradiquer élimine la cause complète : deux phases distinctes, dans cet ordre",
+    "Documenter chaque action au moment où elle est prise, pas après coup, conditionne la qualité du rapport final"
+  ]}
+/>

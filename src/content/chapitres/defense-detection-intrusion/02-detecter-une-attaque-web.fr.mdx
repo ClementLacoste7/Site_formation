@@ -1,0 +1,95 @@
+---
+titre: "Détecter une attaque web dans les logs d'un serveur"
+titreCourt: "Détecter une attaque web"
+description: "Les charges d'injection SQL et de XSS vues dans les cours précédents laissent une signature reconnaissable, directement lisible dans un log d'accès."
+slug: "detecter-une-attaque-web"
+cours: "defense-detection-intrusion"
+ordre: 2
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Reconnaître la signature d'une injection SQL ou d'une XSS dans une ligne de log"
+  - "Construire une détection par expression régulière sur un flux de logs"
+  - "Expliquer pourquoi une détection par motif seul reste contournable"
+prerequis: ["comprendre-les-logs"]
+tags: ["defense", "logs", "injections-sql", "xss"]
+quiz:
+  - question: "Pourquoi une charge d'injection SQL comme UNION SELECT laisse-t-elle une trace reconnaissable dans un log d'accès ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que le chemin et sa chaîne de requête, tels qu'envoyés par le client, sont enregistrés tels quels dans le log"
+        correcte: true
+        explication: "Le serveur web journalise l'URL exactement comme elle a été reçue, avant tout traitement applicatif : une charge injectée dans un paramètre y apparaît donc telle quelle."
+      - texte: "Parce que le serveur de base de données écrit automatiquement dans le log d'accès en cas d'erreur SQL"
+        correcte: false
+        explication: "Le log d'accès est produit par le serveur web, indépendamment de toute base de données : ce n'est pas une écriture provoquée par une erreur SQL côté base."
+      - texte: "Parce que les navigateurs bloquent ces requêtes et génèrent une entrée de log spécifique"
+        correcte: false
+        explication: "Les navigateurs n'interviennent pas dans la génération des logs serveur, et ne bloquent pas ce type de requête avant son envoi."
+  - question: "Pourquoi une détection basée uniquement sur des motifs de texte reste-t-elle contournable ?"
+    type: "unique"
+    reponses:
+      - texte: "Un attaquant peut encoder ou reformuler sa charge pour éviter de correspondre au motif recherché, sans changer son effet"
+        correcte: true
+        explication: "Un encodage d'URL, une variation de casse ou une syntaxe SQL équivalente mais différente peuvent suffire à passer sous un motif trop rigide, sans réduire l'efficacité réelle de la charge."
+      - texte: "Les expressions régulières ne peuvent techniquement pas analyser du texte contenant des espaces"
+        correcte: false
+        explication: "Les expressions régulières traitent très bien du texte avec espaces : ce n'est pas une limitation technique de l'outil."
+      - texte: "Parce que les serveurs web désactivent automatiquement la journalisation après une charge détectée"
+        correcte: false
+        explication: "Aucun mécanisme de ce type n'existe par défaut : la journalisation continue normalement, indépendamment d'une détection ou non."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Les charges des cours précédents, vues côté défense
+
+Les cours sur les injections SQL et sur la XSS ont construit des charges précises : `UNION SELECT`, `' OR '1'='1`, `<script>`, `onerror=`. Côté défense, ces mêmes charges deviennent des motifs à reconnaître, puisqu'elles transitent par le chemin et les paramètres d'une requête HTTP, journalisés tels quels.
+
+## Repérer les charges dans un flux de logs
+
+<ConsolePython codeInitial={`import re
+
+lignes_de_log = [
+    '203.0.113.7 - - [14:22:01] "GET /produits?id=1 HTTP/1.1" 200 5423',
+    '198.51.100.23 - - [14:23:15] "GET /produits?id=1 UNION SELECT identifiant,mot_de_passe FROM utilisateurs-- HTTP/1.1" 200 8120',
+    '203.0.113.7 - - [14:24:02] "GET /recherche?q=chaussures HTTP/1.1" 200 4200',
+    '198.51.100.23 - - [14:24:47] "GET /recherche?q=<script>document.location=\\'https://attaquant.test/vol\\'</script> HTTP/1.1" 200 3900',
+    '203.0.113.7 - - [14:25:10] "GET /a-propos HTTP/1.1" 200 2100',
+]
+
+motifs_suspects = {
+    "Injection SQL": re.compile(r"UNION\\s+SELECT|--|'\\s*OR\\s*'", re.IGNORECASE),
+    "XSS": re.compile(r"<script|onerror\\s*=", re.IGNORECASE),
+}
+
+for ligne in lignes_de_log:
+    alertes = [nom for nom, motif in motifs_suspects.items() if motif.search(ligne)]
+    if alertes:
+        print(f"SUSPECT ({', '.join(alertes)}) : {ligne[:75]}")
+    else:
+        print(f"normal              : {ligne[:75]}")`} />
+
+Deux requêtes malveillantes ressortent immédiatement, mêlées à du trafic normal provenant de la même plage d'adresses IP. Remarque que les deux charges suspectes viennent de la même IP (`198.51.100.23`), un détail qui devient exploitable dès le chapitre suivant sur la corrélation.
+
+## Les limites d'une détection par motif seul
+
+<Avertissement type="attention">
+  Un attaquant averti peut reformuler sa charge pour échapper à un motif trop rigide : encodage d'URL, variations de casse, syntaxe SQL équivalente mais différente. Une détection par motif reste une première ligne de défense utile, jamais une garantie absolue.
+</Avertissement>
+
+C'est pour cette raison que la détection sérieuse combine plusieurs signaux (le motif, mais aussi le code de statut retourné, la fréquence des requêtes, leur origine) plutôt que de se reposer sur un seul indicateur isolé.
+
+<EncadreARetenir
+  points={[
+    "Les charges SQL et XSS des cours précédents laissent une trace directement lisible dans le chemin journalisé",
+    "Une expression régulière permet de repérer ces motifs dans un flux de logs",
+    "Une détection par motif seul reste contournable par encodage ou reformulation de la charge",
+    "Combiner plusieurs signaux (motif, statut, fréquence, origine) renforce une détection isolée"
+  ]}
+/>

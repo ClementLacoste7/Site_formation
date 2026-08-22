@@ -800,8 +800,11 @@ Objectif : 30 à 40 chapitres publiés avant la candidature AdSense.
 | 5 | Authentification et sessions | 6 (rédigés) | Moyenne |
 | 6 | Cryptographie appliquée | 6 (rédigés) | Moyenne |
 | 7 | Reconnaissance et méthodologie | 6 (rédigés) | Basse |
+| 8 | Défense et détection d'intrusion | 6 (rédigés) | Moyenne |
 
 **Ordre de rédaction recommandé :** cours 2, puis 3, puis 4. Ce sont ceux qui se positionnent le plus vite en référencement et qui exploitent le mieux les blocs interactifs.
+
+**Cours 8, ajouté hors plan initial (2026-08-07) :** angle défensif (analyste SOC), demandé explicitement par l'utilisateur en complément du curriculum offensif ci-dessus. S'appuie sur les cours 3 (Injections SQL), 4 (XSS) et 5 (Authentification) comme prérequis.
 
 Fiches de révision associées : une par cours, publiée après le cours correspondant.
 

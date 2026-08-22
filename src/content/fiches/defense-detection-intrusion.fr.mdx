@@ -1,0 +1,37 @@
+---
+titre: "Fiche de révision : Défense et détection d'intrusion"
+description: "L'essentiel à retenir : lire des logs, détecter une attaque web, corréler dans un SIEM, écrire une règle de détection, réagir à un incident et en tirer un rapport."
+slug: "defense-detection-intrusion"
+coursLie: "defense-detection-intrusion"
+tags: ["defense"]
+questions:
+  - question: "Quelles sont les trois familles de logs à distinguer ?"
+    reponse: "Logs d'accès (chaque requête HTTP reçue), logs applicatifs (évènements métier de l'application), logs d'authentification (tentatives de connexion). Une même attaque laisse souvent des traces dans plusieurs à la fois."
+  - question: "Pourquoi une charge d'injection SQL ou XSS est-elle visible dans un log d'accès ?"
+    reponse: "Le serveur web journalise le chemin et sa chaîne de requête tels qu'envoyés par le client, avant tout traitement applicatif : une charge injectée dans un paramètre y apparaît telle quelle."
+  - question: "Quel est l'apport d'un SIEM au-delà du simple stockage de logs ?"
+    reponse: "La normalisation de formats hétérogènes et la corrélation entre sources : un évènement isolé est souvent du bruit, le même évènement replacé dans un ensemble corrélé devient un signal exploitable."
+  - question: "Quel est le compromis central d'une règle de détection ?"
+    reponse: "Sensibilité contre fausses alertes : trop sensible, elle génère de la fatigue d'alerte qui noie les vraies alertes ; trop stricte, elle laisse passer de vraies attaques."
+  - question: "Pourquoi éteindre immédiatement une machine compromise est-il souvent une erreur ?"
+    reponse: "Cela détruit des preuves volatiles (mémoire, connexions actives) utiles à l'analyse. Isoler la machine du réseau, sans l'éteindre, préserve bien plus d'informations exploitables."
+  - question: "Quelle est la différence entre confinement et éradication lors d'un incident ?"
+    reponse: "Le confinement limite l'impact immédiat sans avoir encore tout compris. L'éradication élimine la cause complète, une fois la situation mieux comprise. Ce sont deux phases distinctes, dans cet ordre."
+  - question: "Que mesure le dwell time, et pourquoi le réduire ?"
+    reponse: "Le délai entre la compromission initiale et sa détection. Plus il est court, moins l'attaquant dispose de temps pour progresser avant d'être repéré."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Le cycle complet, en une ligne
+
+<BlocCode
+  langue="text"
+  code={`logs -> detection (motifs) -> SIEM (correlation) -> regle (seuil + fenetre) -> incident -> rapport`}
+/>
+
+<Avertissement type="astuce">
+  Le rapport post-incident referme la boucle : il alimente directement les règles de détection et le plan de réaction, plutôt que de rester un document isolé une fois l'incident clos.
+</Avertissement>

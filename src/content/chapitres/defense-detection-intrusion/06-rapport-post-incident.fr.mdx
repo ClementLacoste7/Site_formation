@@ -1,0 +1,82 @@
+---
+titre: "Le rapport post-incident : tirer les leçons"
+titreCourt: "Rapport post-incident"
+description: "Un incident sans retour d'expérience structuré se reproduira, sous une forme ou une autre. Le rapport post-incident transforme une mauvaise expérience en amélioration mesurable."
+slug: "rapport-post-incident"
+cours: "defense-detection-intrusion"
+ordre: 6
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Reconstituer une chronologie d'incident à partir de la documentation collectée en temps réel"
+  - "Expliquer l'intérêt d'une culture sans blâme pour la qualité du retour d'expérience"
+  - "Transformer un incident en actions concrètes, dont l'ajustement des règles de détection"
+prerequis: ["reagir-a-un-incident"]
+tags: ["defense", "methodologie"]
+quiz:
+  - question: "Pourquoi une culture « sans blâme » (blameless) améliore-t-elle la qualité d'un rapport post-incident ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle encourage les personnes impliquées à décrire honnêtement ce qui s'est passé, plutôt qu'à minimiser leur rôle par crainte de sanction"
+        correcte: true
+        explication: "Un rapport orienté vers la recherche de responsables individuels pousse à l'omission ou à l'approximation ; un rapport centré sur les facteurs systémiques encourage une reconstitution honnête et complète."
+      - texte: "Elle dispense l'organisation de toute action corrective après l'incident"
+        correcte: false
+        explication: "Une culture sans blâme ne dispense de rien : elle vise au contraire une compréhension plus complète, base d'actions correctives plus pertinentes, pas moins nombreuses."
+      - texte: "Elle est une exigence légale dans la rédaction de tout rapport d'incident de sécurité"
+        correcte: false
+        explication: "Ce n'est pas une obligation légale généralisée : c'est un choix culturel qui améliore concrètement la qualité et l'honnêteté du retour d'expérience obtenu."
+  - question: "Que mesure le « dwell time » évoqué dans un rapport post-incident, et pourquoi cherche-t-on à le réduire ?"
+    type: "unique"
+    reponses:
+      - texte: "Le temps écoulé entre la compromission initiale et sa détection : plus il est court, moins l'attaquant a eu de temps pour progresser"
+        correcte: true
+        explication: "Un dwell time long signale généralement une lacune de détection (voir les chapitres sur le SIEM et les règles de détection) : le réduire limite directement la fenêtre d'action de l'attaquant avant d'être repéré."
+      - texte: "Le temps nécessaire pour rédiger le rapport final après la clôture de l'incident"
+        correcte: false
+        explication: "Ce n'est pas ce que mesure le dwell time : il porte sur la durée de présence non détectée de l'attaquant, pas sur le temps de rédaction du rapport."
+      - texte: "Le nombre d'heures pendant lesquelles le système touché est resté indisponible"
+        correcte: false
+        explication: "Cette durée d'indisponibilité est une métrique différente (temps de récupération) : le dwell time porte spécifiquement sur le délai avant détection, pas sur l'indisponibilité."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Une chronologie, reconstruite à partir de ce qui a été documenté
+
+Le chapitre précédent insistait sur la documentation en temps réel, précisément parce qu'elle devient ici la matière première : reconstituer après coup une chronologie précise, sans notes prises sur le moment, produit presque toujours une version incomplète ou approximative.
+
+<BlocCode
+  langue="text"
+  code={`Compromission initiale  -> [dwell time] -> Detection -> Confinement -> Eradication -> Retour a la normale`}
+/>
+
+Le **dwell time**, la durée entre la compromission et sa détection, résume à lui seul une bonne partie de l'efficacité du dispositif de détection mis en place dans les chapitres précédents de ce cours : plus il est long, plus l'attaquant dispose de temps pour progresser avant d'être repéré.
+
+## Sans blâme, pas sans conséquence
+
+<Avertissement type="astuce">
+  Une culture « sans blâme » ne signifie pas « sans action corrective ». Elle déplace la question de « qui a fait l'erreur » vers « quel facteur systémique a permis cette erreur, et comment le corriger ». Cette reformulation encourage un récit honnête plutôt que défensif, condition d'un rapport réellement exploitable.
+</Avertissement>
+
+## Ce qu'un bon rapport post-incident change concrètement
+
+- **Cause racine et facteurs contributifs**, distingués clairement l'un de l'autre.
+- **Actions concrètes**, avec un responsable et une échéance, pas des intentions vagues.
+- **Ajustement des règles de détection** (chapitre 4) à la lumière de ce qui a réellement fonctionné ou manqué.
+- **Mise à jour du plan de réaction** (chapitre 5) si une étape s'est révélée plus lente ou confuse que prévu en conditions réelles.
+
+Sans cette boucle de retour vers les chapitres précédents, un incident reste un évènement isolé plutôt qu'une amélioration durable du dispositif de détection et de réaction.
+
+<EncadreARetenir
+  points={[
+    "Une chronologie précise se reconstruit à partir d'une documentation prise en temps réel, jamais de mémoire après coup",
+    "Le dwell time mesure le délai entre compromission et détection : le réduire limite la fenêtre d'action de l'attaquant",
+    "Une culture sans blâme vise un récit honnête, pas l'absence d'action corrective",
+    "Un rapport post-incident se referme en boucle vers les règles de détection et le plan de réaction, pas comme un document isolé"
+  ]}
+/>

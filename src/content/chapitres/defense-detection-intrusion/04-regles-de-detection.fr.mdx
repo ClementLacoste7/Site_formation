@@ -1,0 +1,96 @@
+---
+titre: "Les règles de détection : écrire une alerte utile"
+titreCourt: "Règles de détection"
+description: "Une règle trop sensible noie les vraies alertes sous le bruit. Une règle trop stricte les laisse passer. Écrire une règle utile, c'est régler ce curseur en connaissance de cause."
+slug: "regles-de-detection"
+cours: "defense-detection-intrusion"
+ordre: 4
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Expliquer le compromis entre sensibilité et fausses alertes dans une règle de détection"
+  - "Définir la fatigue d'alerte et pourquoi elle constitue un risque à part entière"
+  - "Construire une règle de détection à seuil, avec fenêtre temporelle"
+prerequis: ["siem"]
+tags: ["defense"]
+quiz:
+  - question: "Pourquoi une règle de détection trop sensible peut-elle finir par réduire la sécurité réelle plutôt que l'améliorer ?"
+    type: "unique"
+    reponses:
+      - texte: "Le volume d'alertes générées noie les vraies alertes sous le bruit, jusqu'à ce qu'elles finissent ignorées par l'équipe qui les traite"
+        correcte: true
+        explication: "C'est la fatigue d'alerte : au-delà d'un certain volume de faux positifs, une équipe humaine finit par ignorer ou traiter superficiellement l'ensemble des alertes, vraies comme fausses."
+      - texte: "Une règle trop sensible consomme plus de bande passante réseau que le trafic qu'elle surveille"
+        correcte: false
+        explication: "Le volume réseau n'est pas le problème mis en avant ici : c'est la charge de traitement humaine des alertes générées qui pose problème."
+      - texte: "Les règles trop sensibles sont automatiquement désactivées par le SIEM au bout de 24 heures"
+        correcte: false
+        explication: "Aucun mécanisme de désactivation automatique de ce type n'existe par défaut : la règle continue de générer des alertes tant qu'elle n'est pas ajustée manuellement."
+  - question: "Pourquoi une fenêtre temporelle est-elle nécessaire dans une règle de type « N échecs déclenchent une alerte » ?"
+    type: "unique"
+    reponses:
+      - texte: "Sans elle, des échecs isolés et sans rapport, espacés de plusieurs jours, finiraient par déclencher la règle alors qu'ils ne forment aucun pattern réel"
+        correcte: true
+        explication: "La fenêtre temporelle impose que les N échecs surviennent dans un intervalle resserré, condition nécessaire pour qu'ils reflètent une tentative concentrée plutôt que du bruit accumulé sur le long terme."
+      - texte: "Elle réduit la charge de calcul nécessaire pour évaluer la règle"
+        correcte: false
+        explication: "La performance n'est pas la raison d'être de la fenêtre temporelle : c'est la pertinence du signal détecté qui en dépend."
+      - texte: "Elle est requise par la définition même d'un évènement de sécurité"
+        correcte: false
+        explication: "Rien n'impose une fenêtre temporelle par définition : c'est un choix de conception de la règle, motivé par la pertinence du pattern recherché."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Le compromis au cœur de toute règle
+
+Une règle de détection traduit une condition (« ceci ressemble à une attaque ») en alerte automatique. Deux excès la guettent : trop sensible, elle noie les analystes sous des faux positifs jusqu'à ce que les vraies alertes se perdent dans le bruit (la **fatigue d'alerte**) ; trop stricte, elle laisse passer des attaques réelles sans jamais se déclencher.
+
+## Un seuil, une fenêtre temporelle
+
+Reprenons la corrélation du chapitre précédent, sous forme de règle réglable : N échecs de connexion sur un même compte, dans une fenêtre de temps donnée.
+
+<ConsolePython codeInitial={`evenements = [
+    {"t": 0,  "compte": "alice", "resultat": "echec"},
+    {"t": 2,  "compte": "alice", "resultat": "echec"},
+    {"t": 5,  "compte": "alice", "resultat": "echec"},
+    {"t": 9,  "compte": "alice", "resultat": "echec"},
+    {"t": 40, "compte": "alice", "resultat": "echec"},  # tentative isolee, bien plus tard
+]
+
+def regle_seuil(evenements, compte, fenetre_secondes, seuil):
+    echecs = sorted(e["t"] for e in evenements if e["compte"] == compte and e["resultat"] == "echec")
+    for depart in echecs:
+        fenetre = [t for t in echecs if depart <= t <= depart + fenetre_secondes]
+        if len(fenetre) >= seuil:
+            return True, fenetre
+    return False, []
+
+for seuil in [2, 4, 6]:
+    declenchee, fenetre = regle_seuil(evenements, "alice", fenetre_secondes=10, seuil=seuil)
+    etat = f"ALERTE {fenetre}" if declenchee else "silence"
+    print(f"Seuil={seuil} sur une fenetre de 10s : {etat}")`} />
+
+Trois réglages, trois comportements : un seuil de 2 se déclenche sur presque n'importe quoi (fatigue d'alerte garantie), un seuil de 6 ne se déclenche jamais sur ce flux pourtant suspect (la vraie rafale ne compte que 4 échecs rapprochés), un seuil de 4 capture exactement la rafale sans réagir à la tentative isolée bien plus tardive.
+
+<Avertissement type="astuce">
+  Sans la fenêtre temporelle, ces mêmes 5 échecs déclencheraient la règle même étalés sur plusieurs jours, un signal bien moins pertinent qu'une rafale concentrée en quelques secondes.
+</Avertissement>
+
+## Régler une règle n'est jamais définitif
+
+Un seuil pertinent aujourd'hui peut cesser de l'être : un pic légitime de trafic, un changement d'usage, ou une nouvelle technique d'attaque plus lente (pour rester sous le seuil) imposent de revisiter régulièrement les règles en place, pas de les figer une fois pour toutes.
+
+<EncadreARetenir
+  points={[
+    "Une règle trop sensible génère de la fatigue d'alerte, une règle trop stricte laisse passer de vraies attaques",
+    "Un seuil combiné à une fenêtre temporelle capture un pattern concentré, sans réagir à du bruit dispersé dans le temps",
+    "Le bon réglage d'une règle dépend du contexte réel, pas d'une valeur universelle",
+    "Une règle de détection se révise dans la durée, elle ne se fige jamais définitivement"
+  ]}
+/>

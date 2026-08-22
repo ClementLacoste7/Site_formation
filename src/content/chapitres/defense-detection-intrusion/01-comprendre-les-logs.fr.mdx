@@ -1,0 +1,102 @@
+---
+titre: "Comprendre les logs : où ils sont, ce qu'ils disent"
+titreCourt: "Comprendre les logs"
+description: "Un serveur, une application et un système d'exploitation produisent chacun leurs propres journaux. Savoir lesquels lire, et comment les découper, précède toute détection."
+slug: "comprendre-les-logs"
+cours: "defense-detection-intrusion"
+ordre: 1
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Distinguer logs d'accès, logs applicatifs et logs d'authentification par ce qu'ils enregistrent"
+  - "Découper une ligne de log au format Combined en ses champs"
+  - "Identifier les champs les plus utiles à la détection dans une ligne de log web"
+prerequis: []
+tags: ["defense", "logs"]
+quiz:
+  - question: "Qu'enregistre un log d'accès (access log) d'un serveur web, par opposition à un log applicatif ?"
+    type: "unique"
+    reponses:
+      - texte: "Chaque requête HTTP reçue (adresse IP, méthode, chemin, code de statut), indépendamment de la logique métier de l'application"
+        correcte: true
+        explication: "Le log d'accès enregistre la couche HTTP elle-même (voir le cours sur HTTP) ; le log applicatif enregistre des évènements propres à la logique de l'application (une commande créée, une erreur métier)."
+      - texte: "Uniquement les tentatives de connexion réussies ou échouées"
+        correcte: false
+        explication: "C'est le rôle plus spécifique d'un log d'authentification : un log d'accès couvre toutes les requêtes HTTP, pas seulement celles liées à la connexion."
+      - texte: "Le contenu complet des pages générées par le serveur"
+        correcte: false
+        explication: "Un log d'accès enregistre des métadonnées sur chaque requête, jamais le contenu complet de la réponse générée : ce volume serait ingérable en pratique."
+  - question: "Dans une ligne de log au format Combined, à quoi correspond le champ entre crochets ?"
+    type: "unique"
+    reponses:
+      - texte: "L'horodatage précis de la requête"
+        correcte: true
+        explication: "Le format Combined place systématiquement la date et l'heure de la requête entre crochets, un détail suffisamment stable pour être reconnu au premier coup d'œil une fois appris."
+      - texte: "L'adresse IP du serveur qui a traité la requête"
+        correcte: false
+        explication: "L'adresse IP figure en tout début de ligne, hors des crochets : ce champ entre crochets est réservé à l'horodatage."
+      - texte: "Le user-agent du navigateur ayant émis la requête"
+        correcte: false
+        explication: "Le user-agent apparaît généralement entre guillemets, en toute fin de ligne, pas entre crochets."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Trois familles de logs, trois usages
+
+Aucun système ne produit un seul journal unique : plusieurs couches enregistrent chacune leur propre vision des évènements.
+
+- **Logs d'accès** (serveur web) : chaque requête HTTP reçue, indépendamment de son résultat métier.
+- **Logs applicatifs** : évènements propres à la logique de l'application (une commande passée, une erreur interne, une exception).
+- **Logs d'authentification** : tentatives de connexion, réussies ou échouées, souvent générés séparément des logs d'accès.
+
+<Avertissement type="info">
+  Une même attaque laisse presque toujours des traces dans plusieurs de ces journaux à la fois. C'est précisément ce que le chapitre sur les SIEM (plus loin dans ce cours) exploite : croiser ces sources plutôt que de les lire isolément.
+</Avertissement>
+
+## Décortiquer une ligne de log
+
+Le format « Combined », très répandu chez les serveurs web (dont Nginx et Apache), structure chaque requête sur une seule ligne :
+
+<BlocCode
+  langue="text"
+  code={`203.0.113.7 - - [07/Aug/2026:14:22:01 +0000] "GET /fr/cours/ HTTP/1.1" 200 5423 "-" "Mozilla/5.0"`}
+/>
+
+<ConsolePython codeInitial={`import re
+
+ligne = '203.0.113.7 - - [07/Aug/2026:14:22:01 +0000] "GET /fr/cours/ HTTP/1.1" 200 5423 "-" "Mozilla/5.0"'
+
+motif = re.compile(
+    r'(?P<ip>\\S+) \\S+ \\S+ \\[(?P<horodatage>[^\\]]+)\\] '
+    r'"(?P<methode>\\S+) (?P<chemin>\\S+) \\S+" '
+    r'(?P<statut>\\d+) (?P<taille>\\S+)'
+)
+
+correspondance = motif.match(ligne)
+if correspondance:
+    for cle, valeur in correspondance.groupdict().items():
+        print(f"{cle:12} : {valeur}")`} />
+
+Chaque champ isolé devient exploitable : l'adresse IP source, le chemin exact demandé (là où une charge d'injection SQL ou XSS finirait par apparaître, voir le chapitre suivant), le code de statut, la méthode HTTP.
+
+## Les champs les plus utiles pour détecter
+
+- **Le chemin et sa chaîne de requête** : c'est là qu'apparaît une charge d'injection.
+- **Le code de statut** : une charge qui échoue produit souvent un code différent d'une requête normale.
+- **L'adresse IP** : permet de regrouper plusieurs requêtes suspectes venant de la même source.
+- **L'horodatage** : indispensable pour reconstituer une chronologie, condition de toute corrélation.
+
+<EncadreARetenir
+  points={[
+    "Logs d'accès, applicatifs et d'authentification enregistrent chacun une couche différente des évènements",
+    "Le format Combined structure chaque requête HTTP en champs identifiables : IP, horodatage, méthode, chemin, statut",
+    "Une attaque laisse souvent des traces dans plusieurs journaux à la fois",
+    "Chemin, code de statut, IP et horodatage sont les champs les plus directement exploitables pour la détection"
+  ]}
+/>

@@ -1,0 +1,78 @@
+---
+titre: "VPN : chiffrer les accès distants"
+titreCourt: "VPN"
+description: "Un VPN étend un réseau de confiance par-dessus un réseau qui ne l'est pas, avec exactement les garanties de TLS vues dans le cours sur la cryptographie, appliquées au niveau réseau."
+slug: "vpn-chiffrer-les-acces-distants"
+cours: "securite-reseau-segmentation"
+ordre: 4
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Expliquer ce qu'un VPN protège, en le reliant aux garanties de TLS déjà vues"
+  - "Distinguer VPN site à site et VPN d'accès distant"
+  - "Comprendre pourquoi un VPN ne garantit rien sur l'état de sécurité de l'appareil connecté"
+prerequis: ["segmenter-avec-des-vlans"]
+tags: ["reseau", "https"]
+quiz:
+  - question: "En quoi un VPN applique-t-il le même principe que TLS, vu dans le cours sur la cryptographie ?"
+    type: "unique"
+    reponses:
+      - texte: "Il chiffre et authentifie un trajet sur un réseau non fiable, mais au niveau réseau plutôt qu'au niveau d'une seule connexion applicative"
+        correcte: true
+        explication: "Les garanties sont les mêmes (confidentialité, intégrité, authentification) : TLS les applique à une connexion HTTP précise, un VPN les applique à l'ensemble du trafic réseau d'un appareil."
+      - texte: "Il remplace entièrement le besoin de TLS pour les applications qui transitent par le tunnel"
+        correcte: false
+        explication: "Un VPN protège le trajet jusqu'au réseau de destination, mais n'importe quelle application peut et doit continuer d'utiliser TLS pour ses propres échanges, en défense en profondeur."
+      - texte: "Il ne fonctionne qu'avec des certificats signés par la même autorité que celle du site visité"
+        correcte: false
+        explication: "Un VPN et les certificats TLS d'un site web sont deux mécanismes indépendants : rien n'impose une autorité de certification commune entre eux."
+  - question: "Pourquoi un VPN ne garantit-il rien sur l'état de sécurité de l'appareil qui s'y connecte ?"
+    type: "unique"
+    reponses:
+      - texte: "Il chiffre et authentifie le trajet réseau, mais ne vérifie ni ne corrige l'état (infecté ou non) de l'appareil qui l'emprunte"
+        correcte: true
+        explication: "Un appareil déjà compromis qui se connecte en VPN étend simplement l'accès de cette compromission jusqu'au réseau interne, avec un trajet chiffré qui ne change rien à ce risque."
+      - texte: "Parce que les VPN sont par nature moins sécurisés que TLS"
+        correcte: false
+        explication: "Ce n'est pas une question de robustesse comparée : le VPN fait précisément ce pour quoi il est conçu (protéger le trajet), simplement pas ce qu'il n'a jamais eu vocation à faire (vérifier l'état de l'appareil)."
+      - texte: "Parce que les VPN n'utilisent jamais de chiffrement symétrique pour le trafic en cours de session"
+        correcte: false
+        explication: "C'est l'inverse : comme TLS, un VPN utilise typiquement une approche hybride, avec du chiffrement symétrique pour le trafic en continu, vu au chapitre 5 du cours sur la cryptographie."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Étendre un périmètre de confiance
+
+Un **VPN** (Virtual Private Network) construit un tunnel chiffré entre un appareil et un réseau distant, comme si l'appareil était physiquement branché sur ce réseau. Les trois garanties de TLS (confidentialité, intégrité, authentification, vues dans le cours sur la cryptographie) s'appliquent ici à l'ensemble du trafic réseau, pas à une seule connexion applicative.
+
+## Deux usages distincts
+
+<BlocCode
+  langue="text"
+  code={`VPN site a site   : relie deux reseaux entre eux en permanence (deux bureaux, par exemple)
+VPN d'acces distant : relie un appareil individuel a un reseau, a la demande (teletravail)`}
+/>
+
+Le second usage, le plus courant pour un utilisateur individuel, ouvre un accès temporaire au réseau interne depuis l'extérieur, exactement le genre d'accès que les VLANs et le pare-feu des chapitres précédents doivent continuer à filtrer une fois le tunnel établi.
+
+## Ce qu'un VPN ne protège pas
+
+<Avertissement type="attention">
+  Un VPN chiffre et authentifie le trajet, il ne dit rien de l'état de l'appareil qui l'emprunte. Un poste déjà compromis qui se connecte en VPN étend simplement l'accès de cette compromission jusqu'au réseau interne, avec un trajet parfaitement chiffré qui ne change rien à ce risque : le tunnel protège le transport, jamais ce qui y circule.
+</Avertissement>
+
+Un choix de configuration courant illustre ce compromis : un **tunnel complet** fait transiter tout le trafic de l'appareil par le réseau distant (plus sûr, mais plus lent et plus coûteux en bande passante) ; un **tunnel scindé** ne fait transiter que le trafic destiné au réseau interne, le reste continuant en direct (plus rapide, mais élargit ce qui échappe au contrôle du réseau d'entreprise).
+
+<EncadreARetenir
+  points={[
+    "Un VPN applique les mêmes garanties que TLS (confidentialité, intégrité, authentification), au niveau réseau plutôt qu'applicatif",
+    "Un VPN site à site relie deux réseaux en permanence, un VPN d'accès distant relie un appareil à la demande",
+    "Un VPN ne garantit rien sur l'état de sécurité de l'appareil connecté",
+    "Le choix entre tunnel complet et tunnel scindé oppose contrôle de sécurité et performance"
+  ]}
+/>

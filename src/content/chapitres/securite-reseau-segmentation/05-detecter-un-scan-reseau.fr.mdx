@@ -1,0 +1,96 @@
+---
+titre: "Détecter un scan et une reconnaissance réseau"
+titreCourt: "Détecter un scan réseau"
+description: "Un scan de ports laisse une signature reconnaissable dans les logs d'un pare-feu : beaucoup de ports distincts, depuis une même source, en peu de temps."
+slug: "detecter-un-scan-reseau"
+cours: "securite-reseau-segmentation"
+ordre: 5
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Décrire le pattern qui distingue un scan de ports d'un trafic réseau normal"
+  - "Construire une détection de scan à partir de logs de connexions"
+  - "Relier cette détection à la reconnaissance active vue côté attaquant dans un autre cours"
+prerequis: ["vpn-chiffrer-les-acces-distants"]
+tags: ["reseau", "logs", "defense"]
+quiz:
+  - question: "Qu'est-ce qui distingue typiquement le trafic d'un scan de ports d'un trafic réseau normal ?"
+    type: "unique"
+    reponses:
+      - texte: "Un grand nombre de ports de destination distincts, touchés depuis une même source en peu de temps"
+        correcte: true
+        explication: "Un utilisateur normal sollicite un petit nombre de ports connus (443 pour HTTPS, par exemple), de façon répétée. Un scan, à l'inverse, teste systématiquement de nombreux ports différents pour cartographier ce qui répond."
+      - texte: "Un volume total de données transférées largement supérieur à la moyenne"
+        correcte: false
+        explication: "Un scan de ports transfère généralement très peu de données par port testé : ce n'est pas le volume qui le distingue, mais la diversité des ports sollicités."
+      - texte: "L'utilisation exclusive du protocole UDP plutôt que TCP"
+        correcte: false
+        explication: "Un scan peut cibler des ports TCP ou UDP indifféremment : le protocole utilisé ne le distingue pas d'un trafic normal."
+  - question: "En quoi la détection de ce chapitre prolonge-t-elle directement un chapitre du cours sur la reconnaissance et la méthodologie ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle observe, côté défenseur, exactement le comportement décrit côté attaquant dans le chapitre sur la reconnaissance active"
+        correcte: true
+        explication: "Le chapitre sur la reconnaissance active de ce cours décrivait comment un scan de ports fonctionne du point de vue de l'attaquant ; ce chapitre en détecte la trace, du point de vue du défenseur."
+      - texte: "Elle utilise exactement le même outil logiciel que celui utilisé pour mener un scan"
+        correcte: false
+        explication: "La détection et l'exécution d'un scan sont deux activités distinctes, réalisées avec des outils différents : le lien entre les deux chapitres est conceptuel, pas un partage d'outil."
+      - texte: "Elle ne concerne que les scans menés depuis l'extérieur du réseau, jamais depuis l'intérieur"
+        correcte: false
+        explication: "Rien ne limite cette détection aux scans externes : un scan mené depuis un poste interne déjà compromis produit le même pattern, tout aussi détectable."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Le même geste, vu des deux côtés
+
+Le chapitre sur la reconnaissance active du cours sur la méthodologie de test d'intrusion décrivait un scan de ports du point de vue de l'attaquant : tester systématiquement une plage de ports pour voir lesquels répondent. Ce chapitre observe la même activité du point de vue du défenseur, dans les logs qu'elle laisse derrière elle.
+
+## Le pattern à rechercher
+
+Un utilisateur normal sollicite un nombre restreint de ports connus, de façon répétée. Un scan, à l'inverse, touche de nombreux ports **distincts**, depuis une même source, en peu de temps.
+
+<ConsolePython codeInitial={`from collections import defaultdict
+
+evenements = [
+    {"t": 0,  "source": "203.0.113.44", "port": 21},
+    {"t": 1,  "source": "203.0.113.44", "port": 22},
+    {"t": 1,  "source": "203.0.113.44", "port": 23},
+    {"t": 2,  "source": "203.0.113.44", "port": 80},
+    {"t": 2,  "source": "203.0.113.44", "port": 443},
+    {"t": 2,  "source": "203.0.113.44", "port": 3306},
+    {"t": 2,  "source": "203.0.113.44", "port": 3389},
+    {"t": 15, "source": "10.0.20.15",   "port": 443},
+    {"t": 16, "source": "10.0.20.15",   "port": 443},
+]
+
+ports_par_source = defaultdict(set)
+for evenement in evenements:
+    ports_par_source[evenement["source"]].add(evenement["port"])
+
+SEUIL_PORTS_DISTINCTS = 5
+for source, ports in ports_par_source.items():
+    if len(ports) >= SEUIL_PORTS_DISTINCTS:
+        print(f"ALERTE scan de ports : {source} a touche {len(ports)} ports distincts : {sorted(ports)}")
+    else:
+        print(f"normal : {source} -> {len(ports)} port(s) distinct(s) : {sorted(ports)}")`} />
+
+`10.0.20.15` sollicite plusieurs fois le même port (443), un usage web parfaitement ordinaire. `203.0.113.44` touche sept ports différents en trois secondes, un pattern qu'aucun usage normal ne produit.
+
+<Avertissement type="info">
+  Cette logique reprend directement celle du cours sur la défense et la détection : compter des occurrences **distinctes** plutôt que des occurrences brutes, sur une fenêtre resserrée, révèle un pattern qu'une lecture ligne par ligne des logs manquerait facilement.
+</Avertissement>
+
+<EncadreARetenir
+  points={[
+    "Un scan de ports touche de nombreux ports distincts depuis une même source, en peu de temps",
+    "Un trafic normal se concentre au contraire sur un petit nombre de ports connus, sollicités de façon répétée",
+    "Compter les ports distincts par source, sur une fenêtre resserrée, révèle ce pattern",
+    "Cette détection observe côté défenseur exactement ce que la reconnaissance active décrit côté attaquant"
+  ]}
+/>

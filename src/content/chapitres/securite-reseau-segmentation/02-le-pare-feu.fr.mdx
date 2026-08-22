@@ -1,0 +1,101 @@
+---
+titre: "Le pare-feu : filtrer, autoriser, journaliser"
+titreCourt: "Le pare-feu"
+description: "Un pare-feu évalue ses règles dans l'ordre, s'arrête à la première correspondance, et refuse tout ce qu'aucune règle n'a explicitement autorisé."
+slug: "le-pare-feu"
+cours: "securite-reseau-segmentation"
+ordre: 2
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Décrire la logique d'évaluation d'un pare-feu, règle par règle"
+  - "Expliquer pourquoi l'ordre des règles change le résultat final"
+  - "Justifier le choix d'une politique par défaut de refus plutôt que d'autorisation"
+prerequis: ["rappels-tcp-ip"]
+tags: ["reseau", "logs"]
+quiz:
+  - question: "Comment un pare-feu détermine-t-il quelle règle s'applique à une connexion donnée ?"
+    type: "unique"
+    reponses:
+      - texte: "Il évalue les règles dans l'ordre, et applique la première qui correspond à la connexion"
+        correcte: true
+        explication: "Ce fonctionnement (« premier match gagne ») signifie qu'une règle placée plus haut dans la liste peut masquer complètement une règle plus bas, même si celle-ci semble plus spécifique."
+      - texte: "Il évalue toutes les règles et applique la plus restrictive parmi celles qui correspondent"
+        correcte: false
+        explication: "Ce n'est pas le fonctionnement standard d'un pare-feu à règles ordonnées : c'est bien la première correspondance dans l'ordre qui l'emporte, pas la plus restrictive."
+      - texte: "Il choisit aléatoirement une règle parmi celles qui correspondent"
+        correcte: false
+        explication: "Aucun aléa n'intervient : l'évaluation est déterministe, dans l'ordre des règles telles que configurées."
+  - question: "Pourquoi une politique par défaut de refus est-elle généralement préférée à une politique par défaut d'autorisation ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle ne laisse passer que ce qui a été explicitement anticipé et autorisé, plutôt que de devoir prévoir et bloquer chaque cas indésirable"
+        correcte: true
+        explication: "Avec un refus par défaut, un oubli dans les règles bloque un flux légitime (gênant, mais visible). Avec une autorisation par défaut, un oubli laisse passer un flux dangereux, souvent sans que personne ne le remarque."
+      - texte: "Elle améliore les performances réseau du pare-feu"
+        correcte: false
+        explication: "La performance n'est pas la raison de ce choix : c'est une question de posture de sécurité, pas d'optimisation."
+      - texte: "Elle est requise par la définition technique même d'un pare-feu"
+        correcte: false
+        explication: "Un pare-feu peut techniquement être configuré avec l'une ou l'autre politique par défaut : ce n'est pas imposé par la définition du terme, mais c'est un choix de sécurité fortement recommandé."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Filtrer : une liste de règles, évaluées dans l'ordre
+
+Un pare-feu compare chaque connexion à une liste de règles, dans l'ordre où elles sont écrites, et s'arrête à la première qui correspond. Ce détail, souvent sous-estimé, détermine le comportement réel bien plus que le contenu de chaque règle prise isolément.
+
+<ConsolePython codeInitial={`import ipaddress
+
+regles = [
+    {"action": "autoriser", "source": "10.0.10.0/24", "port": 443},
+    {"action": "autoriser", "source": "10.0.10.0/24", "port": 22},
+    {"action": "refuser",   "source": "0.0.0.0/0",     "port": 22},
+    {"action": "autoriser", "source": "0.0.0.0/0",     "port": 443},
+]
+
+def evaluer(regles, source_ip, port):
+    source = ipaddress.ip_address(source_ip)
+    for regle in regles:
+        reseau = ipaddress.ip_network(regle["source"])
+        if source in reseau and regle["port"] == port:
+            return regle["action"]
+    return "refuser (politique par defaut)"
+
+tests = [
+    ("10.0.10.5",   22),   # administrateur interne vers SSH
+    ("203.0.113.9", 22),   # IP externe vers SSH
+    ("203.0.113.9", 443),  # IP externe vers HTTPS
+    ("203.0.113.9", 3389), # IP externe vers RDP, aucune regle ne le mentionne
+]
+
+for ip, port in tests:
+    resultat = evaluer(regles, ip, port)
+    print(f"{ip:15} -> port {port:5} : {resultat}")`} />
+
+La connexion RDP (port 3389) ne correspond à aucune règle explicite : elle tombe sur la politique par défaut, en toute fin de liste.
+
+## Autoriser : par exception, jamais par défaut
+
+<Avertissement type="danger">
+  La dernière ligne, invisible dans la liste de règles elle-même, compte souvent plus que toutes les autres : que se passe-t-il quand rien ne correspond ? Un pare-feu correctement configuré refuse par défaut, et n'autorise que ce qui a été explicitement anticipé.
+</Avertissement>
+
+## Journaliser : la trace qui alimente la détection
+
+Chaque règle, en particulier celles qui refusent une connexion, peut journaliser l'évènement plutôt que de l'ignorer silencieusement. Ces journaux rejoignent directement ceux vus dans le cours sur la défense et la détection : une rafale de refus vers des ports différents, depuis une même source, est justement le pattern recherché au chapitre 5 de ce cours.
+
+<EncadreARetenir
+  points={[
+    "Un pare-feu évalue ses règles dans l'ordre et s'arrête à la première correspondance",
+    "L'ordre des règles peut changer le résultat, même à contenu de règles identique",
+    "Une politique par défaut de refus limite les conséquences d'un oubli, contrairement à une autorisation par défaut",
+    "Journaliser les connexions refusées alimente directement la détection d'activité suspecte"
+  ]}
+/>

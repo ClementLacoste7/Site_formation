@@ -1,0 +1,46 @@
+---
+titre: "Fiche de révision : Sécurité réseau et segmentation"
+description: "L'essentiel à retenir : adressage IP, logique d'un pare-feu, VLANs, VPN, détection de scan et architecture réseau sécurisée."
+slug: "securite-reseau-segmentation"
+coursLie: "securite-reseau-segmentation"
+tags: ["reseau"]
+questions:
+  - question: "Que représentent l'adresse réseau et l'adresse de broadcast d'un sous-réseau ?"
+    reponse: "L'adresse réseau identifie le sous-réseau lui-même, l'adresse de broadcast permet de diffuser à tous ses membres. Aucune des deux n'est jamais attribuée à un hôte individuel."
+  - question: "Comment un pare-feu détermine-t-il quelle règle s'applique à une connexion ?"
+    reponse: "Il évalue les règles dans l'ordre et applique la première qui correspond (premier match gagne). Tout ce qu'aucune règle n'a explicitement autorisé est refusé par la politique par défaut."
+  - question: "Que sépare un VLAN, et pourquoi le franchir nécessite plus qu'un simple routeur ?"
+    reponse: "Un VLAN sépare logiquement un domaine de diffusion au niveau 2, indépendamment du câblage physique. Un routeur permet techniquement le passage entre VLANs, mais seules des règles de pare-feu explicites décident ce qui est réellement autorisé à circuler."
+  - question: "Qu'est-ce qu'un VPN protège, et que ne protège-t-il pas ?"
+    reponse: "Il applique les garanties de TLS (confidentialité, intégrité, authentification) au niveau réseau. Il ne garantit rien sur l'état de sécurité de l'appareil qui s'y connecte : un appareil déjà compromis étend simplement cette compromission au réseau interne."
+  - question: "Quel pattern distingue un scan de ports d'un trafic réseau normal ?"
+    reponse: "De nombreux ports de destination distincts, touchés depuis une même source en peu de temps, contre un trafic normal qui sollicite un petit nombre de ports connus de façon répétée."
+  - question: "À quoi sert une DMZ dans une architecture réseau ?"
+    reponse: "Elle isole les services exposés sur l'internet (comme un serveur web public) des ressources internes, encadrée par des règles de pare-feu strictes de chaque côté, pour qu'une compromission du service public ne donne pas un accès direct au reste du réseau."
+  - question: "Qu'est-ce qui définit réellement la défense en profondeur ?"
+    reponse: "L'indépendance réelle des couches de sécurité : la défaillance d'une seule (un pare-feu, par exemple) ne doit pas automatiquement neutraliser les autres (segmentation, détection), pas simplement leur nombre empilé."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Vérifier l'appartenance à un sous-réseau
+
+<BlocCode
+  langue="text"
+  code={`import ipaddress
+hote in ipaddress.ip_network("10.0.20.0/24")  # True ou False`}
+/>
+
+## L'ordre d'évaluation d'un pare-feu
+
+<BlocCode
+  langue="text"
+  code={`regle 1 -> regle 2 -> regle 3 -> ... -> refus par defaut
+(premiere correspondance = regle appliquee, les suivantes ignorees)`}
+/>
+
+<Avertissement type="astuce">
+  Trois réflexes couvrent une bonne partie de ce cours : refuser par défaut, ne jamais confondre routage entre VLANs et autorisation de pare-feu, et ne jamais confondre un tunnel VPN chiffré avec un appareil sain.
+</Avertissement>

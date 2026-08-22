@@ -1,0 +1,99 @@
+---
+titre: "Segmenter un réseau avec des VLANs"
+titreCourt: "Segmenter avec des VLANs"
+description: "Un VLAN isole logiquement des équipements même branchés sur le même commutateur physique : la base d'une segmentation qui limite la portée d'une compromission."
+slug: "segmenter-avec-des-vlans"
+cours: "securite-reseau-segmentation"
+ordre: 3
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Expliquer ce qu'un VLAN isole, indépendamment de la topologie physique"
+  - "Justifier en quoi la segmentation limite la portée d'une compromission"
+  - "Comprendre pourquoi franchir un VLAN nécessite un routeur ET des règles de pare-feu"
+prerequis: ["le-pare-feu"]
+tags: ["reseau"]
+quiz:
+  - question: "Que sépare fondamentalement un VLAN, indépendamment du câblage physique des équipements ?"
+    type: "unique"
+    reponses:
+      - texte: "Un domaine de diffusion logique : deux équipements sur des VLANs différents ne se voient pas directement, même branchés sur le même commutateur"
+        correcte: true
+        explication: "C'est la propriété centrale d'un VLAN : la séparation est logique (au niveau 2), indépendante du câblage physique réel, ce qui permet de segmenter sans multiplier les équipements réseau."
+      - texte: "Uniquement la bande passante disponible pour chaque groupe d'équipements"
+        correcte: false
+        explication: "La bande passante peut être gérée séparément (QoS), mais ce n'est pas ce que sépare fondamentalement un VLAN : sa fonction première est l'isolation logique du trafic."
+      - texte: "Les adresses MAC des équipements, qui changent automatiquement par VLAN"
+        correcte: false
+        explication: "Les adresses MAC des équipements ne changent pas selon le VLAN : ce sont deux notions indépendantes."
+  - question: "Pourquoi un équipement du VLAN « invités » qui souhaite atteindre un serveur du VLAN « serveurs » a-t-il besoin de plus qu'un simple routeur entre les deux ?"
+    type: "unique"
+    reponses:
+      - texte: "Le routeur permet techniquement le passage entre VLANs, mais seules des règles de pare-feu explicites décident ce qui est réellement autorisé à circuler"
+        correcte: true
+        explication: "Un routeur relie deux VLANs sans juger du trafic ; c'est le pare-feu placé sur ce chemin (chapitre précédent) qui applique la politique de sécurité réelle entre les segments."
+      - texte: "Aucun mécanisme technique ne permet jamais à deux VLANs de communiquer, quelle que soit la configuration"
+        correcte: false
+        explication: "C'est inexact : un routeur (ou un commutateur multicouche) peut tout à fait relier deux VLANs, ce n'est pas techniquement impossible, seulement soumis à une politique explicite."
+      - texte: "Les VLANs communiquent automatiquement entre eux dès qu'ils partagent le même commutateur physique"
+        correcte: false
+        explication: "C'est l'inverse : le partage d'un même commutateur physique ne suffit justement pas à permettre la communication entre VLANs, c'est précisément leur intérêt."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Une séparation logique, pas physique
+
+Un **VLAN** (réseau local virtuel) isole un groupe d'équipements au niveau 2, indépendamment de leur câblage physique réel : deux machines branchées sur le même commutateur, mais affectées à des VLANs différents, ne se voient pas directement. Chaque VLAN correspond généralement à son propre sous-réseau IP, exactement le sujet du chapitre 1.
+
+## Une segmentation typique
+
+<ConsolePython codeInitial={`import ipaddress
+
+vlans = {
+    "VLAN 10 - Serveurs":      ipaddress.ip_network("10.0.10.0/24"),
+    "VLAN 20 - Utilisateurs":  ipaddress.ip_network("10.0.20.0/24"),
+    "VLAN 30 - Invites":       ipaddress.ip_network("10.0.30.0/24"),
+}
+
+def trouver_vlan(adresse):
+    hote = ipaddress.ip_address(adresse)
+    for nom, reseau in vlans.items():
+        if hote in reseau:
+            return nom
+    return "inconnu"
+
+paires = [
+    ("10.0.20.15", "10.0.20.42"),  # deux postes utilisateurs
+    ("10.0.30.7",  "10.0.10.5"),   # un invite vers un serveur
+]
+
+for a, b in paires:
+    vlan_a, vlan_b = trouver_vlan(a), trouver_vlan(b)
+    print(f"{a} ({vlan_a})  <->  {b} ({vlan_b})")
+    if vlan_a == vlan_b:
+        print("  -> meme segment : communication directe")
+    else:
+        print("  -> segments differents : necessite un routeur ET des regles de pare-feu explicites")`} />
+
+## Pourquoi segmenter : limiter la portée, pas seulement organiser
+
+<Avertissement type="danger">
+  L'intérêt principal de la segmentation n'est pas organisationnel : c'est de limiter la portée d'une compromission. Un poste utilisateur piégé (via une XSS ou un e-mail piégé, par exemple) placé dans le VLAN « Utilisateurs » ne peut pas atteindre directement le VLAN « Serveurs » sans franchir un pare-feu qui applique une politique explicite, contrairement à un réseau plat où tout communique avec tout par défaut.
+</Avertissement>
+
+Cette limitation directe fait écho au chapitre sur les scénarios d'attaque du cours sur la reconnaissance : une chaîne d'exploitation qui progresse d'un segment à l'autre doit franchir, à chaque étape, une frontière défendue plutôt qu'un réseau totalement ouvert.
+
+<EncadreARetenir
+  points={[
+    "Un VLAN isole logiquement un groupe d'équipements au niveau 2, indépendamment du câblage physique",
+    "Chaque VLAN correspond généralement à son propre sous-réseau IP",
+    "Franchir un VLAN nécessite un routeur, mais aussi des règles de pare-feu qui décident ce qui est réellement autorisé",
+    "L'intérêt principal de la segmentation est de limiter la portée d'une compromission, pas seulement d'organiser le réseau"
+  ]}
+/>

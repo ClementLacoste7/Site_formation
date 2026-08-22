@@ -1,0 +1,91 @@
+---
+titre: "Rappels TCP/IP : ce qu'un défenseur doit vraiment savoir"
+titreCourt: "Rappels TCP/IP"
+description: "Pas tout TCP/IP : seulement l'adressage et le découpage en sous-réseaux qu'un défenseur manipule concrètement au quotidien."
+slug: "rappels-tcp-ip"
+cours: "securite-reseau-segmentation"
+ordre: 1
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Lire une notation CIDR et en déduire l'adresse réseau, l'adresse de broadcast et la plage utilisable"
+  - "Vérifier par le calcul si une adresse appartient à un sous-réseau donné"
+  - "Distinguer les plages d'adresses privées des adresses publiques"
+prerequis: []
+tags: ["reseau"]
+quiz:
+  - question: "Pourquoi l'adresse réseau et l'adresse de broadcast d'un sous-réseau ne sont-elles jamais attribuées à un hôte ?"
+    type: "unique"
+    reponses:
+      - texte: "Elles ont une fonction réservée : identifier le sous-réseau lui-même, et diffuser à tous ses membres"
+        correcte: true
+        explication: "L'adresse réseau désigne le sous-réseau dans son ensemble, l'adresse de broadcast envoie à tous les hôtes du sous-réseau simultanément : aucune des deux ne peut donc identifier un hôte unique."
+      - texte: "Elles sont réservées par convention historique, sans raison technique actuelle"
+        correcte: false
+        explication: "La raison reste pleinement technique et actuelle : ces deux adresses jouent un rôle fonctionnel précis dans le protocole, ce n'est pas une convention arbitraire."
+      - texte: "Elles sont automatiquement attribuées au premier équipement connecté au sous-réseau"
+        correcte: false
+        explication: "Aucun équipement ne se voit attribuer ces adresses : elles restent structurellement hors de la plage des adresses hôtes utilisables."
+  - question: "Que signifie qu'une adresse IP appartient à une plage privée (RFC 1918) ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle n'est routable que sur des réseaux internes, jamais directement sur l'internet public"
+        correcte: true
+        explication: "Les plages comme 10.0.0.0/8 ou 192.168.0.0/16 sont réservées à un usage interne : un équipement internet ne peut pas les joindre directement, ce qui sert de première barrière, pas une sécurité en soi."
+      - texte: "Elle appartient obligatoirement à une entreprise, jamais à un particulier"
+        correcte: false
+        explication: "Les plages privées sont utilisées aussi bien par des particuliers (box internet domestique) que par des entreprises : leur usage n'a rien d'exclusif."
+      - texte: "Elle est automatiquement chiffrée lors de son utilisation"
+        correcte: false
+        explication: "Le caractère privé d'une plage d'adresses n'implique aucun chiffrement : ce sont deux notions indépendantes."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ConsolePython from '../../../components/interactif/ConsolePython.astro';
+
+## Ce qui compte vraiment pour un défenseur
+
+TCP/IP est un vaste sujet. Ce chapitre s'en tient à ce qu'un défenseur manipule concrètement dans les chapitres suivants : l'adressage IP et le découpage en sous-réseaux, base de tout pare-feu et de toute segmentation.
+
+## Lire une notation CIDR
+
+<BlocCode langue="text" code={`10.0.20.0/24`} />
+
+Le nombre après la barre oblique indique combien de bits, sur les 32 bits d'une adresse IPv4, identifient le réseau : les bits restants identifient les hôtes à l'intérieur de ce réseau.
+
+<ConsolePython codeInitial={`import ipaddress
+
+reseau = ipaddress.ip_network("10.0.20.0/24")
+
+print("Adresse reseau        :", reseau.network_address)
+print("Adresse de broadcast  :", reseau.broadcast_address)
+print("Masque                :", reseau.netmask)
+print("Hotes utilisables     :", reseau.num_addresses - 2)
+print("Premiere adresse hote :", list(reseau.hosts())[0])
+print("Derniere adresse hote :", list(reseau.hosts())[-1])
+
+hote = ipaddress.ip_address("10.0.20.57")
+print()
+print(f"{hote} appartient a {reseau} ?", hote in reseau)
+print(f"{hote} appartient a 10.0.30.0/24 ?", hote in ipaddress.ip_network("10.0.30.0/24"))`} />
+
+Cette dernière vérification (« cette adresse appartient-elle à ce sous-réseau ? ») est exactement la logique qu'applique un pare-feu ou un commutateur configuré en VLANs, vus dans les deux chapitres suivants.
+
+## Adresses privées, adresses publiques
+
+<Avertissement type="info">
+  Les plages 10.0.0.0/8, 172.16.0.0/12 et 192.168.0.0/16 (RFC 1918) sont réservées à un usage interne : un équipement sur l'internet public ne peut pas les joindre directement. C'est une commodité d'adressage, pas une mesure de sécurité en soi : un attaquant déjà présent sur le réseau interne les atteint sans difficulté.
+</Avertissement>
+
+<EncadreARetenir
+  points={[
+    "La notation CIDR (/24, /16...) indique combien de bits identifient le réseau, le reste identifiant les hôtes",
+    "L'adresse réseau et l'adresse de broadcast d'un sous-réseau ne sont jamais attribuées à un hôte",
+    "Vérifier qu'une adresse appartient à un sous-réseau est un calcul, pas une supposition",
+    "Une plage d'adresses privées (RFC 1918) limite le routage direct depuis l'internet, sans constituer une protection à elle seule"
+  ]}
+/>

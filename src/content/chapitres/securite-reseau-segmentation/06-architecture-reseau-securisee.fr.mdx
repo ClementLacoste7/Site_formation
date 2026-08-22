@@ -1,0 +1,91 @@
+---
+titre: "Architecture d'un réseau d'entreprise sécurisé"
+titreCourt: "Architecture sécurisée"
+description: "Pare-feu, VLANs, VPN et détection ne valent qu'assemblés en couches indépendantes : une seule d'entre elles qui cède ne doit jamais suffire à tout exposer."
+slug: "architecture-reseau-securisee"
+cours: "securite-reseau-segmentation"
+ordre: 6
+duree: 10
+niveau: "avance"
+objectifs:
+  - "Expliquer le rôle d'une DMZ dans une architecture réseau"
+  - "Définir la défense en profondeur par l'indépendance de ses couches, pas leur nombre"
+  - "Assembler les éléments des chapitres précédents en une architecture de référence cohérente"
+prerequis: ["detecter-un-scan-reseau"]
+tags: ["reseau"]
+quiz:
+  - question: "Quel problème une DMZ résout-elle spécifiquement ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle isole les services exposés sur l'internet des ressources internes, pour qu'une compromission de l'un ne donne pas un accès direct aux autres"
+        correcte: true
+        explication: "Un serveur web public doit être joignable depuis l'internet, ce qu'un serveur interne ne devrait jamais être : la DMZ sépare ces deux exigences contradictoires en deux segments distincts."
+      - texte: "Elle chiffre automatiquement tout le trafic qui la traverse"
+        correcte: false
+        explication: "Une DMZ est un segment réseau isolé, pas un mécanisme de chiffrement : cette fonction relève plutôt de TLS ou d'un VPN, vus dans les chapitres précédents."
+      - texte: "Elle remplace le besoin d'un pare-feu entre les segments du réseau"
+        correcte: false
+        explication: "C'est l'inverse : une DMZ n'a de sens qu'encadrée par des règles de pare-feu strictes de chaque côté, elle ne s'y substitue pas."
+  - question: "Qu'est-ce qui définit la défense en profondeur, au-delà du simple empilement de mesures de sécurité ?"
+    type: "unique"
+    reponses:
+      - texte: "Chaque couche protège indépendamment des autres, de sorte que la défaillance d'une seule ne compromette pas l'ensemble"
+        correcte: true
+        explication: "Empiler des mesures qui dépendent toutes du même point de défaillance n'apporte pas une vraie défense en profondeur : c'est l'indépendance réelle des couches (pare-feu, segmentation, détection...) qui en fait la valeur."
+      - texte: "Un nombre minimal de cinq couches de sécurité différentes, imposé par les standards du secteur"
+        correcte: false
+        explication: "Aucun nombre minimal standardisé n'existe : ce qui compte est l'indépendance réelle des couches en place, pas un décompte arbitraire."
+      - texte: "L'utilisation exclusive de produits de sécurité provenant d'éditeurs différents"
+        correcte: false
+        explication: "La diversité d'éditeurs peut être une considération pratique, mais ce n'est pas ce qui définit la défense en profondeur : c'est l'indépendance fonctionnelle des couches qui compte, pas leur origine commerciale."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+
+## Assembler les chapitres précédents
+
+Aucun des éléments vus dans ce cours ne suffit seul. Une architecture réseau sécurisée les assemble en couches indépendantes, chacune capable de limiter les dégâts si une autre venait à céder.
+
+<BlocCode
+  langue="text"
+  code={`Internet
+   |
+[Pare-feu perimetrique]  (chapitre 2 : filtrer, journaliser)
+   |
+   +-- DMZ (10.0.1.0/24) : serveurs web publics
+   |
+[Pare-feu interne]        (regles distinctes de la DMZ)
+   |
+   +-- VLAN 10 - Serveurs internes (10.0.10.0/24)
+   +-- VLAN 20 - Utilisateurs      (10.0.20.0/24)
+   +-- VLAN 30 - Invites            (10.0.30.0/24)
+   |
+[Concentrateur VPN]        (chapitre 4 : acces distant chiffre)
+   |
+[Sondes de detection]      (chapitre 5 : scan, correlation avec le cours Defense)`}
+/>
+
+## La DMZ : séparer ce qui doit être exposé de ce qui ne doit jamais l'être
+
+Un serveur web public doit accepter des connexions depuis n'importe où sur l'internet. Un serveur de base de données interne ne devrait jamais l'être. Placer le premier dans une **DMZ** (zone démilitarisée), encadrée par des règles de pare-feu strictes de chaque côté, évite qu'une compromission du serveur public n'ouvre un accès direct au reste du réseau interne.
+
+## Ce que « défense en profondeur » signifie réellement
+
+<Avertissement type="attention">
+  Empiler des mesures de sécurité qui dépendent toutes du même point de défaillance ne constitue pas une vraie défense en profondeur. Ce qui compte est l'indépendance réelle des couches : un pare-feu périmétrique compromis ne doit pas automatiquement neutraliser la segmentation en VLANs, qui elle-même ne doit pas neutraliser la détection.
+</Avertissement>
+
+Cette indépendance rejoint directement le chapitre sur les scénarios d'attaque du cours sur la reconnaissance : une chaîne d'exploitation qui progresse doit franchir, à chaque étape, une couche différente et indépendante des précédentes, pas simplement contourner un seul point de contrôle central.
+
+<EncadreARetenir
+  points={[
+    "Une DMZ isole les services exposés publiquement des ressources internes, encadrée par des règles de pare-feu de chaque côté",
+    "Une architecture sécurisée assemble pare-feu, segmentation, VPN et détection en couches distinctes",
+    "La défense en profondeur se définit par l'indépendance réelle des couches, pas par leur simple nombre",
+    "Chaque couche doit limiter les dégâts si une autre venait à céder, sans dépendre du même point de défaillance"
+  ]}
+/>

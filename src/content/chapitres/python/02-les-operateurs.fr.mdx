@@ -1,0 +1,121 @@
+---
+titre: "Les opérateurs : calculer et comparer"
+titreCourt: "Les opérateurs"
+description: "Les opérateurs arithmétiques, de comparaison et logiques qui apparaissent dans presque toutes les lignes de code Python."
+slug: "les-operateurs"
+cours: "python"
+ordre: 2
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Utiliser les opérateurs arithmétiques, y compris la division entière et le modulo"
+  - "Comparer deux valeurs et obtenir un résultat booléen"
+  - "Combiner des conditions avec and, or et not"
+prerequis: ["premiers-pas"]
+tags: ["python", "operateurs"]
+quiz:
+  - question: "Que renvoie l'expression `17 % 5` en Python ?"
+    type: "unique"
+    reponses:
+      - texte: "2, le reste de la division entière de 17 par 5"
+        correcte: true
+        explication: "L'opérateur % (modulo) renvoie le reste d'une division entière : 17 divisé par 5 donne 3, reste 2."
+      - texte: "3.4, le résultat de la division de 17 par 5"
+        correcte: false
+        explication: "C'est ce que renvoie l'opérateur /, pas %. Le modulo s'intéresse uniquement au reste, pas au quotient."
+      - texte: "3, le quotient entier de 17 par 5"
+        correcte: false
+        explication: "C'est ce que renvoie l'opérateur //, la division entière. Le modulo % renvoie le reste, pas le quotient."
+  - question: "Que renvoie l'expression `(5 > 3) and (2 > 8)` ?"
+    type: "unique"
+    reponses:
+      - texte: "False, car and exige que les deux conditions soient vraies"
+        correcte: true
+        explication: "5 > 3 est vrai, mais 2 > 8 est faux : and renvoie True seulement si les deux côtés sont vrais, donc le résultat global est False."
+      - texte: "True, car au moins une des deux conditions est vraie"
+        correcte: false
+        explication: "C'est le comportement de or, pas de and : and exige que les deux conditions soient vraies, pas une seule."
+      - texte: "Une erreur, car and ne peut pas combiner deux comparaisons"
+        correcte: false
+        explication: "and combine très bien deux expressions booléennes, y compris deux comparaisons entre parenthèses comme ici."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceCode from '../../../components/interactif/ExerciceCode.astro';
+
+## Les opérateurs arithmétiques
+
+<BlocCode
+  langue="python"
+  code={`print(7 + 3)   # 10  addition
+print(7 - 3)   # 4   soustraction
+print(7 * 3)   # 21  multiplication
+print(7 / 3)   # 2.333...  division (renvoie toujours un float)
+print(7 // 3)  # 2   division entiere (arrondie vers le bas)
+print(7 % 3)   # 1   modulo : le reste de la division entiere
+print(7 ** 2)  # 49  puissance`}
+/>
+
+<Avertissement type="astuce">
+  Le modulo (`%`) sert très souvent à tester la parité d'un nombre : `nombre % 2 == 0` est vrai si et seulement si `nombre` est pair.
+</Avertissement>
+
+## Les opérateurs de comparaison
+
+Une comparaison renvoie toujours un booléen, jamais autre chose :
+
+<BlocCode
+  langue="python"
+  code={`print(5 == 5)   # True   egalite
+print(5 != 3)   # True   difference
+print(5 > 3)    # True   strictement superieur
+print(5 >= 5)   # True   superieur ou egal
+print(5 < 3)    # False  strictement inferieur`}
+/>
+
+<Avertissement type="attention">
+  `==` teste une égalité, `=` affecte une valeur à une variable (chapitre précédent). Les confondre est l'une des erreurs les plus fréquentes en début d'apprentissage.
+</Avertissement>
+
+## Combiner des conditions
+
+Trois opérateurs logiques combinent des expressions booléennes entre elles :
+
+<BlocCode
+  langue="python"
+  code={`age = 25
+possede_billet = True
+
+print(age >= 18 and possede_billet)   # True : les deux doivent etre vraies
+print(age >= 18 or possede_billet)    # True : au moins une suffit
+print(not possede_billet)              # False : inverse le booleen`}
+/>
+
+## À toi de jouer
+
+Écris une fonction `est_pair(nombre)` qui renvoie `True` si `nombre` est pair, `False` sinon.
+
+<ExerciceCode
+  codeInitial={`def est_pair(nombre):
+    # Renvoie True si nombre est pair, False sinon
+    pass`}
+  casDeTest={[
+    { description: "4 est pair", appel: "est_pair(4)", attendu: "True" },
+    { description: "7 n'est pas pair", appel: "est_pair(7)", attendu: "False" },
+    { description: "0 est pair", appel: "est_pair(0)", attendu: "True" },
+    { description: "Un nombre négatif pair (-6)", appel: "est_pair(-6)", attendu: "True" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "// donne le quotient entier d'une division, % donne son reste",
+    "Une comparaison (==, !=, <, >, <=, >=) renvoie toujours un booléen",
+    "== teste une égalité, = affecte une valeur : ne pas confondre les deux",
+    "and exige que les deux côtés soient vrais, or se contente d'un seul, not inverse un booléen"
+  ]}
+/>

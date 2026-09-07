@@ -1,0 +1,117 @@
+---
+titre: "Premiers pas : variables, types et affichage"
+titreCourt: "Premiers pas"
+description: "Stocker une valeur dans une variable, afficher un résultat, et les quatre types de base que tout programme Python manipule en permanence."
+slug: "premiers-pas"
+cours: "python"
+ordre: 1
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Créer une variable et lui affecter une valeur"
+  - "Distinguer les types de base : entier, décimal, chaîne de caractères, booléen"
+  - "Afficher une valeur avec print() et construire une chaîne avec une f-string"
+prerequis: []
+tags: ["python", "variables"]
+quiz:
+  - question: "Que fait l'instruction `age = 25` en Python ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle crée une variable nommée age et lui affecte la valeur 25"
+        correcte: true
+        explication: "Le signe = est une affectation, pas un test d'égalité : il associe le nom age à la valeur 25 dans la mémoire du programme."
+      - texte: "Elle compare la variable age à la valeur 25"
+        correcte: false
+        explication: "La comparaison d'égalité utilise == en Python, pas un seul signe = : c'est une confusion fréquente en débutant."
+      - texte: "Elle affiche la valeur 25 à l'écran"
+        correcte: false
+        explication: "Affecter une valeur à une variable ne l'affiche pas : il faut appeler print() explicitement pour ça."
+  - question: "Quel type Python correspond à la valeur `3.14` ?"
+    type: "unique"
+    reponses:
+      - texte: "float (un nombre décimal)"
+        correcte: true
+        explication: "Tout nombre comportant une partie décimale, même écrite avec un point comme ici, est de type float en Python."
+      - texte: "int (un nombre entier)"
+        correcte: false
+        explication: "int désigne uniquement les nombres entiers, sans partie décimale, comme 3 ou -7."
+      - texte: "str (une chaîne de caractères)"
+        correcte: false
+        explication: "3.14 n'est pas entouré de guillemets : ce n'est donc pas une chaîne de caractères, mais bien un nombre."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceCode from '../../../components/interactif/ExerciceCode.astro';
+
+## Une variable, un nom pour une valeur
+
+Écrire un programme consiste presque toujours à manipuler des valeurs : un âge, un nom, un prix. Une **variable** donne un nom à une valeur, pour pouvoir la réutiliser plus loin sans la réécrire :
+
+<BlocCode langue="python" code={`age = 25
+prenom = "Alice"
+print(prenom, "a", age, "ans")`} />
+
+Le signe `=` n'est pas un test d'égalité ici : c'est une **affectation**. Il associe le nom à gauche à la valeur à droite.
+
+## Quatre types que tu croiseras partout
+
+<BlocCode
+  langue="python"
+  code={`entier = 25
+decimal = 3.14
+texte = "Bonjour"
+booleen = True
+
+print(type(entier))   # <class 'int'>
+print(type(decimal))  # <class 'float'>
+print(type(texte))    # <class 'str'>
+print(type(booleen))  # <class 'bool'>`}
+/>
+
+- **int** : un nombre entier, positif ou négatif, sans partie décimale.
+- **float** : un nombre à virgule (appelé « flottant »).
+- **str** : une chaîne de caractères, toujours entourée de guillemets simples ou doubles.
+- **bool** : une valeur logique, seulement `True` ou `False` (avec ces majuscules précises).
+
+<Avertissement type="astuce">
+  `type()` renvoie le type réel d'une valeur : un réflexe utile dès qu'un comportement surprend, avant même de chercher plus loin.
+</Avertissement>
+
+## Construire un texte avec une f-string
+
+Concaténer du texte et des variables devient vite pénible avec des virgules ou des `+`. Une **f-string** (chaîne « formatée ») insère directement des variables dans un texte, entre accolades :
+
+<BlocCode langue="python" code={`prenom = "Alice"
+age = 25
+message = f"{prenom} a {age} ans"
+print(message)`} />
+
+Le `f` juste avant les guillemets active ce comportement : sans lui, `{prenom}` s'afficherait tel quel, comme du texte brut.
+
+## À toi de jouer
+
+Écris une fonction `presenter(nom, age)` qui renvoie exactement la chaîne `"Je m'appelle {nom} et j'ai {age} ans."`, en utilisant une f-string.
+
+<ExerciceCode
+  codeInitial={`def presenter(nom, age):
+    # Renvoie "Je m'appelle {nom} et j'ai {age} ans."
+    pass`}
+  casDeTest={[
+    { description: "Avec Alice et 25 ans", appel: "presenter('Alice', 25)", attendu: "\"Je m'appelle Alice et j'ai 25 ans.\"" },
+    { description: "Avec Bob et 40 ans", appel: "presenter('Bob', 40)", attendu: "\"Je m'appelle Bob et j'ai 40 ans.\"" },
+    { description: "Le résultat doit être une chaîne de caractères", appel: "type(presenter('Alice', 25)).__name__", attendu: "'str'" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Une variable associe un nom à une valeur avec le signe = (une affectation, pas un test d'égalité)",
+    "int, float, str et bool sont les quatre types de base les plus fréquents",
+    "type() révèle le type réel d'une valeur",
+    "Une f-string (préfixe f devant les guillemets) insère des variables directement dans un texte"
+  ]}
+/>

@@ -1,0 +1,114 @@
+---
+titre: "Les boucles : for et while"
+titreCourt: "Les boucles"
+description: "Répéter un bloc de code un nombre de fois connu avec for, ou tant qu'une condition reste vraie avec while."
+slug: "les-boucles"
+cours: "python"
+ordre: 4
+duree: 13
+niveau: "debutant"
+objectifs:
+  - "Répéter un bloc avec for sur un intervalle ou une collection"
+  - "Répéter un bloc avec while tant qu'une condition reste vraie"
+  - "Choisir entre for et while selon que le nombre de répétitions est connu à l'avance"
+prerequis: ["les-conditions"]
+tags: ["python", "boucles"]
+quiz:
+  - question: "Que produit `range(3)` utilisé dans une boucle for ?"
+    type: "unique"
+    reponses:
+      - texte: "Les valeurs 0, 1 et 2, dans cet ordre"
+        correcte: true
+        explication: "range(n) produit les entiers de 0 à n-1 : range(3) parcourt donc 0, 1, 2, soit trois valeurs au total."
+      - texte: "Les valeurs 1, 2 et 3"
+        correcte: false
+        explication: "range(n) commence à 0 par défaut, pas à 1 : range(3) s'arrête donc à 2, pas à 3."
+      - texte: "Une seule valeur, le nombre 3"
+        correcte: false
+        explication: "range(3) ne produit pas une seule valeur : c'est une séquence de plusieurs valeurs, de 0 à 2."
+  - question: "Quand une boucle while risque-t-elle de ne jamais s'arrêter ?"
+    type: "unique"
+    reponses:
+      - texte: "Quand rien à l'intérieur de la boucle ne fait évoluer la condition vers False"
+        correcte: true
+        explication: "Une boucle while répète tant que sa condition reste vraie : si rien ne la fait changer, elle continue indéfiniment (une boucle infinie)."
+      - texte: "Quand la boucle contient plus de trois lignes de code"
+        correcte: false
+        explication: "Le nombre de lignes à l'intérieur de la boucle n'a aucun rapport avec le risque de boucle infinie."
+      - texte: "Jamais : Python arrête automatiquement toute boucle after 1000 tours"
+        correcte: false
+        explication: "Aucune limite automatique de ce type n'existe : une boucle while mal construite peut tourner indéfiniment."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceCode from '../../../components/interactif/ExerciceCode.astro';
+
+## for : répéter un nombre de fois connu
+
+<BlocCode
+  langue="python"
+  code={`for i in range(5):
+    print(i)
+# Affiche 0, 1, 2, 3, 4 (5 valeurs, jamais 5 lui-meme)`}
+/>
+
+`for` fonctionne aussi directement sur une collection, sans passer par `range` :
+
+<BlocCode
+  langue="python"
+  code={`fruits = ["pomme", "banane", "cerise"]
+for fruit in fruits:
+    print(fruit)`}
+/>
+
+## while : répéter tant qu'une condition est vraie
+
+<BlocCode
+  langue="python"
+  code={`compteur = 0
+while compteur < 5:
+    print(compteur)
+    compteur = compteur + 1
+# Affiche 0, 1, 2, 3, 4 : identique au for range(5) ci-dessus`}
+/>
+
+<Avertissement type="danger">
+  Sans la ligne `compteur = compteur + 1`, la condition `compteur < 5` resterait vraie indéfiniment : la boucle ne s'arrêterait jamais. C'est l'erreur la plus fréquente avec while, absente par construction avec for.
+</Avertissement>
+
+## Quand choisir l'un ou l'autre
+
+<BlocCode
+  langue="text"
+  code={`for   : le nombre de repetitions est connu a l'avance (une liste, un intervalle)
+while : la fin depend d'une condition qui n'est pas connue a l'avance`}
+/>
+
+## À toi de jouer
+
+Écris une fonction `somme_jusqua(n)` qui renvoie la somme des entiers de 1 à `n` inclus, en utilisant une boucle (pas de calcul direct).
+
+<ExerciceCode
+  codeInitial={`def somme_jusqua(n):
+    # Renvoie 1 + 2 + ... + n, a l'aide d'une boucle
+    pass`}
+  casDeTest={[
+    { description: "La somme jusqu'à 5 vaut 15", appel: "somme_jusqua(5)", attendu: "15" },
+    { description: "La somme jusqu'à 1 vaut 1", appel: "somme_jusqua(1)", attendu: "1" },
+    { description: "La somme jusqu'à 0 vaut 0", appel: "somme_jusqua(0)", attendu: "0" },
+    { description: "La somme jusqu'à 10 vaut 55", appel: "somme_jusqua(10)", attendu: "55" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "for répète un bloc sur les éléments d'une collection ou d'un intervalle (range)",
+    "range(n) produit les entiers de 0 à n-1, jamais n lui-même",
+    "while répète tant qu'une condition reste vraie, jusqu'à ce que quelque chose la rende fausse",
+    "Un while dont la condition ne change jamais provoque une boucle infinie"
+  ]}
+/>

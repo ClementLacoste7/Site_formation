@@ -1,0 +1,58 @@
+---
+// Exercice de code corrigé automatiquement (cours de développement) : même
+// chargement paresseux que ConsolePython (Pyodide au clic, jamais au rendu),
+// mais le code de l'apprenant est comparé à des cas de test plutôt que de se
+// contenter d'afficher sa sortie. Voir SPEC.md section 8.5.
+import BlocCode from '../contenu/BlocCode.astro';
+import { useTranslations } from '../../i18n/utils';
+
+interface CasDeTest {
+  /** Ce que ce cas de test vérifie, affiché à l'apprenant. */
+  description: string;
+  /** Expression Python à évaluer une fois le code de l'apprenant chargé, ex. "additionner(2, 3)". */
+  appel: string;
+  /** Valeur attendue, sous forme d'une expression Python littérale, ex. "5" ou "[1, 2, 3]". */
+  attendu: string;
+}
+
+interface Props {
+  codeInitial: string;
+  casDeTest: CasDeTest[];
+}
+
+const { codeInitial, casDeTest } = Astro.props;
+const t = useTranslations();
+const id = `exercice-${Math.random().toString(36).slice(2, 9)}`;
+const propsJson = JSON.stringify({ codeInitial, casDeTest });
+---
+
+<div
+  class="not-prose my-4"
+  data-conteneur-ilot={id}
+  data-props={propsJson}
+  style="min-height: 10rem;"
+>
+  <BlocCode code={codeInitial} langue="python" />
+  <button
+    type="button"
+    data-bouton-essayer={id}
+    class="mt-2 w-full rounded-lg border py-2 text-sm font-medium"
+    style="border-color: var(--couleur-accent); color: var(--couleur-accent);"
+  >
+    {t.bacASable.essayer}
+  </button>
+</div>
+
+<script>
+  import { monterAuClic } from '../../scripts/monter-ilot';
+
+  document
+    .querySelectorAll<HTMLElement>('[data-conteneur-ilot^="exercice-"]')
+    .forEach((conteneur) => {
+      const id = conteneur.dataset.conteneurIlot as string;
+      const bouton = conteneur.querySelector<HTMLButtonElement>(`[data-bouton-essayer="${id}"]`);
+      if (!bouton) return;
+      const props = JSON.parse(conteneur.dataset.props ?? '{}');
+      monterAuClic(bouton, conteneur, props, () => import('./ExerciceCodeIlot'));
+    });
+</script>

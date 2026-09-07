@@ -1,0 +1,113 @@
+---
+titre: "Les chaînes de caractères : découper, transformer, assembler"
+titreCourt: "Chaînes de caractères"
+description: "Une chaîne se manipule comme une liste de caractères, avec des méthodes dédiées pour la transformer sans jamais la modifier sur place."
+slug: "les-chaines-de-caracteres"
+cours: "python"
+ordre: 7
+duree: 13
+niveau: "intermediaire"
+objectifs:
+  - "Accéder à un caractère ou une portion d'une chaîne par indexation et slicing"
+  - "Utiliser les méthodes courantes : upper, lower, strip, split, replace"
+  - "Comprendre pourquoi une chaîne ne peut jamais être modifiée sur place"
+prerequis: ["les-listes"]
+tags: ["python", "chaines"]
+quiz:
+  - question: "Que renvoie `\"Bonjour\"[0:3]` ?"
+    type: "unique"
+    reponses:
+      - texte: "\"Bon\", les caractères d'indice 0, 1 et 2"
+        correcte: true
+        explication: "Un slice [debut:fin] inclut l'indice de début mais exclut celui de fin : [0:3] prend donc les indices 0, 1, 2, soit les trois premiers caractères."
+      - texte: "\"Bonj\", les quatre premiers caractères"
+        correcte: false
+        explication: "L'indice de fin (3) est exclu du résultat : le slice s'arrête juste avant, pas juste après."
+      - texte: "Une erreur, le slicing ne fonctionne pas sur les chaînes"
+        correcte: false
+        explication: "Le slicing fonctionne aussi bien sur les chaînes que sur les listes : les deux sont des séquences indexées."
+  - question: "Pourquoi `ma_chaine.upper()` ne modifie-t-il jamais ma_chaine elle-même ?"
+    type: "unique"
+    reponses:
+      - texte: "Une chaîne de caractères est immuable en Python : aucune méthode ne peut la modifier sur place, seulement renvoyer une nouvelle chaîne"
+        correcte: true
+        explication: "upper() renvoie une nouvelle chaîne en majuscules, sans toucher à l'originale : c'est pour ça qu'il faut réaffecter le résultat (ma_chaine = ma_chaine.upper()) pour en garder trace."
+      - texte: "Parce que upper() est mal implémenté et devrait modifier la chaîne d'origine"
+        correcte: false
+        explication: "Ce comportement est volontaire et cohérent dans tout Python : les chaînes sont immuables par conception, pas par un défaut d'implémentation."
+      - texte: "Parce que seules les listes peuvent être modifiées, jamais aucun autre type"
+        correcte: false
+        explication: "D'autres types que les listes sont modifiables en Python (les dictionnaires, par exemple, vus au chapitre suivant) : l'immuabilité est une propriété spécifique aux chaînes, aux nombres et à quelques autres types, pas une règle universelle limitée aux listes."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceCode from '../../../components/interactif/ExerciceCode.astro';
+
+## Indexer et découper une chaîne
+
+Une chaîne se comporte comme une liste de caractères, avec la même syntaxe d'indexation et de slicing :
+
+<BlocCode
+  langue="python"
+  code={`mot = "Bonjour"
+
+print(mot[0])     # B
+print(mot[-1])    # r
+print(mot[0:3])   # Bon (indices 0, 1, 2 : la fin est exclue)
+print(len(mot))   # 7`}
+/>
+
+## Des méthodes qui renvoient toujours une nouvelle chaîne
+
+<BlocCode
+  langue="python"
+  code={`phrase = "  Bonjour Le Monde  "
+
+print(phrase.strip())          # "Bonjour Le Monde" (espaces aux extremites retires)
+print(phrase.lower())          # "  bonjour le monde  "
+print(phrase.strip().split())  # ["Bonjour", "Le", "Monde"] (decoupe sur les espaces)
+print(phrase.replace("Le", "Un"))  # "  Bonjour Un Monde  "`}
+/>
+
+<Avertissement type="attention">
+  Aucune de ces méthodes ne modifie `phrase` elle-même : une chaîne est **immuable**. `phrase.lower()` sans réaffectation (`phrase = phrase.lower()`) ne change rien à la variable `phrase`.
+</Avertissement>
+
+## Assembler une chaîne à partir d'une liste
+
+<BlocCode
+  langue="python"
+  code={`mots = ["Bonjour", "Le", "Monde"]
+print(" ".join(mots))  # "Bonjour Le Monde"`}
+/>
+
+`join` fait l'inverse de `split` : il assemble une liste de chaînes en une seule, séparée par le texte sur lequel il est appelé (un espace, ici).
+
+## À toi de jouer
+
+Écris une fonction `compter_voyelles(texte)` qui renvoie le nombre de voyelles (`a`, `e`, `i`, `o`, `u`, sans distinction de majuscule) dans `texte`.
+
+<ExerciceCode
+  codeInitial={`def compter_voyelles(texte):
+    # Renvoie le nombre de voyelles dans texte (a, e, i, o, u, sans distinction de casse)
+    pass`}
+  casDeTest={[
+    { description: "\"bonjour\" contient 3 voyelles", appel: "compter_voyelles('bonjour')", attendu: "3" },
+    { description: "Les majuscules comptent aussi", appel: "compter_voyelles('PYTHON')", attendu: "1" },
+    { description: "Une chaîne vide n'a aucune voyelle", appel: "compter_voyelles('')", attendu: "0" },
+    { description: "Aucune voyelle dans ce mot", appel: "compter_voyelles('xyz')", attendu: "0" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Une chaîne s'indexe et se découpe (slicing) exactement comme une liste",
+    "Une chaîne est immuable : chaque méthode renvoie une nouvelle chaîne, sans jamais modifier l'originale",
+    "split() découpe une chaîne en liste, join() fait l'inverse en assemblant une liste en chaîne",
+    "strip(), lower(), upper() et replace() sont parmi les méthodes de chaîne les plus utilisées"
+  ]}
+/>

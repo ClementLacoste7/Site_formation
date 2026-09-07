@@ -1,0 +1,132 @@
+---
+titre: "Introduction aux classes : structurer ses données"
+titreCourt: "Introduction aux classes"
+description: "Regrouper des données et les fonctions qui les manipulent dans une même structure, plutôt que de les faire voyager séparément entre des fonctions."
+slug: "introduction-aux-classes"
+cours: "python"
+ordre: 10
+duree: 15
+niveau: "avance"
+objectifs:
+  - "Définir une classe avec un constructeur __init__ et des attributs"
+  - "Comprendre le rôle de self dans une méthode"
+  - "Créer une instance et appeler ses méthodes pour modifier son état interne"
+prerequis: ["gerer-les-erreurs"]
+tags: ["python", "classes"]
+quiz:
+  - question: "À quel moment la méthode __init__ d'une classe s'exécute-t-elle ?"
+    type: "unique"
+    reponses:
+      - texte: "Automatiquement, à chaque fois qu'une nouvelle instance de la classe est créée"
+        correcte: true
+        explication: "__init__ est le constructeur : Python l'appelle automatiquement dès qu'on écrit NomDeClasse(...), pour initialiser les attributs de la nouvelle instance."
+      - texte: "Uniquement si elle est appelée explicitement après la création de l'instance"
+        correcte: false
+        explication: "__init__ s'exécute automatiquement à la création, sans appel explicite : c'est précisément son rôle de constructeur."
+      - texte: "Une seule fois pour toutes les instances de la classe, la première fois qu'elle est utilisée"
+        correcte: false
+        explication: "__init__ s'exécute pour CHAQUE nouvelle instance créée, pas une seule fois pour l'ensemble de la classe."
+  - question: "Que représente self dans une méthode de classe ?"
+    type: "unique"
+    reponses:
+      - texte: "L'instance elle-même sur laquelle la méthode est appelée, ce qui permet d'accéder à ses attributs"
+        correcte: true
+        explication: "self est une référence vers l'instance en cours : self.solde, par exemple, désigne l'attribut solde de cette instance précise, pas d'une autre."
+      - texte: "Le nom de la classe elle-même, sous forme de texte"
+        correcte: false
+        explication: "self ne désigne pas le nom de la classe, mais l'instance concrète créée à partir de cette classe."
+      - texte: "Une variable optionnelle, qu'on peut omettre du premier paramètre sans changer le comportement"
+        correcte: false
+        explication: "self doit être le premier paramètre de chaque méthode d'instance : l'omettre change la signification des autres paramètres et provoque des erreurs."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceCode from '../../../components/interactif/ExerciceCode.astro';
+
+## Regrouper des données et leur comportement
+
+Jusqu'ici, les données (une liste, un dictionnaire) et les fonctions qui les manipulent restaient séparées. Une **classe** les regroupe : elle définit un modèle, dont chaque **instance** porte ses propres données.
+
+<BlocCode
+  langue="python"
+  code={`class Personne:
+    def __init__(self, nom, age):
+        self.nom = nom
+        self.age = age
+
+    def saluer(self):
+        return f"Bonjour, je m'appelle {self.nom} et j'ai {self.age} ans."
+
+alice = Personne("Alice", 25)
+bob = Personne("Bob", 40)
+
+print(alice.saluer())  # Bonjour, je m'appelle Alice et j'ai 25 ans.
+print(bob.saluer())    # Bonjour, je m'appelle Bob et j'ai 40 ans.`}
+/>
+
+## __init__ et self
+
+`__init__` s'exécute automatiquement à chaque création d'instance (`Personne("Alice", 25)`), pour initialiser ses attributs. `self`, premier paramètre de chaque méthode, désigne l'instance en cours : `self.nom` appartient à cette instance précise, jamais partagé avec une autre.
+
+<Avertissement type="astuce">
+  `alice` et `bob` sont deux instances indépendantes de la même classe : modifier `alice.age` ne change strictement rien à `bob.age`. Chaque instance porte ses propres attributs.
+</Avertissement>
+
+## Une méthode qui modifie l'état de l'instance
+
+<BlocCode
+  langue="python"
+  code={`class Compteur:
+    def __init__(self):
+        self.valeur = 0
+
+    def incrementer(self):
+        self.valeur = self.valeur + 1
+
+compteur = Compteur()
+compteur.incrementer()
+compteur.incrementer()
+print(compteur.valeur)  # 2`}
+/>
+
+Chaque appel à `incrementer()` modifie `self.valeur` sur l'instance concernée, un état qui persiste d'un appel à l'autre, contrairement à une variable locale d'une fonction ordinaire.
+
+## À toi de jouer
+
+Écris une classe `CompteBancaire` avec un constructeur `__init__(self, solde=0)`, une méthode `deposer(self, montant)` qui augmente le solde, et une méthode `retirer(self, montant)` qui diminue le solde et renvoie `True` si le solde est suffisant, ou ne change rien et renvoie `False` sinon.
+
+<ExerciceCode
+  codeInitial={`class CompteBancaire:
+    def __init__(self, solde=0):
+        # A completer
+        pass
+
+    def deposer(self, montant):
+        # A completer
+        pass
+
+    def retirer(self, montant):
+        # Renvoie False si le solde est insuffisant, sans rien changer
+        # Renvoie True et diminue le solde sinon
+        pass`}
+  casDeTest={[
+    { description: "Le solde initial est bien enregistré", appel: "CompteBancaire(100).solde", attendu: "100" },
+    { description: "Un dépôt augmente le solde", appel: "(c := CompteBancaire(100), c.deposer(50), c.solde)[-1]", attendu: "150" },
+    { description: "Un retrait valide diminue le solde", appel: "(c := CompteBancaire(100), c.retirer(30), c.solde)[-1]", attendu: "70" },
+    { description: "Un retrait trop important est refusé (valeur renvoyée)", appel: "(c := CompteBancaire(100), c.retirer(500))[-1]", attendu: "False" },
+    { description: "Un retrait refusé ne change pas le solde", appel: "(c := CompteBancaire(100), c.retirer(500), c.solde)[-1]", attendu: "100" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Une classe regroupe des données (attributs) et le comportement qui les manipule (méthodes)",
+    "__init__ s'exécute automatiquement à chaque création d'instance, pour initialiser ses attributs",
+    "self désigne l'instance en cours à l'intérieur d'une méthode",
+    "Chaque instance porte ses propres attributs, indépendants de ceux des autres instances"
+  ]}
+/>

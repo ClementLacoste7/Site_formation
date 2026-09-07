@@ -43,7 +43,9 @@ La différenciation ne vient pas du volume de contenu mais de l'interactivité :
 
 ### 2.3 Stratégie de périmètre
 
-Le site est **architecturé pour accueillir plusieurs domaines techniques**, mais **ne publie que le domaine « Cybersécurité » en V1**. Cette contrainte est délibérée : l'autorité thématique en SEO se construit par la profondeur sur un sujet, pas par la largeur.
+Le site est **architecturé pour accueillir plusieurs domaines techniques**. La V1 ne publiait que le domaine « Cybersécurité », contrainte délibérée : l'autorité thématique en SEO se construit par la profondeur sur un sujet, pas par la largeur.
+
+**Évolution (2026-08-07) :** un second domaine, « Développement », a été ouvert à la demande explicite de l'utilisateur. Ce choix a été confirmé en connaissance de cause : le domaine Cybersécurité comptait déjà 8 cours et une cinquantaine de chapitres, largement au-delà du seuil de 30 à 40 chapitres visé avant candidature AdSense, ce qui réduit le risque de dilution thématique qui justifiait la restriction initiale. Chaque domaine continue de construire sa propre profondeur (voir Annexe A pour Cybersécurité, Annexe A2 pour Développement) plutôt que de multiplier des domaines superficiels.
 
 De même, le site est **architecturé pour être multilingue** (i18n complet), mais **ne publie que le français en V1**.
 
@@ -71,10 +73,12 @@ De même, le site est **architecturé pour être multilingue** (i18n complet), m
 - Comptes utilisateurs et authentification
 - Toute base de données
 - Toute exécution de code côté serveur
-- Labs pratiques et validation par flag
+- Labs pratiques et validation par flag (style CTF : soumission d'un flag à un serveur, score, classement)
 - Version anglaise du contenu
 - Certificats de fin de cours
 - Newsletter
+
+**Précision (2026-08-07, cours de développement) :** l'exclusion ci-dessus vise spécifiquement un système de labs façon CTF (flag à soumettre, score serveur). Elle ne couvre pas le composant `ExerciceCode` (section 8.5) : celui-ci exécute le code de l'apprenant et compare son résultat à des cas de test **entièrement côté client**, dans le même Web Worker Pyodide que `ConsolePython`, sans aucune soumission, compte ou score. Aucune exécution de code ne quitte le navigateur, conforme à l'exclusion « toute exécution de code côté serveur ».
 
 ### 3.3 Prévu mais non activé
 
@@ -128,7 +132,7 @@ Les éléments suivants doivent être **présents dans l'architecture** sans êt
 Domaine  →  Cours  →  Chapitre  →  Sections
 ```
 
-- **Domaine** : grande famille thématique. V1 : `cybersecurite` uniquement.
+- **Domaine** : grande famille thématique. V1 : `cybersecurite` uniquement ; `developpement` ouvert le 2026-08-07 (voir 2.3).
 - **Cours** : parcours cohérent de 4 à 8 chapitres.
 - **Chapitre** : unité indexée par Google. Une page = une intention de recherche = 10 minutes de lecture.
 - **Section** : sous-partie d'un chapitre, avec ancre, alimentant le sommaire latéral.
@@ -354,6 +358,7 @@ Une barre latérale sticky affiche le sommaire du chapitre en cours (desktop uni
 | `BacASableWeb` | iframe sandboxée pour HTML/CSS/JS |
 | `ConsolePython` | Pyodide, chargement paresseux avec indicateur |
 | `BacASableSQL` | sql.js, base préchargée depuis un jeu de données du chapitre |
+| `ExerciceCode` | Pyodide, code de l'apprenant corrigé contre des cas de test (cours de développement) |
 | `Quiz` | QCM, correction immédiate, explication par réponse |
 
 ### 7.4 Publicité et SEO
@@ -405,7 +410,16 @@ Chaque bloc interactif est déclaré dans le MDX du chapitre :
 
 Le mode « formulaire vulnérable » est le cœur pédagogique du cours d'injection SQL : l'apprenant voit la requête se construire avec son entrée et observe le résultat réel.
 
-### 8.5 Contrainte transversale
+### 8.5 Exercice de code corrigé automatiquement (`ExerciceCode`, cours de développement)
+
+- Même mécanique de chargement paresseux que la console Python (8.3) : un bouton « Lancer l'environnement Python » déclenche le téléchargement de Pyodide, jamais le rendu de la page seul.
+- L'apprenant écrit une fonction dans l'éditeur, préchargé avec un squelette de départ (signature de fonction, corps à compléter).
+- Au clic sur « Vérifier », le code de l'apprenant s'exécute dans le même Web Worker que `ConsolePython`, puis une série de cas de test définis dans le chapitre (`{ description, appel, attendu }`, des expressions Python évaluées via `eval()`) compare le résultat obtenu à la valeur attendue.
+- Chaque cas de test s'affiche individuellement (réussi / échoué), avec la valeur obtenue et la valeur attendue en cas d'échec, pour que l'apprenant comprenne l'écart sans deviner.
+- **Entièrement côté client** : aucune soumission réseau, aucun score serveur, aucun compte. Conforme à l'exclusion de la section 3.2 (pas de labs façon CTF), puisqu'il ne s'agit que d'une correction locale, comparable à des tests unitaires que l'apprenant pourrait lancer lui-même.
+- Les cas de test sont écrits par l'auteur du chapitre, jamais par l'apprenant : `eval()` n'exécute donc que du code de confiance, au même titre que le reste du contenu du site.
+
+### 8.6 Contrainte transversale
 
 Tout bloc interactif doit fonctionner **sans JavaScript disponible** en affichant au minimum le code d'exemple en lecture seule. Les moteurs d'indexation doivent voir le contenu pédagogique.
 
@@ -787,7 +801,7 @@ Ajouté après coup : les fiches sont un type de contenu à part entière (sché
 
 ---
 
-## Annexe A — Curriculum V1
+## Annexe A — Curriculum Cybersécurité
 
 Objectif : 30 à 40 chapitres publiés avant la candidature AdSense.
 
@@ -808,6 +822,18 @@ Objectif : 30 à 40 chapitres publiés avant la candidature AdSense.
 **Cours 8 et 9, ajoutés hors plan initial (2026-08-07) :** angle défensif (analyste SOC, cours 8) puis réseau/segmentation (cours 9), demandés explicitement par l'utilisateur en complément du curriculum offensif ci-dessus. Le cours 8 s'appuie sur les cours 3 (Injections SQL), 4 (XSS) et 5 (Authentification) ; le cours 9 s'appuie sur les cours 6 (Cryptographie) et 8 (Défense et détection).
 
 Fiches de révision associées : une par cours, publiée après le cours correspondant.
+
+---
+
+## Annexe A2 — Curriculum Développement
+
+Domaine ouvert le 2026-08-07 (voir 2.3). Contrairement au domaine Cybersécurité, chaque chapitre technique intègre au moins un `ExerciceCode` (section 8.5) plutôt qu'un bloc de démonstration passif : le format attendu pour ce domaine est « explication courte, exemple, exercice corrigé automatiquement », pas seulement de la lecture.
+
+| Ordre | Cours | Chapitres | Priorité |
+|---|---|---|---|
+| 1 | Python | 10 (rédigés) | **Haute** |
+
+**Convention pour les prochains cours de ce domaine :** même structure que Python ci-dessus (un ou plusieurs `ExerciceCode` par chapitre technique, avec plusieurs cas de test lisibles par l'apprenant), quel que soit le langage ou le sujet traité.
 
 ---
 

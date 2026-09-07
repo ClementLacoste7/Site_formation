@@ -1,0 +1,116 @@
+---
+titre: "Gérer les erreurs : try, except"
+titreCourt: "Gérer les erreurs"
+description: "Une erreur qui arrête tout le programme n'est pas une fatalité : try/except permet de l'anticiper et d'y réagir proprement."
+slug: "gerer-les-erreurs"
+cours: "python"
+ordre: 9
+duree: 12
+niveau: "intermediaire"
+objectifs:
+  - "Protéger une instruction risquée avec try/except"
+  - "Cibler un type d'erreur précis plutôt que d'intercepter tout et n'importe quoi"
+  - "Décider quoi renvoyer une fois une erreur interceptée"
+prerequis: ["les-dictionnaires"]
+tags: ["python", "erreurs"]
+quiz:
+  - question: "Que se passe-t-il si une erreur survient dans un bloc try, sans except correspondant ?"
+    type: "unique"
+    reponses:
+      - texte: "Le programme s'arrête avec cette erreur, exactement comme si try/except n'existait pas"
+        correcte: true
+        explication: "try/except ne protège que contre les erreurs qu'un bloc except correspondant intercepte réellement : une erreur d'un autre type continue de se propager normalement."
+      - texte: "Python ignore silencieusement l'erreur et continue l'exécution"
+        correcte: false
+        explication: "Aucune erreur n'est ignorée silencieusement sans un except qui la capture explicitement : sans lui, l'erreur interrompt le programme normalement."
+      - texte: "Le bloc try relance automatiquement l'instruction qui a échoué"
+        correcte: false
+        explication: "Rien n'est rejoué automatiquement : try/except sert à réagir à une erreur, pas à répéter l'opération qui a échoué."
+  - question: "Pourquoi cibler un type d'erreur précis (comme ZeroDivisionError) plutôt qu'un except générique qui capture tout ?"
+    type: "unique"
+    reponses:
+      - texte: "Un except trop large risque de masquer des erreurs totalement différentes et imprévues, rendant le programme plus difficile à déboguer"
+        correcte: true
+        explication: "Un except générique intercepterait aussi bien une division par zéro qu'une erreur de programmation totalement différente, cachant des bugs qui devraient au contraire apparaître clairement."
+      - texte: "Un except générique est toujours plus lent à exécuter qu'un except ciblé"
+        correcte: false
+        explication: "La performance n'est pas la raison de cette recommandation : c'est une question de clarté et de fiabilité du code, pas de vitesse."
+      - texte: "Python interdit techniquement d'utiliser un except générique"
+        correcte: false
+        explication: "Python autorise tout à fait un except générique (except Exception, voire un except nu) : ce n'est pas interdit, seulement déconseillé en général."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceCode from '../../../components/interactif/ExerciceCode.astro';
+
+## Une erreur qui arrête tout, par défaut
+
+<BlocCode
+  langue="python"
+  code={`resultat = 10 / 0
+# ZeroDivisionError: division by zero
+# Le programme s'arrete ici, la suite ne s'execute jamais`}
+/>
+
+## Intercepter une erreur précise
+
+<BlocCode
+  langue="python"
+  code={`try:
+    resultat = 10 / 0
+except ZeroDivisionError:
+    print("Division par zero evitee")
+    resultat = None
+
+print("Le programme continue normalement")`}
+/>
+
+Le bloc `try` contient l'instruction risquée. Si l'erreur indiquée après `except` survient, Python exécute ce bloc à la place de laisser le programme s'arrêter, puis continue normalement après.
+
+<Avertissement type="attention">
+  Cibler `except ZeroDivisionError` plutôt qu'un `except` générique évite de masquer une erreur totalement différente (une faute de frappe dans un nom de variable, par exemple), qui devrait au contraire apparaître clairement plutôt que d'être avalée silencieusement.
+</Avertissement>
+
+## Plusieurs types d'erreurs, plusieurs except
+
+<BlocCode
+  langue="python"
+  code={`valeurs = ["10", "0", "abc"]
+
+for valeur in valeurs:
+    try:
+        print(100 / int(valeur))
+    except ZeroDivisionError:
+        print("Impossible de diviser par zero")
+    except ValueError:
+        print(f"'{valeur}' n'est pas un nombre valide")`}
+/>
+
+## À toi de jouer
+
+Écris une fonction `diviser_en_securite(a, b)` qui renvoie `a / b`, ou `None` si `b` vaut 0, sans jamais laisser le programme planter.
+
+<ExerciceCode
+  codeInitial={`def diviser_en_securite(a, b):
+    # Renvoie a / b, ou None si b vaut 0
+    pass`}
+  casDeTest={[
+    { description: "Une division normale", appel: "diviser_en_securite(10, 2)", attendu: "5.0" },
+    { description: "Une division par zéro renvoie None", appel: "diviser_en_securite(10, 0)", attendu: "None" },
+    { description: "Une autre division normale", appel: "diviser_en_securite(7, 7)", attendu: "1.0" },
+    { description: "Zéro divisé par un nombre reste zéro", appel: "diviser_en_securite(0, 5)", attendu: "0.0" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Sans try/except, une erreur arrête immédiatement l'exécution du programme",
+    "try contient l'instruction risquée, except définit la réaction à une erreur précise",
+    "Cibler un type d'erreur précis évite de masquer des bugs totalement différents",
+    "Plusieurs blocs except peuvent réagir différemment à plusieurs types d'erreurs"
+  ]}
+/>

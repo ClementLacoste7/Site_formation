@@ -1,0 +1,110 @@
+---
+titre: "Les conditions : if, elif, else"
+titreCourt: "Les conditions"
+description: "Faire exécuter un bloc de code seulement si une condition est vraie, avec l'indentation qui remplace les accolades d'autres langages."
+slug: "les-conditions"
+cours: "python"
+ordre: 3
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Écrire une condition avec if, elif et else"
+  - "Comprendre le rôle de l'indentation dans la délimitation d'un bloc"
+  - "Enchaîner plusieurs conditions pour classer une valeur en catégories"
+prerequis: ["les-operateurs"]
+tags: ["python", "conditions"]
+quiz:
+  - question: "Comment Python sait-il quelles lignes appartiennent au bloc d'un if ?"
+    type: "unique"
+    reponses:
+      - texte: "Par leur indentation : les lignes indentées au même niveau juste après le if lui appartiennent"
+        correcte: true
+        explication: "Contrairement à des langages qui utilisent des accolades, Python utilise l'indentation elle-même pour délimiter un bloc : une ligne moins indentée signale la fin du bloc."
+      - texte: "Par des accolades { } qui entourent le bloc, comme en JavaScript"
+        correcte: false
+        explication: "Python n'utilise pas d'accolades pour délimiter un bloc de code : c'est justement l'indentation qui joue ce rôle."
+      - texte: "Par un mot-clé end qui ferme explicitement chaque bloc"
+        correcte: false
+        explication: "Python ne connaît pas de mot-clé end : la fin d'un bloc se déduit uniquement du retour à un niveau d'indentation moindre."
+  - question: "Combien de blocs elif un même if peut-il avoir avant un else final ?"
+    type: "unique"
+    reponses:
+      - texte: "Autant que nécessaire, sans limite fixée par le langage"
+        correcte: true
+        explication: "Un if peut être suivi d'autant de elif que la logique l'exige, chacun testé dans l'ordre jusqu'au premier qui est vrai, avec un else optionnel à la fin."
+      - texte: "Un seul, Python n'autorise pas plus d'un elif par if"
+        correcte: false
+        explication: "Rien ne limite le nombre de elif : c'est une confusion avec d'autres langages plus restrictifs sur ce point précis."
+      - texte: "Aucun : elif remplace toujours le else, jamais les deux ensemble"
+        correcte: false
+        explication: "elif et else peuvent parfaitement coexister : plusieurs elif intermédiaires, puis un else final pour le cas restant."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceCode from '../../../components/interactif/ExerciceCode.astro';
+
+## Exécuter un bloc seulement si une condition est vraie
+
+<BlocCode
+  langue="python"
+  code={`age = 16
+
+if age >= 18:
+    print("Majeur")
+else:
+    print("Mineur")`}
+/>
+
+Les deux points `:` annoncent le début d'un bloc, et l'**indentation** (généralement 4 espaces) délimite ce qui lui appartient. Une ligne qui revient au niveau précédent signale la fin du bloc, sans qu'aucun mot-clé ne soit nécessaire pour le fermer.
+
+<Avertissement type="attention">
+  Une erreur d'indentation n'est pas qu'une question de style en Python : elle change littéralement quelles lignes appartiennent à quel bloc, et peut provoquer une erreur ou un comportement inattendu.
+</Avertissement>
+
+## Enchaîner plusieurs cas avec elif
+
+<BlocCode
+  langue="python"
+  code={`note = 14
+
+if note >= 16:
+    print("Excellent")
+elif note >= 12:
+    print("Bien")
+elif note >= 10:
+    print("Passable")
+else:
+    print("Insuffisant")`}
+/>
+
+Python teste chaque condition dans l'ordre et exécute le premier bloc dont la condition est vraie, puis ignore tous les suivants : l'ordre des `elif` a donc de l'importance dès que plusieurs conditions pourraient être vraies en même temps.
+
+## À toi de jouer
+
+Écris une fonction `classer_note(note)` qui renvoie `"Excellent"` si `note >= 16`, `"Bien"` si `note >= 12`, `"Passable"` si `note >= 10`, et `"Insuffisant"` sinon.
+
+<ExerciceCode
+  codeInitial={`def classer_note(note):
+    # Renvoie "Excellent", "Bien", "Passable" ou "Insuffisant"
+    pass`}
+  casDeTest={[
+    { description: "18 est Excellent", appel: "classer_note(18)", attendu: "'Excellent'" },
+    { description: "16 (la limite) est Excellent", appel: "classer_note(16)", attendu: "'Excellent'" },
+    { description: "14 est Bien", appel: "classer_note(14)", attendu: "'Bien'" },
+    { description: "10 (la limite) est Passable", appel: "classer_note(10)", attendu: "'Passable'" },
+    { description: "8 est Insuffisant", appel: "classer_note(8)", attendu: "'Insuffisant'" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "if, elif et else exécutent un bloc selon la première condition vraie rencontrée",
+    "L'indentation délimite un bloc en Python, pas des accolades ni un mot-clé de fin",
+    "Un if peut enchaîner autant de elif que nécessaire, avec un else optionnel en dernier recours",
+    "L'ordre des conditions compte : la première vraie rencontrée est celle qui s'exécute"
+  ]}
+/>

@@ -1,0 +1,56 @@
+---
+titre: "Fiche de révision : Python"
+description: "L'essentiel à retenir : variables et types, opérateurs, conditions, boucles, fonctions, listes, chaînes, dictionnaires, exceptions et classes."
+slug: "python"
+coursLie: "python"
+tags: ["python"]
+questions:
+  - question: "Quelle est la différence entre = et == en Python ?"
+    reponse: "= affecte une valeur à une variable. == teste une égalité et renvoie un booléen (True ou False). Confondre les deux est une erreur fréquente en débutant."
+  - question: "Que renvoient // et % sur deux nombres ?"
+    reponse: "// renvoie le quotient entier d'une division (arrondi vers le bas). % renvoie le reste de cette même division entière."
+  - question: "Comment Python délimite-t-il un bloc de code (if, for, def...) ?"
+    reponse: "Par l'indentation, généralement 4 espaces, pas par des accolades. Une ligne moins indentée signale la fin du bloc."
+  - question: "Quelle est la différence entre for et while ?"
+    reponse: "for répète sur un nombre d'éléments connu à l'avance (une liste, un intervalle). while répète tant qu'une condition reste vraie, sans nombre de répétitions connu d'avance."
+  - question: "Quelle est la différence entre return et print dans une fonction ?"
+    reponse: "return renvoie une valeur utilisable par le reste du programme. print se contente de l'afficher à l'écran, sans que cette valeur soit récupérable ailleurs."
+  - question: "Comment accéder au dernier élément d'une liste ou d'une chaîne ?"
+    reponse: "Avec l'indice -1 (ma_liste[-1]), qui compte depuis la fin, quelle que soit la longueur de la collection."
+  - question: "Pourquoi ma_chaine.upper() ne modifie-t-il jamais ma_chaine ?"
+    reponse: "Une chaîne de caractères est immuable en Python : upper() renvoie une nouvelle chaîne, sans jamais modifier l'originale. Il faut réaffecter le résultat pour en garder trace."
+  - question: "Que se passe-t-il en accédant à une clé absente d'un dictionnaire ?"
+    reponse: "Python lève une erreur (KeyError) avec l'accès par crochets. mon_dict.get(cle, valeur_par_defaut) évite cette erreur en renvoyant une valeur de repli."
+  - question: "Pourquoi cibler un type d'erreur précis (except ValueError) plutôt qu'un except générique ?"
+    reponse: "Un except trop large risque de masquer des erreurs totalement différentes et imprévues, rendant le programme plus difficile à déboguer."
+  - question: "À quoi servent __init__ et self dans une classe ?"
+    reponse: "__init__ s'exécute automatiquement à la création de chaque instance, pour initialiser ses attributs. self désigne l'instance en cours à l'intérieur d'une méthode."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Le squelette d'une fonction avec valeur par défaut
+
+<BlocCode
+  langue="python"
+  code={`def calculer_prix(prix, remise=0):
+    return prix - (prix * remise / 100)`}
+/>
+
+## Le squelette d'une classe
+
+<BlocCode
+  langue="python"
+  code={`class CompteBancaire:
+    def __init__(self, solde=0):
+        self.solde = solde
+
+    def deposer(self, montant):
+        self.solde = self.solde + montant`}
+/>
+
+<Avertissement type="astuce">
+  Trois réflexes couvrent une bonne partie des erreurs de débutant : ne pas confondre = et ==, toujours réaffecter le résultat d'une méthode de chaîne (elles ne modifient jamais sur place), et ne jamais oublier self comme premier paramètre d'une méthode.
+</Avertissement>

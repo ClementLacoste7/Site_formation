@@ -90,6 +90,16 @@
     "essayer": "Essayer ce code",
     "chargement": "Chargement de l'éditeur…"
   },
+  "exercice": {
+    "verifier": "Vérifier",
+    "verification": "Vérification…",
+    "reussi": "Réussi",
+    "echoue": "Échoué",
+    "resultats": "Résultats",
+    "tousReussis": "Tous les tests passent !",
+    "obtenu": "Obtenu :",
+    "attendu": "Attendu :"
+  },
   "editeur": {
     "executer": "Exécuter",
     "reinitialiser": "Réinitialiser",

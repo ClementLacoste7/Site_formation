@@ -1,0 +1,117 @@
+---
+titre: "Les fonctions : découper un programme en blocs réutilisables"
+titreCourt: "Les fonctions"
+description: "Donner un nom à un bloc de code pour le réutiliser, avec des paramètres, une valeur par défaut, et la différence entre renvoyer un résultat et l'afficher."
+slug: "les-fonctions"
+cours: "python"
+ordre: 5
+duree: 13
+niveau: "intermediaire"
+objectifs:
+  - "Définir une fonction avec def et des paramètres"
+  - "Distinguer return (renvoyer un résultat au programme) de print (afficher à l'écran)"
+  - "Donner une valeur par défaut à un paramètre"
+prerequis: ["les-boucles"]
+tags: ["python", "fonctions"]
+quiz:
+  - question: "Quelle est la différence fondamentale entre return et print dans une fonction ?"
+    type: "unique"
+    reponses:
+      - texte: "return renvoie une valeur utilisable par le reste du programme, print se contente de l'afficher à l'écran"
+        correcte: true
+        explication: "Une valeur affichée par print ne peut pas être réutilisée par le code appelant : return est nécessaire dès que le résultat doit servir à autre chose qu'un simple affichage."
+      - texte: "print est plus rapide à exécuter que return"
+        correcte: false
+        explication: "La performance n'est pas ce qui distingue ces deux instructions : leur rôle est complètement différent."
+      - texte: "return ne peut être utilisé qu'une seule fois par fonction, print autant de fois que nécessaire"
+        correcte: false
+        explication: "Une fonction peut contenir plusieurs return (dans des branches différentes, par exemple) : ce n'est pas une limitation d'usage unique."
+  - question: "À quoi sert une valeur par défaut sur un paramètre de fonction ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle permet d'appeler la fonction sans fournir ce paramètre, une valeur de secours étant alors utilisée"
+        correcte: true
+        explication: "def f(x, y=0) accepte aussi bien f(5) (y vaudra 0) que f(5, 10) (y vaudra 10) : la valeur par défaut rend ce paramètre optionnel."
+      - texte: "Elle empêche définitivement de changer la valeur de ce paramètre"
+        correcte: false
+        explication: "C'est l'inverse : une valeur par défaut peut toujours être remplacée en la précisant explicitement à l'appel."
+      - texte: "Elle transforme automatiquement le paramètre en variable globale"
+        correcte: false
+        explication: "Une valeur par défaut ne change rien à la portée du paramètre, qui reste local à la fonction."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceCode from '../../../components/interactif/ExerciceCode.astro';
+
+## Donner un nom à un bloc de code
+
+Les chapitres précédents ont déjà utilisé `def` dans chaque exercice, sans s'y attarder. Une **fonction** regroupe un bloc de code sous un nom, réutilisable avec des entrées différentes à chaque appel :
+
+<BlocCode
+  langue="python"
+  code={`def saluer(prenom):
+    return f"Bonjour {prenom} !"
+
+print(saluer("Alice"))  # Bonjour Alice !
+print(saluer("Bob"))    # Bonjour Bob !`}
+/>
+
+## return renvoie, print affiche
+
+<Avertissement type="danger">
+  Une fonction qui se contente d'un print, sans return, renvoie toujours `None` à qui l'appelle : la valeur affichée à l'écran n'est jamais récupérable par le reste du programme.
+</Avertissement>
+
+<BlocCode
+  langue="python"
+  code={`def calculer_faux(a, b):
+    print(a + b)     # affiche le resultat, mais ne le renvoie pas
+
+def calculer_correct(a, b):
+    return a + b      # renvoie le resultat, utilisable ensuite
+
+resultat = calculer_faux(2, 3)     # affiche 5, mais resultat vaut None
+resultat = calculer_correct(2, 3)  # n'affiche rien, mais resultat vaut 5`}
+/>
+
+## Des paramètres optionnels, avec une valeur par défaut
+
+<BlocCode
+  langue="python"
+  code={`def puissance(base, exposant=2):
+    return base ** exposant
+
+print(puissance(5))      # 25 : exposant vaut 2 par defaut
+print(puissance(5, 3))   # 125 : la valeur par defaut est remplacee`}
+/>
+
+Un paramètre avec valeur par défaut devient optionnel à l'appel, sans jamais empêcher de le préciser explicitement quand c'est nécessaire.
+
+## À toi de jouer
+
+Écris une fonction `calculer_prix(prix, remise=0)` qui renvoie le prix après une remise exprimée en pourcentage (`remise=20` signifie 20 % de réduction). Sans remise précisée, le prix reste inchangé.
+
+<ExerciceCode
+  codeInitial={`def calculer_prix(prix, remise=0):
+    # Renvoie le prix apres une remise en pourcentage
+    pass`}
+  casDeTest={[
+    { description: "Sans remise, le prix ne change pas", appel: "calculer_prix(100)", attendu: "100" },
+    { description: "20% de remise sur 100", appel: "calculer_prix(100, 20)", attendu: "80" },
+    { description: "50% de remise sur 50", appel: "calculer_prix(50, 50)", attendu: "25" },
+    { description: "10% de remise sur 200", appel: "calculer_prix(200, 10)", attendu: "180" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "def nomme un bloc de code, réutilisable avec des paramètres différents à chaque appel",
+    "return renvoie une valeur utilisable par le programme, print se contente de l'afficher",
+    "Une fonction sans return explicite renvoie None",
+    "Un paramètre avec valeur par défaut (param=valeur) devient optionnel à l'appel"
+  ]}
+/>

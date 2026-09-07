@@ -1,0 +1,116 @@
+---
+titre: "Les listes : stocker et manipuler des collections"
+titreCourt: "Les listes"
+description: "La structure de données la plus utilisée en Python : une collection ordonnée et modifiable, indexée à partir de 0."
+slug: "les-listes"
+cours: "python"
+ordre: 6
+duree: 13
+niveau: "intermediaire"
+objectifs:
+  - "Créer une liste, accéder à un élément par son indice et modifier son contenu"
+  - "Utiliser les méthodes courantes : append, remove, len, in"
+  - "Construire une nouvelle liste en filtrant les éléments d'une liste existante"
+prerequis: ["les-fonctions"]
+tags: ["python", "listes"]
+quiz:
+  - question: 'Que renvoie `["a", "b", "c"][-1]` ?'
+    type: "unique"
+    reponses:
+      - texte: "\"c\", le dernier élément de la liste"
+        correcte: true
+        explication: "Un indice négatif compte depuis la fin de la liste : -1 désigne toujours le dernier élément, quelle que soit la longueur de la liste."
+      - texte: "Une erreur, les indices négatifs n'existent pas en Python"
+        correcte: false
+        explication: "Les indices négatifs sont parfaitement valides en Python, justement pour accéder facilement à la fin d'une liste."
+      - texte: "\"a\", le premier élément de la liste"
+        correcte: false
+        explication: "L'indice 0 désigne le premier élément ; -1 désigne au contraire le dernier, pas le premier."
+  - question: "Quelle est la différence entre append et remove sur une liste ?"
+    type: "unique"
+    reponses:
+      - texte: "append ajoute un élément à la fin, remove supprime la première occurrence d'une valeur donnée"
+        correcte: true
+        explication: "ma_liste.append(x) ajoute x à la fin. ma_liste.remove(x) cherche x dans la liste et supprime sa première occurrence trouvée."
+      - texte: "append et remove font exactement la même chose, dans des syntaxes différentes"
+        correcte: false
+        explication: "Ce sont deux opérations opposées : l'une ajoute un élément, l'autre en supprime un."
+      - texte: "remove supprime un élément par sa position, pas par sa valeur"
+        correcte: false
+        explication: "C'est le rôle de l'instruction del ou de la méthode pop, pas de remove : remove recherche une valeur précise, pas une position."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceCode from '../../../components/interactif/ExerciceCode.astro';
+
+## Créer et indexer une liste
+
+<BlocCode
+  langue="python"
+  code={`fruits = ["pomme", "banane", "cerise"]
+
+print(fruits[0])    # pomme (le premier element, indice 0)
+print(fruits[-1])   # cerise (le dernier element)
+print(len(fruits))  # 3 (le nombre d'elements)`}
+/>
+
+<Avertissement type="astuce">
+  Un indice négatif compte depuis la fin : -1 est toujours le dernier élément, -2 l'avant-dernier, quelle que soit la longueur de la liste.
+</Avertissement>
+
+## Modifier une liste
+
+<BlocCode
+  langue="python"
+  code={`fruits = ["pomme", "banane"]
+
+fruits.append("cerise")     # ajoute a la fin : ["pomme", "banane", "cerise"]
+fruits.remove("banane")     # supprime cette valeur : ["pomme", "cerise"]
+
+print("pomme" in fruits)    # True : teste la presence d'une valeur`}
+/>
+
+## Parcourir et filtrer une liste
+
+Combiner une boucle `for` (chapitre précédent) avec une liste permet de construire une nouvelle liste à partir d'une autre :
+
+<BlocCode
+  langue="python"
+  code={`nombres = [1, 2, 3, 4, 5, 6]
+pairs = []
+
+for nombre in nombres:
+    if nombre % 2 == 0:
+        pairs.append(nombre)
+
+print(pairs)  # [2, 4, 6]`}
+/>
+
+## À toi de jouer
+
+Écris une fonction `filtrer_pairs(nombres)` qui renvoie une nouvelle liste ne contenant que les nombres pairs de `nombres`, dans le même ordre.
+
+<ExerciceCode
+  codeInitial={`def filtrer_pairs(nombres):
+    # Renvoie une nouvelle liste avec seulement les nombres pairs
+    pass`}
+  casDeTest={[
+    { description: "Un mélange de pairs et d'impairs", appel: "filtrer_pairs([1, 2, 3, 4, 5, 6])", attendu: "[2, 4, 6]" },
+    { description: "Aucun nombre pair", appel: "filtrer_pairs([1, 3, 5])", attendu: "[]" },
+    { description: "Une liste vide", appel: "filtrer_pairs([])", attendu: "[]" },
+    { description: "Tous pairs", appel: "filtrer_pairs([2, 4, 6])", attendu: "[2, 4, 6]" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Une liste est ordonnée et indexée à partir de 0, avec des indices négatifs qui comptent depuis la fin",
+    "append ajoute un élément à la fin, remove supprime la première occurrence d'une valeur",
+    "in teste la présence d'une valeur dans une liste, len() renvoie sa longueur",
+    "Combiner une boucle et une condition permet de filtrer une liste vers une nouvelle liste"
+  ]}
+/>

@@ -1,0 +1,110 @@
+---
+titre: "Les dictionnaires : associer des clés à des valeurs"
+titreCourt: "Les dictionnaires"
+description: "Une collection qui n'est plus indexée par position, mais par une clé de son choix : le type le plus utilisé après la liste."
+slug: "les-dictionnaires"
+cours: "python"
+ordre: 8
+duree: 13
+niveau: "intermediaire"
+objectifs:
+  - "Créer un dictionnaire et accéder à une valeur par sa clé"
+  - "Ajouter, modifier une entrée, et vérifier la présence d'une clé"
+  - "Utiliser get() pour éviter une erreur sur une clé absente"
+prerequis: ["les-chaines-de-caracteres"]
+tags: ["python", "dictionnaires"]
+quiz:
+  - question: "Que se passe-t-il si on accède à une clé absente d'un dictionnaire avec `mon_dict[\"absente\"]` ?"
+    type: "unique"
+    reponses:
+      - texte: "Python lève une erreur (KeyError)"
+        correcte: true
+        explication: "Contrairement à une liste où un indice hors limites lève IndexError, un dictionnaire lève KeyError si la clé demandée n'existe pas."
+      - texte: "Python renvoie automatiquement None, sans erreur"
+        correcte: false
+        explication: "C'est le comportement de la méthode get() (sans second argument), pas de l'accès direct par crochets, qui lève une erreur sur une clé absente."
+      - texte: "Python crée automatiquement cette clé avec une valeur vide"
+        correcte: false
+        explication: "L'accès en lecture par crochets ne crée jamais de clé automatiquement : seule une affectation explicite (mon_dict[\"clé\"] = valeur) le ferait."
+  - question: "Pourquoi préférer `mon_dict.get(\"clé\", 0)` à `mon_dict[\"clé\"]` dans certains cas ?"
+    type: "unique"
+    reponses:
+      - texte: "get() renvoie une valeur par défaut (0 ici) si la clé est absente, au lieu de lever une erreur"
+        correcte: true
+        explication: "get(clé, valeur_par_defaut) évite un KeyError en fournissant une valeur de repli, utile notamment pour compter des occurrences sans vérifier la présence de la clé au préalable."
+      - texte: "get() est simplement une syntaxe alternative, strictement équivalente aux crochets"
+        correcte: false
+        explication: "Les deux ne sont pas équivalents : leur comportement diffère précisément sur une clé absente, ce qui est l'intérêt de get()."
+      - texte: "get() est plus rapide à exécuter que l'accès par crochets"
+        correcte: false
+        explication: "La différence n'est pas une question de performance, mais de comportement face à une clé absente."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceCode from '../../../components/interactif/ExerciceCode.astro';
+
+## Une collection indexée par clé, pas par position
+
+<BlocCode
+  langue="python"
+  code={`ages = {"Alice": 25, "Bob": 40}
+
+print(ages["Alice"])   # 25
+ages["Carol"] = 32     # ajoute une nouvelle entree
+ages["Alice"] = 26     # modifie une entree existante
+
+print("Bob" in ages)   # True : teste la presence d'une cle`}
+/>
+
+## Éviter une erreur avec get()
+
+<Avertissement type="attention">
+  `ages["Inconnu"]` lève une erreur (`KeyError`) si la clé n'existe pas. `ages.get("Inconnu", 0)` renvoie `0` dans ce cas, sans jamais planter.
+</Avertissement>
+
+<BlocCode
+  langue="python"
+  code={`ages = {"Alice": 25}
+
+print(ages.get("Alice", 0))    # 25 : la cle existe
+print(ages.get("Inconnu", 0))  # 0 : valeur par defaut, aucune erreur`}
+/>
+
+## Parcourir un dictionnaire
+
+<BlocCode
+  langue="python"
+  code={`ages = {"Alice": 25, "Bob": 40}
+
+for nom, age in ages.items():
+    print(nom, "a", age, "ans")`}
+/>
+
+## À toi de jouer
+
+Écris une fonction `compter_occurrences(elements)` qui renvoie un dictionnaire associant chaque élément de la liste `elements` au nombre de fois où il y apparaît.
+
+<ExerciceCode
+  codeInitial={`def compter_occurrences(elements):
+    # Renvoie un dictionnaire {element: nombre d'occurrences}
+    pass`}
+  casDeTest={[
+    { description: "Des lettres répétées", appel: "compter_occurrences(['a', 'b', 'a', 'c', 'b', 'a'])", attendu: "{'a': 3, 'b': 2, 'c': 1}" },
+    { description: "Une liste vide", appel: "compter_occurrences([])", attendu: "{}" },
+    { description: "Un seul élément répété", appel: "compter_occurrences([1, 1, 1])", attendu: "{1: 3}" },
+    { description: "Aucune répétition", appel: "compter_occurrences(['x', 'y'])", attendu: "{'x': 1, 'y': 1}" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Un dictionnaire associe des clés à des valeurs, accessibles par mon_dict[cle]",
+    "Accéder à une clé absente par crochets lève une erreur (KeyError)",
+    "get(cle, valeur_par_defaut) évite cette erreur en renvoyant une valeur de repli",
+    "items() permet de parcourir un dictionnaire en récupérant à la fois la clé et la valeur"
+  ]}
+/>

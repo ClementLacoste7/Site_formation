@@ -35,8 +35,43 @@ async function initialiser() {
   });
 }
 
+// Construit le script complet exécuté pour un exercice corrigé : le code de
+// l'apprenant, suivi d'une boucle qui évalue chaque cas de test (des
+// expressions Python écrites par l'auteur du chapitre, jamais par
+// l'apprenant) et compare le résultat obtenu à la valeur attendue. Les cas
+// de test transitent en JSON, plus simple à échapper sans risque qu'une
+// construction manuelle de littéraux Python.
+function construireScriptExercice(code, casDeTest) {
+  const casJson = JSON.stringify(casDeTest);
+  return [
+    code,
+    '',
+    'import json as __json__',
+    `__cas_de_test__ = __json__.loads(r"""${casJson}""")`,
+    '__resultats_tests__ = []',
+    'for __cas__ in __cas_de_test__:',
+    '    try:',
+    '        __obtenu__ = eval(__cas__["appel"])',
+    '        __attendu__ = eval(__cas__["attendu"])',
+    '        __resultats_tests__.append({',
+    '            "description": __cas__["description"],',
+    '            "reussi": __obtenu__ == __attendu__,',
+    '            "obtenu": repr(__obtenu__),',
+    '            "attendu": repr(__attendu__),',
+    '        })',
+    '    except Exception as __erreur__:',
+    '        __resultats_tests__.append({',
+    '            "description": __cas__["description"],',
+    '            "reussi": False,',
+    '            "obtenu": "Erreur : " + str(__erreur__),',
+    '            "attendu": __cas__["attendu"],',
+    '        })',
+    '__json__.dumps(__resultats_tests__)'
+  ].join('\n');
+}
+
 self.onmessage = async (evenement) => {
-  const { type, code } = evenement.data;
+  const { type, code, casDeTest } = evenement.data;
 
   if (type === 'init') {
     try {
@@ -52,6 +87,16 @@ self.onmessage = async (evenement) => {
     try {
       await pyodide.runPythonAsync(code);
       postMessage({ type: 'termine' });
+    } catch (erreur) {
+      postMessage({ type: 'erreur', texte: String(erreur) });
+    }
+  }
+
+  if (type === 'executer_exercice' && pyodide) {
+    try {
+      const script = construireScriptExercice(code, casDeTest);
+      const resultatJson = await pyodide.runPythonAsync(script);
+      postMessage({ type: 'resultats_exercice', resultats: JSON.parse(resultatJson) });
     } catch (erreur) {
       postMessage({ type: 'erreur', texte: String(erreur) });
     }

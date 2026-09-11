@@ -1,0 +1,60 @@
+---
+titre: "Fiche de révision : JavaScript"
+description: "L'essentiel à retenir : variables, opérateurs, boucles, fonctions, tableaux, objets, le DOM, les événements, les erreurs et les classes."
+slug: "javascript"
+coursLie: "javascript"
+tags: ["javascript"]
+questions:
+  - question: "Quand utiliser const plutôt que let ?"
+    reponse: "Par défaut, toujours const. Passer à let seulement quand la variable doit être réaffectée après sa déclaration, par exemple un compteur de boucle."
+  - question: "Pourquoi préférer === à == ?"
+    reponse: "== convertit les types avant de comparer, ce qui produit des résultats surprenants (0 == \"\" vaut true). === compare sans convertir, donc sans surprise."
+  - question: "Comment parcourir un tableau sans gérer d'index manuellement ?"
+    reponse: "Avec for (const element of tableau), qui donne directement chaque élément l'un après l'autre."
+  - question: "Que renvoie une fonction sans instruction return ?"
+    reponse: "undefined, systématiquement, même si la fonction affiche quelque chose avec console.log à l'intérieur."
+  - question: "Quelle est la différence entre map et filter sur un tableau ?"
+    reponse: "map transforme chaque élément et garde la même longueur. filter garde seulement les éléments qui passent un test, donc un tableau potentiellement plus court. Aucun des deux ne modifie le tableau d'origine."
+  - question: "Comment extraire plusieurs propriétés d'un objet en une seule instruction ?"
+    reponse: "Avec la déstructuration : const { nom, age } = objet crée directement deux variables nom et age."
+  - question: "Comment sélectionner un élément de la page et changer son texte ?"
+    reponse: "document.querySelector(sélecteur) renvoie l'élément, puis element.textContent = \"...\" change son texte affiché."
+  - question: "À quoi sert event.preventDefault() dans un gestionnaire de soumission de formulaire ?"
+    reponse: "À empêcher le rechargement de page que déclenche normalement la soumission d'un formulaire, pour laisser le JavaScript gérer la suite."
+  - question: "Que se passe-t-il quand une erreur est levée dans un bloc try qui a un catch ?"
+    reponse: "Le reste du bloc try est ignoré et l'exécution saute directement au bloc catch, qui reçoit l'objet d'erreur en paramètre."
+  - question: "Que fait super(...) dans le constructeur d'une classe qui utilise extends ?"
+    reponse: "Il appelle le constructeur de la classe parente pour initialiser la partie héritée de l'objet, avant tout accès à this."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Transformer et agréger un tableau
+
+<BlocCode
+  langue="javascript"
+  code={`const nombres = [1, 2, 3, 4, 5];
+
+const pairs = nombres.filter((n) => n % 2 === 0);
+const somme = nombres.reduce((total, n) => total + n, 0);
+
+console.log(pairs); // [2, 4]
+console.log(somme);  // 15`}
+/>
+
+## Réagir à un clic sans recharger la page
+
+<BlocCode
+  langue="javascript"
+  code={`document.querySelector("form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const valeur = document.querySelector("#champ").value;
+  console.log("Valeur soumise :", valeur);
+});`}
+/>
+
+<Avertissement type="astuce">
+  Trois réflexes couvrent une bonne partie des surprises de débutant : === plutôt que ==, vérifier qu'un querySelector n'a pas renvoyé null avant de l'utiliser, et super(...) en première ligne d'un constructeur qui hérite.
+</Avertissement>

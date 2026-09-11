@@ -1,0 +1,99 @@
+---
+titre: "Les formulaires"
+titreCourt: "Les formulaires"
+description: "Collecter une saisie de l'utilisateur suppose une structure précise : form, input, et un label correctement associé, pas juste posé à côté."
+slug: "les-formulaires"
+cours: "html"
+ordre: 6
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Structurer un formulaire avec form, input et un bouton de soumission"
+  - "Associer un label à son champ avec l'attribut for et un id correspondant"
+  - "Choisir le bon type d'input selon la donnée attendue"
+prerequis: ["les-tableaux"]
+tags: ["html"]
+quiz:
+  - question: "Comment associer correctement un label à un champ de formulaire ?"
+    type: "unique"
+    reponses:
+      - texte: "L'attribut for du label doit contenir exactement la même valeur que l'attribut id du champ"
+        correcte: true
+        explication: "Cette correspondance (for=\"identifiant\" sur le label, id=\"identifiant\" sur le champ) crée un vrai lien : cliquer sur le label active le champ, et un lecteur d'écran annonce le label en même temps que le champ."
+      - texte: "Il suffit de placer visuellement le label juste avant le champ dans le code"
+        correcte: false
+        explication: "La proximité visuelle ne crée aucune association réelle : sans for/id correspondants, un lecteur d'écran ne fait pas le lien entre les deux."
+      - texte: "Un label ne peut être associé qu'à un champ de type texte"
+        correcte: false
+        explication: "L'association for/id fonctionne avec tous les types de champs (case à cocher, liste déroulante, etc.), pas seulement le texte."
+  - question: "Pourquoi choisir type=\"email\" plutôt que type=\"text\" pour un champ d'adresse e-mail ?"
+    type: "unique"
+    reponses:
+      - texte: "Le navigateur peut proposer une validation et un clavier adapté (avec le symbole @ mis en avant sur mobile), sans JavaScript supplémentaire"
+        correcte: true
+        explication: "type=\"email\" déclenche une vérification basique du format par le navigateur lui-même et adapte le clavier virtuel sur mobile, un bénéfice gratuit par rapport à type=\"text\"."
+      - texte: "type=\"text\" ne permet techniquement pas de saisir un caractère @"
+        correcte: false
+        explication: "type=\"text\" accepte n'importe quel caractère, y compris @ : la différence n'est pas une restriction de saisie, mais l'absence de validation et d'adaptation du clavier."
+      - texte: "type=\"email\" chiffre automatiquement la valeur saisie"
+        correcte: false
+        explication: "Aucun chiffrement n'est appliqué par ce type d'input : son rôle se limite à la validation de format et à l'adaptation du clavier."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## La structure de base
+
+<BlocCode
+  langue="html"
+  code={`<form>
+  <label for="prenom">Ton prénom</label>
+  <input type="text" id="prenom" name="prenom" />
+  <button type="submit">Envoyer</button>
+</form>`}
+/>
+
+## Le lien entre un label et son champ
+
+<Avertissement type="attention">
+  Placer un label juste avant un champ dans le code ne crée aucune association réelle. Seule la correspondance entre `for` (sur le label) et `id` (sur le champ) fait le lien : sans elle, cliquer sur le texte du label n'active pas le champ, et un lecteur d'écran ne les relie pas.
+</Avertissement>
+
+## Choisir le bon type d'input
+
+<BlocCode
+  langue="html"
+  code={`<input type="text" />     <!-- texte libre -->
+<input type="email" />    <!-- adresse e-mail, validation et clavier adaptes -->
+<input type="password" /> <!-- masque la saisie -->
+<input type="number" />   <!-- clavier numerique, fleches +/- -->`}
+/>
+
+## À toi de jouer
+
+Construis un formulaire avec un champ de texte correctement associé à un label (via `for`/`id`), et un bouton de soumission.
+
+<ExerciceWeb
+  html={`<!-- Ecris ton formulaire ici -->
+`}
+  casDeTest={[
+    { description: "Il y a un formulaire", appel: "document.querySelector('form') !== null", attendu: "true" },
+    { description: "Il y a un champ de saisie", appel: "document.querySelector('input') !== null", attendu: "true" },
+    { description: "Le label est correctement associé au champ (for = id)", appel: "(function() { var label = document.querySelector('label'); var input = document.querySelector('input'); return !!label && !!input && input.id.length > 0 && label.getAttribute('for') === input.id; })()", attendu: "true" },
+    { description: "Il y a un bouton dans le formulaire", appel: "document.querySelectorAll('form button, form input[type=submit]').length >= 1", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "form regroupe les champs, input collecte une saisie, button (type submit) envoie le formulaire",
+    "Un label s'associe à son champ par la correspondance for (label) / id (champ), pas par simple proximité visuelle",
+    "Le type d'un input (text, email, password, number...) adapte la validation et le clavier proposés",
+    "Un label correctement associé profite à tous : clic sur le texte, lecture par un lecteur d'écran"
+  ]}
+/>

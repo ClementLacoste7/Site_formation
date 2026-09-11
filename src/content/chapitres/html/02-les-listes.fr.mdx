@@ -1,0 +1,114 @@
+---
+titre: "Les listes"
+titreCourt: "Les listes"
+description: "Regrouper des éléments liés dans une liste à puces ou une liste numérotée, deux structures omniprésentes sur le web."
+slug: "listes-html"
+cours: "html"
+ordre: 2
+duree: 10
+niveau: "debutant"
+objectifs:
+  - "Distinguer une liste non ordonnée (ul) d'une liste ordonnée (ol)"
+  - "Structurer chaque élément d'une liste avec li"
+  - "Imbriquer une liste à l'intérieur d'un élément d'une autre liste"
+prerequis: ["le-texte"]
+tags: ["html"]
+quiz:
+  - question: "Quand choisir ol plutôt que ul pour une liste ?"
+    type: "unique"
+    reponses:
+      - texte: "Quand l'ordre des éléments a un sens (des étapes à suivre dans l'ordre, un classement)"
+        correcte: true
+        explication: "ol (ordered list) numérote automatiquement ses éléments et signale que leur ordre compte, contrairement à ul (unordered list) où l'ordre est indifférent."
+      - texte: "Quand la liste contient plus de 5 éléments"
+        correcte: false
+        explication: "Le nombre d'éléments n'a aucun rapport avec le choix entre ol et ul : c'est la signification de l'ordre qui compte."
+      - texte: "ol et ul sont strictement interchangeables, le choix est purement esthétique"
+        correcte: false
+        explication: "Le choix porte une signification sémantique (l'ordre compte ou non), même si les deux peuvent être restylées en CSS pour se ressembler visuellement."
+  - question: "Chaque élément d'une liste ul ou ol doit être placé dans quelle balise ?"
+    type: "unique"
+    reponses:
+      - texte: "li (list item)"
+        correcte: true
+        explication: "li est la seule balise valide comme enfant direct de ul ou ol pour représenter un élément de la liste."
+      - texte: "p, comme n'importe quel autre texte"
+        correcte: false
+        explication: "p n'est pas l'élément attendu à l'intérieur d'une liste : c'est li qui structure chaque élément."
+      - texte: "div, car il n'existe pas de balise spécifique pour les éléments de liste"
+        correcte: false
+        explication: "Une balise spécifique existe bel et bien : li, dédiée précisément à cet usage."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Liste non ordonnée : l'ordre n'a pas d'importance
+
+<BlocCode
+  langue="html"
+  code={`<ul>
+  <li>Pommes</li>
+  <li>Bananes</li>
+  <li>Cerises</li>
+</ul>`}
+/>
+
+## Liste ordonnée : l'ordre compte
+
+<BlocCode
+  langue="html"
+  code={`<ol>
+  <li>Préchauffer le four</li>
+  <li>Mélanger les ingrédients</li>
+  <li>Enfourner 20 minutes</li>
+</ol>`}
+/>
+
+<Avertissement type="astuce">
+  Le navigateur numérote automatiquement une `ol` (1, 2, 3...) : jamais besoin d'écrire les numéros soi-même dans le texte de chaque `li`.
+</Avertissement>
+
+## Imbriquer une liste
+
+Une liste peut contenir une autre liste, directement à l'intérieur d'un `li` :
+
+<BlocCode
+  langue="html"
+  code={`<ul>
+  <li>Fruits
+    <ul>
+      <li>Pommes</li>
+      <li>Bananes</li>
+    </ul>
+  </li>
+  <li>Légumes</li>
+</ul>`}
+/>
+
+## À toi de jouer
+
+Écris une liste non ordonnée (`ul`) d'au moins 3 éléments, sur le sujet de ton choix.
+
+<ExerciceWeb
+  html={`<!-- Ecris ta liste ul ici -->
+`}
+  casDeTest={[
+    { description: "Il y a une balise ul", appel: "document.querySelector('ul') !== null", attendu: "true" },
+    { description: "La liste contient au moins 3 éléments", appel: "document.querySelectorAll('ul li').length >= 3", attendu: "true" },
+    { description: "Aucun élément de la liste n'est vide", appel: "Array.from(document.querySelectorAll('ul li')).every(function(li) { return li.textContent.trim().length > 0; })", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "ul (liste non ordonnée) quand l'ordre des éléments n'a pas de sens particulier",
+    "ol (liste ordonnée) quand l'ordre compte, numérotée automatiquement par le navigateur",
+    "Chaque élément d'une liste est structuré avec li",
+    "Une liste peut être imbriquée à l'intérieur d'un li d'une autre liste"
+  ]}
+/>

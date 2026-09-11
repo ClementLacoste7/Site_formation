@@ -1,0 +1,101 @@
+---
+titre: "Mise en page avec Grid"
+titreCourt: "Grid"
+description: "Là où Flexbox aligne sur une seule dimension, Grid découpe un espace en lignes et en colonnes à la fois."
+slug: "grid"
+cours: "css"
+ordre: 5
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Activer Grid sur un conteneur avec display: grid"
+  - "Définir des colonnes avec grid-template-columns"
+  - "Choisir entre Flexbox et Grid selon que la mise en page est à une ou deux dimensions"
+prerequis: ["flexbox"]
+tags: ["css", "grid"]
+quiz:
+  - question: "Quelle est la différence fondamentale entre Flexbox et Grid ?"
+    type: "unique"
+    reponses:
+      - texte: "Flexbox aligne des éléments sur une seule dimension (une ligne ou une colonne), Grid organise lignes et colonnes simultanément"
+        correcte: true
+        explication: "C'est la distinction qui guide le choix entre les deux : une barre de navigation (une dimension) se prête bien à Flexbox, une mise en page de page entière (deux dimensions) se prête mieux à Grid."
+      - texte: "Grid est une version obsolète de Flexbox, remplacée dans les navigateurs modernes"
+        correcte: false
+        explication: "Les deux sont des standards CSS actuels et pleinement supportés, avec des usages différents, pas une relation d'obsolescence entre eux."
+      - texte: "Flexbox ne fonctionne que sur des éléments de même taille, Grid autorise des tailles différentes"
+        correcte: false
+        explication: "Flexbox gère très bien des éléments de tailles différentes : ce n'est pas ce qui distingue les deux modèles."
+  - question: "Que produit `grid-template-columns: 1fr 1fr 1fr` ?"
+    type: "unique"
+    reponses:
+      - texte: "Trois colonnes de largeur égale, se partageant l'espace disponible"
+        correcte: true
+        explication: "L'unité fr (fraction) répartit l'espace disponible en parts égales entre les colonnes déclarées : trois valeurs 1fr créent donc trois colonnes de même largeur."
+      - texte: "Une seule colonne, répétée trois fois verticalement"
+        correcte: false
+        explication: "grid-template-columns définit des colonnes, pas des répétitions verticales : trois valeurs créent trois colonnes côte à côte, pas une pile."
+      - texte: "Trois colonnes de largeur fixe à 1 pixel chacune"
+        correcte: false
+        explication: "fr n'est pas une unité de pixels : c'est une fraction de l'espace disponible, ce qui rend la largeur dépendante de la taille du conteneur, pas fixe."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Activer Grid et définir des colonnes
+
+<BlocCode
+  langue="css"
+  code={`.conteneur {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;   /* trois colonnes de largeur egale */
+  gap: 16px;                             /* espace entre les cellules */
+}`}
+/>
+
+L'unité `fr` (fraction) répartit l'espace disponible : `1fr 1fr 1fr` crée trois colonnes égales, `1fr 2fr` créerait deux colonnes où la seconde prend deux fois plus de place.
+
+<Avertissement type="astuce">
+  `repeat(3, 1fr)` produit exactement le même résultat que `1fr 1fr 1fr`, en plus lisible dès que le nombre de colonnes grandit.
+</Avertissement>
+
+## Flexbox ou Grid : une question de dimensions
+
+<BlocCode
+  langue="text"
+  code={`Flexbox : une seule dimension (une ligne OU une colonne) -> barre de navigation, liste d'elements
+Grid     : deux dimensions a la fois (lignes ET colonnes)  -> mise en page de page entiere`}
+/>
+
+## À toi de jouer
+
+Rends `.conteneur` en grille avec exactement 3 colonnes.
+
+<ExerciceWeb
+  html={`<div class="conteneur">
+  <div>1</div>
+  <div>2</div>
+  <div>3</div>
+</div>`}
+  css={`.conteneur {
+  /* Complete le style ici */
+}`}
+  casDeTest={[
+    { description: "Le conteneur est en display: grid", appel: "getComputedStyle(document.querySelector('.conteneur')).display", attendu: "'grid'" },
+    { description: "Le conteneur a exactement 3 colonnes", appel: "getComputedStyle(document.querySelector('.conteneur')).gridTemplateColumns.trim().split(/\\s+/).length", attendu: "3" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "display: grid active Grid sur un conteneur",
+    "grid-template-columns définit le nombre et la largeur des colonnes, l'unité fr répartissant l'espace disponible",
+    "Flexbox convient à une mise en page à une dimension, Grid à deux dimensions simultanées",
+    "repeat(n, valeur) évite de répéter la même valeur n fois manuellement"
+  ]}
+/>

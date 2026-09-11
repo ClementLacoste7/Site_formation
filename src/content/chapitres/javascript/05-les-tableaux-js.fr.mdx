@@ -1,0 +1,115 @@
+---
+titre: "Les tableaux"
+titreCourt: "Les tableaux"
+description: "Créer et modifier un tableau, et le transformer avec les méthodes map, filter et reduce plutôt qu'avec des boucles manuelles."
+slug: "les-tableaux-js"
+cours: "javascript"
+ordre: 5
+duree: 14
+niveau: "debutant"
+objectifs:
+  - "Créer, modifier et parcourir un tableau"
+  - "Transformer un tableau avec map et filter"
+  - "Agréger un tableau en une seule valeur avec reduce"
+prerequis: ["les-fonctions-js"]
+tags: ["javascript"]
+quiz:
+  - question: "Quelle est la différence entre map et filter sur un tableau ?"
+    type: "unique"
+    reponses:
+      - texte: "map transforme chaque élément et renvoie un tableau de même longueur ; filter garde seulement les éléments qui passent un test, donc un tableau potentiellement plus court"
+        correcte: true
+        explication: "map(fn) applique fn à chaque élément et produit toujours un tableau de la même longueur (transformation) ; filter(fn) ne garde que les éléments pour lesquels fn renvoie true (sélection), le tableau résultat est donc souvent plus court."
+      - texte: "map et filter font exactement la même chose, ce sont juste deux noms différents"
+        correcte: false
+        explication: "Leur rôle diffère nettement : map transforme chaque élément sans changer la longueur, filter sélectionne un sous-ensemble et peut réduire la longueur."
+      - texte: "filter modifie le tableau original, map crée toujours un nouveau tableau"
+        correcte: false
+        explication: "Ni map ni filter ne modifient le tableau d'origine : les deux renvoient un nouveau tableau, c'est ce qui les rend sûres à enchaîner."
+  - question: "À quoi sert reduce sur un tableau ?"
+    type: "unique"
+    reponses:
+      - texte: "À agréger tous les éléments du tableau en une seule valeur, comme une somme ou un total"
+        correcte: true
+        explication: "reduce((accumulateur, element) => ..., valeurInitiale) parcourt le tableau en accumulant un résultat unique au fil des éléments, par exemple pour calculer une somme, un maximum ou construire un objet."
+      - texte: "À trier le tableau par ordre croissant"
+        correcte: false
+        explication: "Trier un tableau se fait avec la méthode sort, pas reduce : reduce sert à agréger les éléments en une seule valeur."
+      - texte: "À supprimer les doublons du tableau"
+        correcte: false
+        explication: "reduce peut être détourné pour ça, mais ce n'est pas son rôle : sa fonction est d'accumuler les éléments en une seule valeur finale, quelle qu'elle soit."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Créer et modifier un tableau
+
+<BlocCode
+  langue="javascript"
+  code={`const fruits = ["pomme", "banane"];
+
+fruits.push("cerise");       // ajoute a la fin
+console.log(fruits);         // ["pomme", "banane", "cerise"]
+console.log(fruits.length);  // 3
+console.log(fruits[0]);      // "pomme"
+console.log(fruits.includes("banane")); // true`}
+/>
+
+## Transformer avec map et filter
+
+<BlocCode
+  langue="javascript"
+  code={`const nombres = [1, 2, 3, 4, 5];
+
+const doubles = nombres.map((n) => n * 2);
+console.log(doubles); // [2, 4, 6, 8, 10]
+
+const pairs = nombres.filter((n) => n % 2 === 0);
+console.log(pairs); // [2, 4]`}
+/>
+
+<Avertissement type="astuce">
+  `map` et `filter` ne modifient jamais le tableau d'origine : elles renvoient un nouveau tableau. C'est ce qui permet de les enchaîner en toute sécurité, comme `nombres.filter(...).map(...)`.
+</Avertissement>
+
+## Agréger avec reduce
+
+<BlocCode
+  langue="javascript"
+  code={`const nombres = [1, 2, 3, 4, 5];
+
+const somme = nombres.reduce((total, n) => total + n, 0);
+console.log(somme); // 15`}
+/>
+
+`reduce` prend une fonction `(accumulateur, element) => nouvelAccumulateur` et une valeur initiale (ici `0`), puis parcourt le tableau en mettant à jour l'accumulateur à chaque étape.
+
+## À toi de jouer
+
+Écris une fonction `sommeDesPairs(nombres)` qui renvoie la somme des nombres pairs d'un tableau, en utilisant `filter` et `reduce`.
+
+<ExerciceWeb
+  js={`function sommeDesPairs(nombres) {
+  // Filtre les pairs puis additionne-les
+
+}`}
+  casDeTest={[
+    { description: "Avec [1, 2, 3, 4, 5, 6]", appel: "sommeDesPairs([1, 2, 3, 4, 5, 6])", attendu: "12" },
+    { description: "Tableau sans pairs", appel: "sommeDesPairs([1, 3, 5])", attendu: "0" },
+    { description: "Tableau vide", appel: "sommeDesPairs([])", attendu: "0" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "push ajoute un élément à la fin ; length et [index] donnent la taille et un accès direct",
+    "map(fn) transforme chaque élément, renvoie un tableau de même longueur, sans modifier l'original",
+    "filter(fn) sélectionne les éléments qui passent un test, sans modifier l'original",
+    "reduce(fn, initial) agrège tout le tableau en une seule valeur finale"
+  ]}
+/>

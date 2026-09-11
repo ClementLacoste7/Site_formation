@@ -1,0 +1,113 @@
+---
+titre: "Variables et types"
+titreCourt: "Variables et types"
+description: "let et const pour déclarer une variable, les types de base, et les template literals pour construire une chaîne sans concaténation pénible."
+slug: "variables-et-types"
+cours: "javascript"
+ordre: 1
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Déclarer une variable avec let ou const, et choisir entre les deux"
+  - "Distinguer les types de base : number, string, boolean, undefined, null"
+  - "Construire une chaîne avec un template literal plutôt qu'une concaténation"
+prerequis: []
+tags: ["javascript"]
+quiz:
+  - question: "Quand choisir const plutôt que let pour déclarer une variable ?"
+    type: "unique"
+    reponses:
+      - texte: "Quand la variable ne sera jamais réaffectée après sa déclaration"
+        correcte: true
+        explication: "const empêche toute réaffectation ultérieure (une erreur est levée si on essaie) ; let reste nécessaire dès que la variable doit changer de valeur, par exemple dans une boucle."
+      - texte: "const est simplement une syntaxe plus courte pour let, sans différence de comportement"
+        correcte: false
+        explication: "Les deux ont un comportement différent face à une réaffectation : const l'interdit, let l'autorise."
+      - texte: "const ne fonctionne qu'avec des nombres, let avec tous les autres types"
+        correcte: false
+        explication: "const et let fonctionnent avec n'importe quel type de valeur : leur différence porte sur la réaffectation, pas sur le type stocké."
+  - question: "Que produit `typeof \"25\"` ?"
+    type: "unique"
+    reponses:
+      - texte: "\"string\", car la valeur est entourée de guillemets"
+        correcte: true
+        explication: "Entourée de guillemets, \"25\" est une chaîne de caractères, pas un nombre, même si son contenu ressemble à un nombre : typeof répond en conséquence."
+      - texte: "\"number\", car le contenu est composé de chiffres"
+        correcte: false
+        explication: "Le contenu ne détermine pas le type : ce sont les guillemets qui font de cette valeur une chaîne, quel que soit ce qu'elle contient."
+      - texte: "\"boolean\""
+        correcte: false
+        explication: "boolean ne concerne que les valeurs true et false : \"25\" n'a aucun rapport avec ce type."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Déclarer une variable
+
+<BlocCode
+  langue="javascript"
+  code={`let age = 25;
+const prenom = "Alice";
+
+age = 26;        // autorise : let peut etre reaffecte
+// prenom = "Bob";  // erreur : const ne peut jamais etre reaffecte`}
+/>
+
+<Avertissement type="astuce">
+  Par défaut, préfère `const` : il documente qu'une valeur ne changera pas. Passe à `let` seulement quand la variable doit vraiment être réaffectée, comme un compteur de boucle.
+</Avertissement>
+
+## Les types de base
+
+<BlocCode
+  langue="javascript"
+  code={`console.log(typeof 25);        // "number"
+console.log(typeof "Bonjour"); // "string"
+console.log(typeof true);      // "boolean"
+console.log(typeof undefined); // "undefined"
+console.log(typeof null);      // "object" (une bizarrerie historique de JavaScript)`}
+/>
+
+## Construire une chaîne avec un template literal
+
+Concaténer du texte et des variables avec `+` devient vite pénible. Un **template literal** (délimité par des accents graves) insère directement des variables dans un texte :
+
+<BlocCode
+  langue="javascript"
+  code={`const prenom = "Alice";
+const age = 25;
+const message = \`\${prenom} a \${age} ans\`;
+console.log(message);`}
+/>
+
+`${...}` insère directement le résultat d'une expression dans le texte, sans avoir besoin d'interrompre la chaîne avec des `+`.
+
+## À toi de jouer
+
+Écris une fonction `presenter(nom, age)` qui renvoie exactement la chaîne `Je m'appelle {nom} et j'ai {age} ans.`, en utilisant un template literal.
+
+<ExerciceWeb
+  js={`function presenter(nom, age) {
+  // Renvoie "Je m'appelle {nom} et j'ai {age} ans."
+
+}`}
+  casDeTest={[
+    { description: "Avec Alice et 25 ans", appel: "presenter('Alice', 25)", attendu: "\"Je m'appelle Alice et j'ai 25 ans.\"" },
+    { description: "Avec Bob et 40 ans", appel: "presenter('Bob', 40)", attendu: "\"Je m'appelle Bob et j'ai 40 ans.\"" },
+    { description: "Le résultat doit être une chaîne de caractères", appel: "typeof presenter('Alice', 25)", attendu: "'string'" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "const empêche toute réaffectation, let l'autorise : préférer const par défaut",
+    "typeof révèle le type réel d'une valeur : number, string, boolean, undefined...",
+    "Une valeur entre guillemets est une chaîne (string), même si son contenu ressemble à un nombre",
+    "Un template literal (accents graves, ${...}) insère des variables directement dans un texte"
+  ]}
+/>

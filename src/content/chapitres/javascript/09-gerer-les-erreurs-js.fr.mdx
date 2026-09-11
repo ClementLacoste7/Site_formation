@@ -1,0 +1,111 @@
+---
+titre: "Gérer les erreurs"
+titreCourt: "Gérer les erreurs"
+description: "Intercepter une erreur avec try/catch pour éviter qu'elle n'arrête l'exécution du script, et lever ses propres erreurs avec throw."
+slug: "gerer-les-erreurs-js"
+cours: "javascript"
+ordre: 9
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Intercepter une erreur avec try/catch"
+  - "Lever une erreur volontairement avec throw"
+  - "Lire le message d'une erreur interceptée"
+prerequis: ["les-evenements"]
+tags: ["javascript"]
+quiz:
+  - question: "Que se passe-t-il si une erreur est levée dans un bloc try qui a un catch associé ?"
+    type: "unique"
+    reponses:
+      - texte: "L'exécution du bloc try s'arrête immédiatement et passe au bloc catch, qui reçoit l'erreur"
+        correcte: true
+        explication: "Dès qu'une erreur est levée dans le bloc try, le reste du bloc est ignoré et l'exécution saute directement au bloc catch correspondant, qui reçoit l'objet d'erreur en paramètre."
+      - texte: "Le script s'arrête complètement, catch n'a aucun effet"
+        correcte: false
+        explication: "C'est justement l'inverse : catch existe pour empêcher l'arrêt complet du script en interceptant l'erreur, qui serait fatale sans lui."
+      - texte: "Le reste du bloc try continue de s'exécuter normalement, catch s'exécute en plus à la fin"
+        correcte: false
+        explication: "Le reste du bloc try est bien ignoré dès qu'une erreur survient : l'exécution ne continue pas après le point de l'erreur, elle saute directement au catch."
+  - question: "Quand utilise-t-on `throw` dans son propre code ?"
+    type: "unique"
+    reponses:
+      - texte: "Pour signaler volontairement une situation anormale, par exemple un argument invalide passé à une fonction"
+        correcte: true
+        explication: "throw new Error(\"message\") permet à une fonction de signaler explicitement qu'elle ne peut pas continuer normalement, par exemple face à un argument invalide, en interrompant l'exécution jusqu'au catch le plus proche."
+      - texte: "Pour afficher un message dans la console, comme console.log"
+        correcte: false
+        explication: "throw ne se contente pas d'afficher un message : il interrompt l'exécution normale et propage une erreur jusqu'à un bloc catch, ou fait planter le script s'il n'y en a aucun."
+      - texte: "Pour terminer proprement une fonction en renvoyant undefined"
+        correcte: false
+        explication: "Terminer une fonction en renvoyant une valeur est le rôle de return ; throw signale au contraire une erreur qui interrompt l'exécution normale."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Intercepter une erreur
+
+<BlocCode
+  langue="javascript"
+  code={`try {
+  const resultat = JSON.parse("ceci n'est pas du JSON");
+  console.log(resultat);
+} catch (erreur) {
+  console.log("Erreur interceptee :", erreur.message);
+}
+console.log("Le script continue normalement");`}
+/>
+
+Sans `try/catch`, une erreur non interceptée arrête l'exécution du script à cet endroit précis.
+
+## Lever ses propres erreurs
+
+<BlocCode
+  langue="javascript"
+  code={`function diviser(a, b) {
+  if (b === 0) {
+    throw new Error("Division par zero impossible");
+  }
+  return a / b;
+}
+
+try {
+  console.log(diviser(10, 0));
+} catch (erreur) {
+  console.log("Erreur :", erreur.message);
+}`}
+/>
+
+<Avertissement type="info">
+  `throw new Error("message")` crée et lève un objet d'erreur en une seule instruction. Le `catch` le plus proche qui englobe l'appel de la fonction interceptera cette erreur.
+</Avertissement>
+
+## À toi de jouer
+
+Écris une fonction `diviserEnSecurite(a, b)` qui renvoie `a / b`, mais qui renvoie la chaîne `"Erreur : division par zero"` si `b` vaut 0, en utilisant `throw` et `try/catch` à l'intérieur de la fonction.
+
+<ExerciceWeb
+  js={`function diviserEnSecurite(a, b) {
+  // Renvoie a / b, ou "Erreur : division par zero" si b vaut 0
+  // Utilise throw et try/catch a l'interieur de la fonction
+
+}`}
+  casDeTest={[
+    { description: "Division normale", appel: "diviserEnSecurite(10, 2)", attendu: "5" },
+    { description: "Division par zero", appel: "diviserEnSecurite(10, 0)", attendu: "\"Erreur : division par zero\"" },
+    { description: "Autre division normale", appel: "diviserEnSecurite(9, 3)", attendu: "3" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "try { ... } catch (erreur) { ... } intercepte une erreur sans arrêter le script",
+    "erreur.message contient le texte explicatif de l'erreur interceptée",
+    "throw new Error(\"message\") lève volontairement une erreur",
+    "Une erreur non interceptée arrête l'exécution du script à cet endroit"
+  ]}
+/>

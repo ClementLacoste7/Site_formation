@@ -1,0 +1,116 @@
+---
+titre: "Les balises sémantiques"
+titreCourt: "Balises sémantiques"
+description: "header, nav, main, section, article, footer : des balises qui décrivent le rôle d'un bloc, là où div ne dit rien du tout."
+slug: "les-balises-semantiques"
+cours: "html"
+ordre: 7
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Utiliser header, nav, main et footer pour structurer les grandes zones d'une page"
+  - "Distinguer section et article par ce qu'ils délimitent"
+  - "Expliquer ce qu'une balise sémantique apporte par rapport à un div générique"
+prerequis: ["les-formulaires"]
+tags: ["html"]
+quiz:
+  - question: "Qu'apporte une balise comme header ou nav par rapport à un div générique ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle communique le rôle du bloc aux navigateurs, lecteurs d'écran et moteurs de recherche, sans rien changer visuellement par défaut"
+        correcte: true
+        explication: "Un lecteur d'écran peut proposer de sauter directement à la navigation (nav) ou au contenu principal (main) grâce à ces balises, ce qu'un div ne permet pas puisqu'il ne porte aucune signification propre."
+      - texte: "Elle applique automatiquement un style visuel différent de celui d'un div"
+        correcte: false
+        explication: "Par défaut, la plupart de ces balises s'affichent comme un div ordinaire : leur intérêt est sémantique, pas visuel."
+      - texte: "Elle améliore automatiquement la vitesse de chargement de la page"
+        correcte: false
+        explication: "Le choix d'une balise sémantique n'a pas d'effet mesurable sur la vitesse de chargement : son bénéfice est l'accessibilité et le référencement, pas la performance."
+  - question: "Quelle est la différence entre section et article ?"
+    type: "unique"
+    reponses:
+      - texte: "article a du sens seul, détaché du reste de la page (un billet de blog) ; section regroupe une partie thématique qui n'a de sens que dans son contexte"
+        correcte: true
+        explication: "Un article pourrait être republié isolément (un article de blog, un commentaire) et resterait compréhensible ; une section (l'introduction d'une page, par exemple) dépend du contexte qui l'entoure."
+      - texte: "article ne peut contenir aucune autre balise, contrairement à section"
+        correcte: false
+        explication: "article peut tout à fait contenir d'autres balises (titres, paragraphes, images) : ce n'est pas une restriction de contenu qui les distingue."
+      - texte: "section est réservée aux pages d'actualités, article à tous les autres usages"
+        correcte: false
+        explication: "Aucune des deux balises n'est réservée à un type de site particulier : leur distinction porte sur l'autonomie du contenu, pas sur un domaine d'application."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Un squelette de page avec du sens
+
+<BlocCode
+  langue="html"
+  code={`<header>
+  <nav>
+    <a href="/">Accueil</a>
+    <a href="/contact/">Contact</a>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <h2>À propos</h2>
+    <p>...</p>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2026</p>
+</footer>`}
+/>
+
+- **header** : l'en-tête d'une page ou d'une section (souvent logo et titre).
+- **nav** : un bloc de liens de navigation.
+- **main** : le contenu principal, unique par page.
+- **footer** : le pied de page.
+
+<Avertissement type="info">
+  Ces balises ne changent rien visuellement par défaut : leur valeur est sémantique, pas esthétique. Un `div` produirait le même rendu, mais sans transmettre aucune signification.
+</Avertissement>
+
+## section et article
+
+<BlocCode
+  langue="html"
+  code={`<article>
+  <h2>Titre de l'article</h2>
+  <p>Un contenu qui a du sens tout seul, meme extrait de cette page.</p>
+</article>`}
+/>
+
+Un `article` a du sens isolé de son contexte (un billet de blog, un commentaire) ; une `section` regroupe une partie thématique qui dépend du contexte qui l'entoure.
+
+## À toi de jouer
+
+Structure une page avec un `header` contenant une `nav`, un `main`, et un `footer`.
+
+<ExerciceWeb
+  html={`<!-- Structure ta page ici -->
+`}
+  casDeTest={[
+    { description: "Il y a un header", appel: "document.querySelector('header') !== null", attendu: "true" },
+    { description: "Le header contient une nav", appel: "document.querySelector('header nav') !== null", attendu: "true" },
+    { description: "Il y a un main", appel: "document.querySelector('main') !== null", attendu: "true" },
+    { description: "Il y a un footer", appel: "document.querySelector('footer') !== null", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "header, nav, main et footer structurent les grandes zones d'une page avec du sens, pas juste visuellement",
+    "Ces balises ne changent rien à l'affichage par défaut : leur valeur est sémantique",
+    "article a du sens isolé de son contexte, section dépend du contexte qui l'entoure",
+    "Un lecteur d'écran s'appuie sur ces balises pour naviguer directement vers la zone recherchée"
+  ]}
+/>

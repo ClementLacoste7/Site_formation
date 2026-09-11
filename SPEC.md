@@ -246,6 +246,8 @@ Le suffixe de langue (`.fr`) est obligatoire dès la V1 pour préparer l'interna
 }
 ```
 
+**Piège découvert (2026-08-07) : le `slug` d'un chapitre doit être unique dans tout le site, pas seulement dans son cours.** Le loader de contenu d'Astro s'appuie sur ce champ pour l'identité de l'entrée : deux chapitres de cours différents partageant le même slug (« Les listes » en Python et en HTML, par exemple) entrent en collision, et l'un des deux disparaît silencieusement du build, sans avertissement ni erreur (voir aussi `EncadrePrerequis.astro`, qui recherche un prérequis par slug sur l'ensemble des chapitres, sans filtrer par cours). En cas de titre générique déjà pris ailleurs, suffixer le `slug` (`-html`, `-js`...) suffit ; le `titre` affiché n'a pas besoin de changer.
+
 ### 5.5 Anatomie standard d'un chapitre
 
 Toute page de chapitre suit rigoureusement cette structure. C'est un gabarit unique, réutilisé pour l'ensemble du site.
@@ -359,6 +361,8 @@ Une barre latérale sticky affiche le sommaire du chapitre en cours (desktop uni
 | `ConsolePython` | Pyodide, chargement paresseux avec indicateur |
 | `BacASableSQL` | sql.js, base préchargée depuis un jeu de données du chapitre |
 | `ExerciceCode` | Pyodide, code de l'apprenant corrigé contre des cas de test (cours de développement) |
+| `ExerciceWeb` | Même principe qu'ExerciceCode, sur la iframe sandboxée de BacASableWeb (HTML/CSS/JS) |
+| `ResultatsTests` | Panneau réussi/échoué partagé entre ExerciceCode et ExerciceWeb |
 | `Quiz` | QCM, correction immédiate, explication par réponse |
 
 ### 7.4 Publicité et SEO
@@ -419,7 +423,15 @@ Le mode « formulaire vulnérable » est le cœur pédagogique du cours d'inject
 - **Entièrement côté client** : aucune soumission réseau, aucun score serveur, aucun compte. Conforme à l'exclusion de la section 3.2 (pas de labs façon CTF), puisqu'il ne s'agit que d'une correction locale, comparable à des tests unitaires que l'apprenant pourrait lancer lui-même.
 - Les cas de test sont écrits par l'auteur du chapitre, jamais par l'apprenant : `eval()` n'exécute donc que du code de confiance, au même titre que le reste du contenu du site.
 
-### 8.6 Contrainte transversale
+### 8.6 Exercice web corrigé automatiquement (`ExerciceWeb`, cours de développement)
+
+- Ne réutilise pas Pyodide : basé sur la même iframe sandboxée que `BacASableWeb` (8.2), `sandbox="allow-scripts"` **sans `allow-same-origin`**, contenu injecté via `srcdoc`.
+- L'apprenant édite HTML/CSS/JS dans les mêmes onglets que `BacASableWeb`. Résultat en direct avec le même anti-rebond de 500 ms : pas de bouton « Vérifier » séparé, le bouton « Exécuter » déjà fourni par l'éditeur régénère l'aperçu et relance les cas de test.
+- Une fois le code de l'apprenant exécuté, un script injecté à la suite évalue chaque cas de test (`{ description, appel, attendu }`, des expressions JavaScript comparées via `JSON.stringify`) dans le même contexte que ce code, puis relaie le résultat au parent via `postMessage`, exactement comme le fait déjà `BacASableWeb` pour relayer `console.log`.
+- Le panneau de résultats (réussi / échoué, valeur obtenue et attendue) est un composant partagé (`ResultatsTests`) avec `ExerciceCode`, pour une présentation identique quel que soit le langage corrigé.
+- Mêmes garanties que `ExerciceCode` : entièrement côté client, cas de test écrits par l'auteur du chapitre, jamais par l'apprenant.
+
+### 8.7 Contrainte transversale
 
 Tout bloc interactif doit fonctionner **sans JavaScript disponible** en affichant au minimum le code d'exemple en lecture seule. Les moteurs d'indexation doivent voir le contenu pédagogique.
 
@@ -827,13 +839,16 @@ Fiches de révision associées : une par cours, publiée après le cours corresp
 
 ## Annexe A2 — Curriculum Développement
 
-Domaine ouvert le 2026-08-07 (voir 2.3). Contrairement au domaine Cybersécurité, chaque chapitre technique intègre au moins un `ExerciceCode` (section 8.5) plutôt qu'un bloc de démonstration passif : le format attendu pour ce domaine est « explication courte, exemple, exercice corrigé automatiquement », pas seulement de la lecture.
+Domaine ouvert le 2026-08-07 (voir 2.3). Contrairement au domaine Cybersécurité, chaque chapitre technique intègre au moins un exercice corrigé automatiquement (`ExerciceCode`, section 8.5, pour Python ; `ExerciceWeb`, section 8.6, pour HTML/CSS/JS) plutôt qu'un bloc de démonstration passif : le format attendu pour ce domaine est « explication courte, exemple, exercice corrigé automatiquement », pas seulement de la lecture.
 
 | Ordre | Cours | Chapitres | Priorité |
 |---|---|---|---|
 | 1 | Python | 10 (rédigés) | **Haute** |
+| 2 | HTML | 8 (rédigés) | **Haute** |
+| 3 | CSS | 8 (rédigés) | **Haute** |
+| 4 | JavaScript | 10 (rédigés) | **Haute** |
 
-**Convention pour les prochains cours de ce domaine :** même structure que Python ci-dessus (un ou plusieurs `ExerciceCode` par chapitre technique, avec plusieurs cas de test lisibles par l'apprenant), quel que soit le langage ou le sujet traité.
+**Convention pour les prochains cours de ce domaine :** même structure que ci-dessus (un exercice corrigé automatiquement par chapitre technique, avec plusieurs cas de test lisibles par l'apprenant), quel que soit le langage ou le sujet traité. `ExerciceCode` pour un langage exécutable par Pyodide, `ExerciceWeb` pour tout ce qui s'exécute dans un navigateur (HTML/CSS/JS). Un nouveau langage hors de ces deux familles nécessiterait un nouveau composant, à signaler explicitement avant de l'introduire (voir la règle sur les dépendances de CLAUDE.md, qui s'étend par analogie aux nouveaux mécanismes d'exécution).
 
 ---
 

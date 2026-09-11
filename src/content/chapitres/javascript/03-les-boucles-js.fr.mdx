@@ -1,0 +1,119 @@
+---
+titre: "Les boucles"
+titreCourt: "Les boucles"
+description: "Répéter du code avec for et while, et parcourir un tableau avec for...of, l'idiome le plus lisible en JavaScript moderne."
+slug: "les-boucles-js"
+cours: "javascript"
+ordre: 3
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Écrire une boucle for classique avec compteur"
+  - "Écrire une boucle while pour répéter tant qu'une condition est vraie"
+  - "Parcourir un tableau avec for...of"
+prerequis: ["operateurs-et-conditions"]
+tags: ["javascript"]
+quiz:
+  - question: "Combien de fois `for (let i = 0; i < 5; i++) { ... }` exécute-t-elle son bloc ?"
+    type: "unique"
+    reponses:
+      - texte: "5 fois, pour i valant 0, 1, 2, 3 et 4"
+        correcte: true
+        explication: "La boucle continue tant que i < 5 : elle s'exécute donc pour i = 0, 1, 2, 3, 4, puis s'arrête quand i atteint 5, soit 5 exécutions au total."
+      - texte: "4 fois, pour i valant 1, 2, 3 et 4"
+        correcte: false
+        explication: "i démarre à 0 (l'initialisation `let i = 0`), pas à 1 : la première exécution a donc lieu avec i = 0."
+      - texte: "6 fois, pour i valant 0, 1, 2, 3, 4 et 5"
+        correcte: false
+        explication: "La condition i < 5 devient fausse dès que i atteint 5 : le bloc ne s'exécute donc pas pour i = 5, seulement pour i = 0 à 4."
+  - question: "Quelle est la différence essentielle entre for...of et une boucle for classique pour parcourir un tableau ?"
+    type: "unique"
+    reponses:
+      - texte: "for...of donne directement chaque élément du tableau, sans avoir à gérer un index manuellement"
+        correcte: true
+        explication: "for (const element of tableau) fournit directement chaque valeur l'une après l'autre, alors qu'une boucle for classique oblige à déclarer un compteur i et à écrire tableau[i] pour accéder à l'élément."
+      - texte: "for...of est plus rapide à l'exécution que for classique"
+        correcte: false
+        explication: "La différence n'est pas une question de vitesse d'exécution, mais de lisibilité : for...of évite la gestion manuelle d'un index."
+      - texte: "for...of ne fonctionne qu'avec des nombres, jamais avec des chaînes de caractères"
+        correcte: false
+        explication: "for...of fonctionne avec tout objet itérable : les tableaux, mais aussi les chaînes de caractères (elle parcourt alors chaque caractère)."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## La boucle for classique
+
+<BlocCode
+  langue="javascript"
+  code={`for (let i = 0; i < 5; i++) {
+  console.log(i); // 0, 1, 2, 3, 4
+}`}
+/>
+
+Trois parties séparées par des points-virgules : l'initialisation (`let i = 0`), la condition testée avant chaque tour (`i < 5`), et l'incrémentation exécutée après chaque tour (`i++`).
+
+## La boucle while
+
+<BlocCode
+  langue="javascript"
+  code={`let energie = 100;
+let tours = 0;
+
+while (energie > 0) {
+  energie -= 30;
+  tours++;
+}
+
+console.log(tours); // 4`}
+/>
+
+`while` répète son bloc tant que la condition reste vraie. Utile quand on ne connaît pas à l'avance le nombre exact de répétitions.
+
+<Avertissement type="attention">
+  Une boucle `while` dont la condition ne devient jamais fausse tourne indéfiniment et fige la page. Vérifie toujours qu'une valeur utilisée dans la condition change bien à l'intérieur du bloc.
+</Avertissement>
+
+## Parcourir un tableau avec for...of
+
+<BlocCode
+  langue="javascript"
+  code={`const fruits = ["pomme", "banane", "cerise"];
+
+for (const fruit of fruits) {
+  console.log(fruit);
+}
+// "pomme"
+// "banane"
+// "cerise"`}
+/>
+
+## À toi de jouer
+
+Écris une fonction `sommeJusqua(n)` qui renvoie la somme des entiers de 1 à `n` inclus, en utilisant une boucle.
+
+<ExerciceWeb
+  js={`function sommeJusqua(n) {
+  // Renvoie la somme de 1 à n inclus, avec une boucle
+
+}`}
+  casDeTest={[
+    { description: "Somme jusqu'à 5 (1+2+3+4+5)", appel: "sommeJusqua(5)", attendu: "15" },
+    { description: "Somme jusqu'à 1", appel: "sommeJusqua(1)", attendu: "1" },
+    { description: "Somme jusqu'à 10", appel: "sommeJusqua(10)", attendu: "55" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "for (init; condition; incrementation) convient quand le nombre de tours est connu",
+    "while (condition) répète tant que la condition reste vraie, sans compteur imposé",
+    "for (const x of tableau) parcourt directement les éléments, sans index manuel",
+    "Toujours vérifier qu'une boucle while progresse vers l'arrêt, sous peine de figer la page"
+  ]}
+/>

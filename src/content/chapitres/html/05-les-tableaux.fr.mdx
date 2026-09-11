@@ -1,0 +1,97 @@
+---
+titre: "Les tableaux"
+titreCourt: "Les tableaux"
+description: "Structurer des données tabulaires avec les bonnes balises, réservées aux vraies données en grille, jamais à la mise en page."
+slug: "les-tableaux"
+cours: "html"
+ordre: 5
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Structurer un tableau avec table, tr, th et td"
+  - "Distinguer une cellule d'en-tête (th) d'une cellule de donnée (td)"
+  - "Comprendre pourquoi un tableau ne doit servir qu'à des données, jamais à la mise en page générale d'une page"
+prerequis: ["les-images"]
+tags: ["html"]
+quiz:
+  - question: "Quelle est la différence entre th et td dans un tableau ?"
+    type: "unique"
+    reponses:
+      - texte: "th définit une cellule d'en-tête, td une cellule de donnée ordinaire"
+        correcte: true
+        explication: "th (table header) marque une cellule comme en-tête (souvent affichée en gras, centrée par défaut), td (table data) contient une donnée ordinaire de la grille."
+      - texte: "th et td sont strictement identiques, deux noms pour la même balise"
+        correcte: false
+        explication: "Elles ont un rôle sémantique différent, même si leur contenu peut sembler similaire visuellement selon le style appliqué."
+      - texte: "td ne peut être utilisée que dans la première ligne du tableau"
+        correcte: false
+        explication: "C'est l'inverse qui est vrai en général : th s'utilise typiquement dans la première ligne (ou colonne) pour les en-têtes, td pour le reste des données."
+  - question: "Pourquoi un tableau HTML ne devrait-il pas servir à mettre en page l'ensemble d'un site (menu, colonnes, pied de page) ?"
+    type: "unique"
+    reponses:
+      - texte: "Un tableau signale sémantiquement des données tabulaires, ce qui perturbe les lecteurs d'écran et le référencement s'il ne sert qu'à positionner des blocs"
+        correcte: true
+        explication: "Utiliser un tableau pour la mise en page trompe les technologies d'assistance (qui annoncent une grille de données là où il n'y en a pas) et n'a plus de sens depuis que CSS (Flexbox, Grid, vus dans le cours CSS) gère la mise en page correctement."
+      - texte: "Les navigateurs modernes ne supportent plus les tableaux du tout"
+        correcte: false
+        explication: "Les tableaux restent parfaitement supportés pour leur usage prévu (des données tabulaires) : le problème est un usage détourné pour la mise en page générale, pas un manque de support."
+      - texte: "Un tableau ne peut contenir plus de 10 lignes"
+        correcte: false
+        explication: "Aucune limite de ce type n'existe : un tableau peut contenir autant de lignes que nécessaire pour ses données."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## La structure d'un tableau
+
+<BlocCode
+  langue="html"
+  code={`<table>
+  <tr>
+    <th>Produit</th>
+    <th>Prix</th>
+  </tr>
+  <tr>
+    <td>Clavier</td>
+    <td>79,90 €</td>
+  </tr>
+  <tr>
+    <td>Souris</td>
+    <td>29,90 €</td>
+  </tr>
+</table>`}
+/>
+
+`table` délimite l'ensemble, chaque `tr` (table row) est une ligne, et chaque cellule d'une ligne est soit `th` (en-tête) soit `td` (donnée).
+
+<Avertissement type="danger">
+  Un tableau décrit des données en grille, jamais la mise en page générale d'une page (menu, colonnes, pied de page). Cet usage détourné, courant avant l'arrivée de CSS moderne (voir le cours CSS), perturbe aujourd'hui les lecteurs d'écran et n'a plus aucune raison d'être.
+</Avertissement>
+
+## À toi de jouer
+
+Construis un tableau avec une ligne d'en-tête (`th`) et au moins deux lignes de données (`td`).
+
+<ExerciceWeb
+  html={`<!-- Ecris ton tableau ici -->
+`}
+  casDeTest={[
+    { description: "Il y a un tableau sur la page", appel: "document.querySelectorAll('table').length >= 1", attendu: "true" },
+    { description: "Le tableau a au moins une cellule d'en-tête", appel: "document.querySelectorAll('th').length >= 1", attendu: "true" },
+    { description: "Le tableau a au moins 3 lignes (en-tête + 2 données)", appel: "document.querySelectorAll('tr').length >= 3", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "table délimite un tableau, tr une ligne, th ou td une cellule",
+    "th marque une cellule d'en-tête, td une cellule de donnée ordinaire",
+    "Un tableau décrit des données tabulaires, jamais la mise en page générale d'une page",
+    "CSS (Flexbox, Grid) gère aujourd'hui la mise en page, plus les tableaux détournés de leur usage"
+  ]}
+/>

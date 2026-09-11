@@ -1,0 +1,92 @@
+---
+titre: "Les images et les médias"
+titreCourt: "Les images"
+description: "Insérer une image correctement, avec le texte alternatif qui la rend accessible à qui ne peut pas la voir."
+slug: "les-images"
+cours: "html"
+ordre: 4
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Insérer une image avec la balise img et ses attributs src et alt"
+  - "Rédiger un texte alternatif utile, pas un simple mot-clé"
+  - "Comprendre pourquoi img ne possède pas de balise fermante"
+prerequis: ["les-liens"]
+tags: ["html"]
+quiz:
+  - question: "Pourquoi l'attribut alt d'une image ne devrait-il jamais être laissé vide sur une image porteuse de sens ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce qu'un lecteur d'écran lit ce texte à la place de l'image pour une personne malvoyante, et qu'il s'affiche si l'image ne charge pas"
+        correcte: true
+        explication: "alt rend l'image accessible (lue par un lecteur d'écran) et sert de repli si l'image ne se charge pas : le laisser vide sur une image porteuse de sens prive l'utilisateur de cette information."
+      - texte: "Parce que le navigateur refuse d'afficher une image sans attribut alt"
+        correcte: false
+        explication: "Le navigateur affiche très bien une image sans alt : le problème est l'accessibilité et le repli en cas d'échec de chargement, pas un blocage technique."
+      - texte: "Parce que alt améliore la vitesse de chargement de l'image"
+        correcte: false
+        explication: "alt n'a aucun effet sur la vitesse de chargement : son rôle est l'accessibilité et le texte de repli, pas la performance."
+  - question: "Pourquoi la balise img ne possède-t-elle pas de balise fermante (</img>) ?"
+    type: "unique"
+    reponses:
+      - texte: "C'est une balise auto-fermante : elle ne contient jamais de contenu HTML entre une ouverture et une fermeture"
+        correcte: true
+        explication: "img (comme br ou hr) ne peut pas contenir d'autre contenu : elle se suffit à elle-même avec ses attributs, sans avoir besoin d'encadrer quoi que ce soit."
+      - texte: "C'est une erreur d'oubli dans la spécification HTML, corrigée dans les versions récentes"
+        correcte: false
+        explication: "Ce n'est pas un oubli à corriger : c'est un choix de conception délibéré, cohérent depuis les débuts de HTML pour ce type de balise."
+      - texte: "Une balise fermante existe mais reste optionnelle dans tous les cas"
+        correcte: false
+        explication: "Il n'existe simplement pas de balise fermante pour img : ce n'est pas une option, la balise est structurellement auto-fermante."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Insérer une image
+
+<BlocCode langue="html" code={`<img src="chat.jpg" alt="Un chat noir assis sur un canapé bleu" />`} />
+
+`src` indique le fichier à afficher, `alt` un texte alternatif décrivant l'image. Contrairement à `p` ou `a`, `img` n'entoure aucun contenu : elle n'a pas de balise fermante.
+
+## Un bon texte alternatif décrit, il ne répète pas
+
+<Avertissement type="attention">
+  `alt="image"` ou `alt="photo1.jpg"` ne décrivent rien d'utile. Un bon texte alternatif transmet l'information que l'image apporte, comme le ferait une description à voix haute.
+</Avertissement>
+
+<BlocCode
+  langue="html"
+  code={`<!-- Peu utile -->
+<img src="graphique.png" alt="image" />
+
+<!-- Utile -->
+<img src="graphique.png" alt="Graphique montrant une hausse des ventes de 20% en 2025" />`}
+/>
+
+## À toi de jouer
+
+Insère une image avec un `src` de ton choix et un `alt` non vide décrivant l'image.
+
+<ExerciceWeb
+  html={`<!-- Ecris ta balise img ici -->
+`}
+  casDeTest={[
+    { description: "Il y a une image sur la page", appel: "document.querySelector('img') !== null", attendu: "true" },
+    { description: "L'image a un attribut src renseigné", appel: "document.querySelector('img') && document.querySelector('img').getAttribute('src') && document.querySelector('img').getAttribute('src').length > 0", attendu: "true" },
+    { description: "L'image a un texte alternatif non vide", appel: "document.querySelector('img') && document.querySelector('img').getAttribute('alt') && document.querySelector('img').getAttribute('alt').length > 0", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "img affiche une image via son attribut src, sans balise fermante",
+    "alt fournit un texte alternatif, lu par un lecteur d'écran et affiché si l'image ne charge pas",
+    "Un bon texte alternatif décrit ce que l'image apporte, il ne répète pas un nom de fichier",
+    "Une image porteuse de sens ne devrait jamais avoir un alt vide"
+  ]}
+/>

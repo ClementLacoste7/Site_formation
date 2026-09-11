@@ -1,0 +1,125 @@
+---
+titre: "Les objets"
+titreCourt: "Les objets"
+description: "Regrouper des données liées dans un objet, accéder à ses propriétés avec le point ou les crochets, et la déstructuration pour extraire des valeurs."
+slug: "les-objets"
+cours: "javascript"
+ordre: 6
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Créer un objet et accéder à ses propriétés"
+  - "Modifier et ajouter des propriétés à un objet existant"
+  - "Extraire des valeurs avec la déstructuration"
+prerequis: ["les-tableaux-js"]
+tags: ["javascript"]
+quiz:
+  - question: "Quelle est la différence entre `objet.propriete` et `objet[\"propriete\"]` ?"
+    type: "unique"
+    reponses:
+      - texte: "Aucune différence de résultat quand le nom de propriété est fixe : ce sont deux syntaxes équivalentes, mais les crochets acceptent aussi un nom de propriété dynamique (une variable)"
+        correcte: true
+        explication: "objet.propriete et objet[\"propriete\"] accèdent à la même valeur ; la notation avec crochets devient indispensable dès que le nom de la propriété est stocké dans une variable, par exemple objet[cle]."
+      - texte: "objet.propriete est plus rapide, objet[\"propriete\"] est dépréciée"
+        correcte: false
+        explication: "Aucune des deux notations n'est dépréciée ni plus lente en pratique : elles coexistent parce que les crochets permettent un nom de propriété dynamique, ce que le point ne permet pas."
+      - texte: "objet[\"propriete\"] ne fonctionne qu'avec des tableaux, jamais avec des objets"
+        correcte: false
+        explication: "La notation avec crochets fonctionne parfaitement sur les objets ; elle est même indispensable dès que le nom de propriété est dynamique, contrairement à la notation avec un point."
+  - question: "Que fait `const { nom, age } = personne;` (déstructuration) ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle crée deux variables nom et age, initialisées avec les propriétés correspondantes de l'objet personne"
+        correcte: true
+        explication: "La déstructuration extrait directement des propriétés d'un objet vers des variables du même nom, évitant d'écrire const nom = personne.nom; const age = personne.age; séparément."
+      - texte: "Elle supprime les propriétés nom et age de l'objet personne"
+        correcte: false
+        explication: "La déstructuration ne modifie pas l'objet source : elle lit ses propriétés pour créer de nouvelles variables, sans rien supprimer."
+      - texte: "Elle fonctionne uniquement si personne est un tableau, pas un objet"
+        correcte: false
+        explication: "La déstructuration avec des accolades {} cible justement un objet ; la déstructuration de tableau utilise une syntaxe différente, avec des crochets []."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Créer un objet et accéder à ses propriétés
+
+<BlocCode
+  langue="javascript"
+  code={`const personne = {
+  nom: "Alice",
+  age: 25,
+  ville: "Lyon"
+};
+
+console.log(personne.nom);       // "Alice"
+console.log(personne["age"]);    // 25
+
+personne.age = 26;         // modifie une propriete existante
+personne.email = "a@x.fr"; // ajoute une nouvelle propriete`}
+/>
+
+## La déstructuration
+
+<BlocCode
+  langue="javascript"
+  code={`const personne = { nom: "Alice", age: 25, ville: "Lyon" };
+
+const { nom, age } = personne;
+console.log(nom); // "Alice"
+console.log(age); // 25`}
+/>
+
+<Avertissement type="astuce">
+  La déstructuration `const { nom } = objet` est très utilisée pour extraire directement des propriétés, notamment comme paramètre de fonction : `function afficher({ nom, age }) { ... }`.
+</Avertissement>
+
+## Objets et méthodes
+
+Un objet peut aussi contenir des fonctions, appelées méthodes :
+
+<BlocCode
+  langue="javascript"
+  code={`const compte = {
+  solde: 100,
+  deposer(montant) {
+    this.solde += montant;
+    return this.solde;
+  }
+};
+
+console.log(compte.deposer(50)); // 150`}
+/>
+
+`this` désigne l'objet sur lequel la méthode est appelée : ici, `compte`.
+
+## À toi de jouer
+
+Écris une fonction `creerRectangle(largeur, hauteur)` qui renvoie un objet avec les propriétés `largeur`, `hauteur`, et une méthode `aire()` qui renvoie `largeur * hauteur`.
+
+<ExerciceWeb
+  js={`function creerRectangle(largeur, hauteur) {
+  // Renvoie un objet { largeur, hauteur, aire() { ... } }
+
+}`}
+  casDeTest={[
+    { description: "Largeur du rectangle 4x5", appel: "creerRectangle(4, 5).largeur", attendu: "4" },
+    { description: "Hauteur du rectangle 4x5", appel: "creerRectangle(4, 5).hauteur", attendu: "5" },
+    { description: "Aire du rectangle 4x5", appel: "creerRectangle(4, 5).aire()", attendu: "20" },
+    { description: "Aire du rectangle 3x3", appel: "creerRectangle(3, 3).aire()", attendu: "9" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "objet.propriete et objet[\"propriete\"] accèdent tous deux à une propriété ; les crochets acceptent un nom dynamique",
+    "Une propriété inexistante peut être ajoutée simplement en lui assignant une valeur",
+    "const { a, b } = objet extrait directement des propriétés vers des variables",
+    "Une méthode d'objet accède au reste de l'objet via this"
+  ]}
+/>

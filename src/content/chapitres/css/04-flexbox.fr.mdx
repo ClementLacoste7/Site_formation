@@ -1,0 +1,112 @@
+---
+titre: "Mise en page avec Flexbox"
+titreCourt: "Flexbox"
+description: "Aligner et répartir des éléments sur une ligne ou une colonne, sans les hacks de mise en page d'avant CSS moderne."
+slug: "flexbox"
+cours: "css"
+ordre: 4
+duree: 11
+niveau: "intermediaire"
+objectifs:
+  - "Activer Flexbox sur un conteneur avec display: flex"
+  - "Répartir les enfants horizontalement avec justify-content"
+  - "Aligner les enfants sur l'axe perpendiculaire avec align-items"
+prerequis: ["couleurs-texte-et-polices"]
+tags: ["css", "flexbox"]
+quiz:
+  - question: "Que fait display: flex sur un conteneur ?"
+    type: "unique"
+    reponses:
+      - texte: "Il transforme ses enfants directs en éléments flexibles, alignés par défaut sur une ligne"
+        correcte: true
+        explication: "display: flex active le modèle Flexbox pour les enfants directs de ce conteneur (pas les petits-enfants), qui se placent alors côte à côte sur une ligne par défaut."
+      - texte: "Il rend le conteneur invisible tant qu'aucun enfant n'est ajouté"
+        correcte: false
+        explication: "display: flex n'a aucun effet sur la visibilité du conteneur : il change uniquement la façon dont ses enfants directs sont disposés."
+      - texte: "Il s'applique automatiquement à tous les descendants, à n'importe quelle profondeur"
+        correcte: false
+        explication: "Seuls les enfants directs du conteneur deviennent flexibles : les petits-enfants ne sont pas affectés, sauf si le conteneur intermédiaire est lui-même flex."
+  - question: "Quelle propriété répartit les enfants le long de l'axe principal (horizontal par défaut) d'un conteneur flex ?"
+    type: "unique"
+    reponses:
+      - texte: "justify-content"
+        correcte: true
+        explication: "justify-content contrôle la répartition sur l'axe principal (center, space-between, flex-end...), tandis qu'align-items s'occupe de l'axe perpendiculaire."
+      - texte: "align-items"
+        correcte: false
+        explication: "align-items agit sur l'axe perpendiculaire à l'axe principal (vertical par défaut), pas sur la répartition horizontale."
+      - texte: "text-align"
+        correcte: false
+        explication: "text-align aligne du texte à l'intérieur d'un élément, sans rapport avec la répartition d'éléments flexibles dans un conteneur."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Activer Flexbox
+
+<BlocCode
+  langue="css"
+  code={`.conteneur {
+  display: flex;
+}`}
+/>
+
+Cette seule ligne aligne les enfants directs de `.conteneur` sur une ligne, côte à côte, sans qu'aucun autre réglage ne soit nécessaire pour ce comportement de base.
+
+## Répartir sur l'axe principal
+
+<BlocCode
+  langue="css"
+  code={`.conteneur {
+  display: flex;
+  justify-content: center;        /* centre les enfants */
+  /* autres valeurs frequentes : flex-start, flex-end, space-between, space-around */
+}`}
+/>
+
+## Aligner sur l'axe perpendiculaire
+
+<BlocCode
+  langue="css"
+  code={`.conteneur {
+  display: flex;
+  align-items: center;   /* centre verticalement, par defaut sur l'axe perpendiculaire */
+}`}
+/>
+
+<Avertissement type="astuce">
+  `justify-content` et `align-items` répondent à des axes différents : le premier pour l'axe principal (horizontal par défaut), le second pour l'axe perpendiculaire. Les confondre est l'une des sources de confusion les plus fréquentes avec Flexbox.
+</Avertissement>
+
+## À toi de jouer
+
+Rends `.conteneur` flexible et centre ses enfants horizontalement.
+
+<ExerciceWeb
+  html={`<div class="conteneur">
+  <div>1</div>
+  <div>2</div>
+  <div>3</div>
+</div>`}
+  css={`.conteneur {
+  /* Complete le style ici */
+}`}
+  casDeTest={[
+    { description: "Le conteneur est en display: flex", appel: "getComputedStyle(document.querySelector('.conteneur')).display", attendu: "'flex'" },
+    { description: "Les enfants sont centrés horizontalement", appel: "getComputedStyle(document.querySelector('.conteneur')).justifyContent", attendu: "'center'" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "display: flex transforme les enfants directs d'un conteneur en éléments flexibles",
+    "justify-content répartit les enfants sur l'axe principal (horizontal par défaut)",
+    "align-items les aligne sur l'axe perpendiculaire (vertical par défaut)",
+    "Flexbox reste une mise en page à une dimension : une ligne ou une colonne à la fois"
+  ]}
+/>

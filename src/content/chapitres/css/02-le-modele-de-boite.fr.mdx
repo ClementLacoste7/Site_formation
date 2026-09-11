@@ -1,0 +1,121 @@
+---
+titre: "Le modèle de boîte"
+titreCourt: "Le modèle de boîte"
+description: "Chaque élément HTML est une boîte rectangulaire, composée de quatre couches concentriques : contenu, padding, bordure, marge."
+slug: "le-modele-de-boite"
+cours: "css"
+ordre: 2
+duree: 11
+niveau: "debutant"
+objectifs:
+  - "Nommer les quatre couches du modèle de boîte, de l'intérieur vers l'extérieur"
+  - "Distinguer padding (à l'intérieur de la bordure) de margin (à l'extérieur)"
+  - "Utiliser box-sizing: border-box pour garder une largeur totale prévisible"
+prerequis: ["les-selecteurs"]
+tags: ["css"]
+quiz:
+  - question: "Dans quel ordre, de l'intérieur vers l'extérieur, s'empilent les couches du modèle de boîte ?"
+    type: "unique"
+    reponses:
+      - texte: "Contenu, padding, bordure, marge"
+        correcte: true
+        explication: "Le padding entoure le contenu, la bordure entoure le padding, et la marge (l'espace avec les éléments voisins) entoure la bordure : c'est l'ordre concentrique standard."
+      - texte: "Contenu, marge, bordure, padding"
+        correcte: false
+        explication: "Cet ordre inverse padding et marge : le padding reste à l'intérieur de la bordure, la marge à l'extérieur."
+      - texte: "Bordure, contenu, padding, marge"
+        correcte: false
+        explication: "La bordure ne peut pas entourer directement le contenu sans le padding entre les deux : l'ordre correct place le padding juste après le contenu."
+  - question: "Que change box-sizing: border-box par rapport au comportement par défaut (content-box) ?"
+    type: "unique"
+    reponses:
+      - texte: "La largeur déclarée (width) inclut désormais le padding et la bordure, au lieu de ne s'appliquer qu'au contenu seul"
+        correcte: true
+        explication: "Avec border-box, width: 200px reste 200px au total, padding et bordure inclus. Avec content-box (par défaut), le padding et la bordure s'ajoutent en plus des 200px déclarés."
+      - texte: "border-box supprime complètement la marge de l'élément"
+        correcte: false
+        explication: "box-sizing n'a aucun effet sur la marge, qui reste toujours à l'extérieur de la boîte, quel que soit son réglage."
+      - texte: "border-box ne fonctionne que sur des éléments sans bordure définie"
+        correcte: false
+        explication: "border-box fonctionne indépendamment de la présence ou non d'une bordure : son effet porte sur la façon dont la largeur totale est calculée, avec ou sans bordure visible."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Quatre couches concentriques
+
+<BlocCode
+  langue="text"
+  code={`+---------------------------------------+
+|              marge (margin)            |
+|  +-----------------------------------+ |
+|  |         bordure (border)          | |
+|  |  +------------------------------+ | |
+|  |  |    padding (espace interne)  | | |
+|  |  |  +------------------------+  | | |
+|  |  |  |       contenu          |  | | |
+|  |  |  +------------------------+  | | |
+|  |  +------------------------------+ | |
+|  +-----------------------------------+ |
++---------------------------------------+`}
+/>
+
+`padding` sépare le contenu de la bordure, `margin` sépare la bordure des éléments voisins. Les deux se confondent facilement pour un débutant, alors qu'ils se situent de part et d'autre de la bordure.
+
+## Le piège de la largeur totale
+
+<BlocCode
+  langue="css"
+  code={`.boite {
+  width: 200px;
+  padding: 20px;
+  border: 5px solid black;
+}
+/* Largeur totale reellement affichee, par defaut : 200 + 20*2 + 5*2 = 250px */`}
+/>
+
+<Avertissement type="attention">
+  Par défaut (`box-sizing: content-box`), `width` ne s'applique qu'au contenu : le padding et la bordure s'ajoutent en plus, ce qui surprend souvent en découvrant CSS.
+</Avertissement>
+
+## border-box : une largeur totale prévisible
+
+<BlocCode
+  langue="css"
+  code={`.boite {
+  box-sizing: border-box;
+  width: 200px;
+  padding: 20px;
+  border: 5px solid black;
+}
+/* Largeur totale : exactement 200px, padding et bordure inclus */`}
+/>
+
+## À toi de jouer
+
+Donne à `.boite` une largeur de `200px`, un padding de `20px`, une bordure de `5px solid black`, et utilise `box-sizing: border-box` pour que la largeur totale affichée reste exactement 200px.
+
+<ExerciceWeb
+  html={`<div class="boite">Contenu</div>`}
+  css={`.boite {
+  /* Complete le style ici */
+}`}
+  casDeTest={[
+    { description: "box-sizing vaut border-box", appel: "getComputedStyle(document.querySelector('.boite')).boxSizing", attendu: "'border-box'" },
+    { description: "La largeur totale affichée est exactement 200px", appel: "document.querySelector('.boite').offsetWidth", attendu: "200" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Le modèle de boîte s'empile ainsi, de l'intérieur vers l'extérieur : contenu, padding, bordure, marge",
+    "padding sépare le contenu de la bordure, margin sépare la bordure des éléments voisins",
+    "Par défaut, width ne s'applique qu'au contenu : padding et bordure s'ajoutent en plus",
+    "box-sizing: border-box inclut le padding et la bordure dans la largeur déclarée, plus prévisible"
+  ]}
+/>

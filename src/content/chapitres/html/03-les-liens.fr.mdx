@@ -1,0 +1,96 @@
+---
+titre: "Les liens et la navigation"
+titreCourt: "Les liens"
+description: "La balise qui fait du web un réseau : relier une page à une autre, ou à une ressource externe."
+slug: "les-liens"
+cours: "html"
+ordre: 3
+duree: 9
+niveau: "debutant"
+objectifs:
+  - "Créer un lien avec la balise a et l'attribut href"
+  - "Ouvrir un lien dans un nouvel onglet de façon sûre"
+  - "Distinguer un lien interne (vers une autre page du site) d'un lien externe"
+prerequis: ["listes-html"]
+tags: ["html"]
+quiz:
+  - question: "Quel attribut de la balise a définit la destination du lien ?"
+    type: "unique"
+    reponses:
+      - texte: "href"
+        correcte: true
+        explication: "href (hypertext reference) contient l'adresse ou le chemin vers lequel le lien pointe."
+      - texte: "src"
+        correcte: false
+        explication: "src sert à indiquer la source d'une ressource intégrée (une image, par exemple), pas la destination d'un lien."
+      - texte: "link"
+        correcte: false
+        explication: "link n'est pas un attribut de la balise a : href joue ce rôle."
+  - question: "Pourquoi ajouter rel=\"noopener\" à un lien qui utilise target=\"_blank\" ?"
+    type: "unique"
+    reponses:
+      - texte: "Pour empêcher la nouvelle page ouverte d'accéder à la page d'origine via window.opener, une précaution de sécurité"
+        correcte: true
+        explication: "Sans cette précaution, la page ouverte dans le nouvel onglet a accès à un objet référençant la page d'origine, ce qui peut être exploité pour la rediriger à l'insu de l'utilisateur."
+      - texte: "Pour que le lien s'ouvre plus rapidement"
+        correcte: false
+        explication: "La vitesse d'ouverture n'est pas concernée : rel=\"noopener\" est une mesure de sécurité, pas de performance."
+      - texte: "Parce que target=\"_blank\" ne fonctionne pas sans cet attribut"
+        correcte: false
+        explication: "target=\"_blank\" fonctionne très bien seul : rel=\"noopener\" est une précaution supplémentaire, pas une dépendance technique."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## La balise a et l'attribut href
+
+<BlocCode langue="html" code={`<a href="https://exemple.test">Visiter le site</a>`} />
+
+Le texte entre les balises `<a>` et `</a>` est ce qui s'affiche et devient cliquable ; `href` définit la destination.
+
+## Lien interne, lien externe
+
+<BlocCode
+  langue="html"
+  code={`<a href="/fr/contact/">Nous contacter</a>          <!-- lien interne, chemin relatif -->
+<a href="https://exemple.test">Site partenaire</a>   <!-- lien externe, adresse complete -->`}
+/>
+
+## Ouvrir dans un nouvel onglet, en sécurité
+
+<BlocCode
+  langue="html"
+  code={`<a href="https://exemple.test" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet</a>`}
+/>
+
+<Avertissement type="attention">
+  `target="_blank"` sans `rel="noopener"` laisse la nouvelle page accéder à `window.opener`, une référence vers la page d'origine, exploitable pour la rediriger à l'insu de l'utilisateur. Toujours associer les deux.
+</Avertissement>
+
+## À toi de jouer
+
+Écris un lien dont le `href` vaut exactement `https://exemple.test` et dont le texte visible n'est pas vide.
+
+<ExerciceWeb
+  html={`<!-- Ecris ton lien ici -->
+`}
+  casDeTest={[
+    { description: "Il y a un lien sur la page", appel: "document.querySelector('a') !== null", attendu: "true" },
+    { description: "Le lien pointe vers https://exemple.test", appel: "document.querySelector('a') && document.querySelector('a').getAttribute('href')", attendu: "'https://exemple.test'" },
+    { description: "Le lien a un texte visible", appel: "document.querySelector('a') && document.querySelector('a').textContent.trim().length > 0", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "La balise a avec l'attribut href crée un lien, le texte entre les balises est ce qui s'affiche",
+    "Un lien interne utilise un chemin relatif, un lien externe une adresse complète",
+    "target=\"_blank\" ouvre un lien dans un nouvel onglet",
+    "rel=\"noopener\" doit toujours accompagner target=\"_blank\" pour éviter un risque de sécurité connu"
+  ]}
+/>

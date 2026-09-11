@@ -1,0 +1,95 @@
+---
+titre: "Responsive design"
+titreCourt: "Responsive design"
+description: "Adapter une page à la largeur réelle de l'écran qui l'affiche, d'un grand moniteur à un téléphone, avec les media queries."
+slug: "responsive-design"
+cours: "css"
+ordre: 7
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Écrire une media query basée sur la largeur de l'écran"
+  - "Comprendre max-width comme condition d'application d'un bloc de règles"
+  - "Situer les media queries parmi les autres outils responsive (Flexbox, Grid, unités relatives)"
+prerequis: ["le-positionnement"]
+tags: ["css"]
+quiz:
+  - question: "Que fait `@media (max-width: 600px) { ... }` ?"
+    type: "unique"
+    reponses:
+      - texte: "Applique les règles à l'intérieur uniquement quand la largeur de la fenêtre est de 600 pixels ou moins"
+        correcte: true
+        explication: "max-width: 600px désigne une condition « au plus 600px » : les styles à l'intérieur du bloc ne s'appliquent que sous ce seuil, ignorés au-delà."
+      - texte: "Redimensionne automatiquement tous les éléments de la page à 600 pixels"
+        correcte: false
+        explication: "Une media query ne redimensionne rien automatiquement : elle active ou désactive un bloc de règles selon une condition, ici la largeur de la fenêtre."
+      - texte: "S'applique uniquement aux images, jamais aux autres éléments"
+        correcte: false
+        explication: "Une media query peut contenir n'importe quelle règle CSS, pour n'importe quel sélecteur : elle n'est pas réservée aux images."
+  - question: "Le responsive design se limite-t-il aux media queries ?"
+    type: "unique"
+    reponses:
+      - texte: "Non, Flexbox et Grid (déjà vus) s'adaptent souvent naturellement sans qu'aucune media query ne soit nécessaire"
+        correcte: true
+        explication: "Un conteneur flex ou grid bien conçu redistribue déjà son contenu selon l'espace disponible : les media queries interviennent en complément, pour des ajustements que ces modèles ne couvrent pas seuls."
+      - texte: "Oui, il n'existe aucun autre outil CSS pour adapter une page à différentes tailles d'écran"
+        correcte: false
+        explication: "Flexbox, Grid, et des unités relatives (%, vw, fr) contribuent aussi au responsive design, indépendamment des media queries."
+      - texte: "Oui, mais uniquement en combinaison avec du JavaScript"
+        correcte: false
+        explication: "Le responsive design de base repose entièrement sur CSS, sans JavaScript : media queries, Flexbox et Grid suffisent pour l'essentiel des cas."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Une condition basée sur la largeur de l'écran
+
+<BlocCode
+  langue="css"
+  code={`.conteneur {
+  display: flex;
+}
+
+@media (max-width: 600px) {
+  .conteneur {
+    flex-direction: column;   /* empile verticalement sous 600px de large */
+  }
+}`}
+/>
+
+`max-width: 600px` signifie « au plus 600 pixels » : les règles à l'intérieur du bloc ne s'appliquent que sous ce seuil, ignorées au-delà.
+
+<Avertissement type="info">
+  Flexbox et Grid, vus dans les chapitres précédents, s'adaptent déjà souvent naturellement à l'espace disponible, sans la moindre media query. Les media queries interviennent en complément, pour des ajustements plus précis (changer une direction, masquer un élément, agrandir un texte).
+</Avertissement>
+
+## À toi de jouer
+
+Écris une media query qui s'applique quand la largeur de l'écran est de 600 pixels ou moins.
+
+<Avertissement type="astuce">
+  L'aperçu de ce bac à sable garde une taille fixe : ce test vérifie que la règle est bien écrite dans le CSS, pas son effet visuel immédiat (qui dépendrait de la largeur réelle de la fenêtre).
+</Avertissement>
+
+<ExerciceWeb
+  html={`<div class="conteneur">Contenu</div>`}
+  css={`/* Ecris ta media query ici */
+`}
+  casDeTest={[
+    { description: "Une media query pour 600px ou moins existe", appel: "(function() { var regles = document.styleSheets[0] ? document.styleSheets[0].cssRules : []; for (var i = 0; i < regles.length; i++) { if (regles[i].conditionText && regles[i].conditionText.indexOf('600px') !== -1) return true; } return false; })()", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "@media (max-width: 600px) applique un bloc de règles seulement sous cette largeur d'écran",
+    "Une media query peut contenir n'importe quelle règle CSS, pour n'importe quel sélecteur",
+    "Flexbox et Grid s'adaptent souvent déjà sans media query, qui intervient en complément",
+    "Le responsive design combine plusieurs outils CSS, pas seulement les media queries"
+  ]}
+/>

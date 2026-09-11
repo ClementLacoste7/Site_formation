@@ -1,0 +1,137 @@
+---
+titre: "Introduction aux classes"
+titreCourt: "Les classes"
+description: "Définir une classe avec un constructeur et des méthodes pour créer plusieurs objets partageant la même structure et le même comportement."
+slug: "introduction-aux-classes-js"
+cours: "javascript"
+ordre: 10
+duree: 14
+niveau: "intermediaire"
+objectifs:
+  - "Définir une classe avec un constructeur et des méthodes"
+  - "Créer des instances avec new"
+  - "Comprendre l'héritage avec extends"
+prerequis: ["gerer-les-erreurs-js"]
+tags: ["javascript"]
+quiz:
+  - question: "À quoi sert le mot-clé `new` dans `const c = new CompteBancaire(100);` ?"
+    type: "unique"
+    reponses:
+      - texte: "Il crée une nouvelle instance de la classe CompteBancaire, en exécutant son constructeur avec 100 comme argument"
+        correcte: true
+        explication: "new déclenche la création d'un nouvel objet, exécute le constructeur de la classe avec les arguments fournis pour l'initialiser, puis renvoie cette instance fraîchement créée."
+      - texte: "Il modifie la classe CompteBancaire elle-même pour tous les comptes déjà créés"
+        correcte: false
+        explication: "new crée une instance indépendante : elle ne modifie ni la classe ni les autres instances déjà créées à partir d'elle."
+      - texte: "Il vérifie que la classe CompteBancaire existe bien, sans créer d'objet"
+        correcte: false
+        explication: "new crée effectivement un nouvel objet en mémoire : ce n'est pas une simple vérification, l'objet créé est bien utilisable ensuite."
+  - question: "Que fait `extends` quand une classe `Etudiant` l'utilise sur `Personne` ?"
+    type: "unique"
+    reponses:
+      - texte: "Etudiant hérite des propriétés et méthodes de Personne, et peut ajouter les siennes ou redéfinir celles héritées"
+        correcte: true
+        explication: "class Etudiant extends Personne établit une relation d'héritage : chaque instance d'Etudiant possède automatiquement ce que définit Personne (via super() dans le constructeur), tout en pouvant ajouter ses propres méthodes ou propriétés."
+      - texte: "Etudiant remplace complètement Personne, qui devient inutilisable"
+        correcte: false
+        explication: "extends ne supprime pas la classe parente : Personne reste utilisable indépendamment, et Etudiant vient s'appuyer dessus en héritant de son comportement."
+      - texte: "extends fusionne les deux classes en une seule sans distinction"
+        correcte: false
+        explication: "Les deux classes restent distinctes : Etudiant a sa propre définition, elle hérite seulement de ce que Personne définit, sans que les deux ne deviennent une seule et même classe."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Définir une classe
+
+<BlocCode
+  langue="javascript"
+  code={`class CompteBancaire {
+  constructor(soldeInitial) {
+    this.solde = soldeInitial;
+  }
+
+  deposer(montant) {
+    this.solde += montant;
+    return this.solde;
+  }
+
+  retirer(montant) {
+    if (montant > this.solde) {
+      throw new Error("Solde insuffisant");
+    }
+    this.solde -= montant;
+    return this.solde;
+  }
+}
+
+const compte = new CompteBancaire(100);
+console.log(compte.deposer(50)); // 150
+console.log(compte.solde);       // 150`}
+/>
+
+Le `constructor` s'exécute automatiquement à la création d'une instance avec `new`. Chaque instance a son propre `this.solde`, indépendant des autres.
+
+## L'héritage avec extends
+
+<BlocCode
+  langue="javascript"
+  code={`class Personne {
+  constructor(nom) {
+    this.nom = nom;
+  }
+
+  serPresenter() {
+    return \`Je m'appelle \${this.nom}\`;
+  }
+}
+
+class Etudiant extends Personne {
+  constructor(nom, ecole) {
+    super(nom); // appelle le constructeur de Personne
+    this.ecole = ecole;
+  }
+
+  seRepresenter() {
+    return \`\${this.serPresenter()}, j'etudie a \${this.ecole}\`;
+  }
+}
+
+const e = new Etudiant("Alice", "Lycee Voltaire");
+console.log(e.seRepresenter());
+// "Je m'appelle Alice, j'etudie a Lycee Voltaire"`}
+/>
+
+<Avertissement type="attention">
+  Dans une classe qui utilise `extends`, `super(...)` doit être appelé avant tout accès à `this` dans le constructeur : c'est lui qui initialise la partie héritée de l'objet.
+</Avertissement>
+
+## À toi de jouer
+
+Écris une classe `Rectangle` avec un `constructor(largeur, hauteur)` et une méthode `aire()` qui renvoie `largeur * hauteur`, et une méthode `perimetre()` qui renvoie `2 * (largeur + hauteur)`.
+
+<ExerciceWeb
+  js={`class Rectangle {
+  // Constructeur (largeur, hauteur), methodes aire() et perimetre()
+
+}`}
+  casDeTest={[
+    { description: "Aire d'un rectangle 4x5", appel: "new Rectangle(4, 5).aire()", attendu: "20" },
+    { description: "Périmètre d'un rectangle 4x5", appel: "new Rectangle(4, 5).perimetre()", attendu: "18" },
+    { description: "Aire d'un carré 3x3", appel: "new Rectangle(3, 3).aire()", attendu: "9" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "class Nom { constructor(...) { ... } methode() { ... } } définit une classe",
+    "new Nom(...) crée une instance, en exécutant le constructeur",
+    "class Enfant extends Parent hérite des méthodes de Parent",
+    "super(...) dans le constructeur d'une classe enfant appelle le constructeur du parent"
+  ]}
+/>

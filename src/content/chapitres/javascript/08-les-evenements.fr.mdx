@@ -1,0 +1,113 @@
+---
+titre: "Les événements"
+titreCourt: "Les événements"
+description: "Réagir aux actions de l'utilisateur avec addEventListener : clic, saisie clavier, soumission de formulaire."
+slug: "les-evenements"
+cours: "javascript"
+ordre: 8
+duree: 12
+niveau: "intermediaire"
+objectifs:
+  - "Écouter un événement avec addEventListener"
+  - "Accéder à l'élément qui a déclenché l'événement"
+  - "Empêcher le comportement par défaut d'un formulaire"
+prerequis: ["manipuler-le-dom"]
+tags: ["javascript"]
+quiz:
+  - question: "Que fait `bouton.addEventListener(\"click\", maFonction)` ?"
+    type: "unique"
+    reponses:
+      - texte: "Il enregistre maFonction pour qu'elle soit appelée automatiquement à chaque clic sur bouton"
+        correcte: true
+        explication: "addEventListener attache une fonction de rappel à un élément : elle sera appelée par le navigateur à chaque fois que l'événement précisé (ici \"click\") se produit sur cet élément."
+      - texte: "Il déclenche immédiatement un clic sur le bouton, comme si l'utilisateur avait cliqué"
+        correcte: false
+        explication: "addEventListener ne déclenche rien : il enregistre une réaction pour plus tard. Déclencher un clic par code se fait avec bouton.click()."
+      - texte: "Il empêche l'utilisateur de cliquer sur le bouton"
+        correcte: false
+        explication: "addEventListener n'empêche aucune interaction : il ajoute une réaction supplémentaire au clic, sans désactiver le bouton."
+  - question: "À quoi sert `event.preventDefault()` dans le gestionnaire de soumission d'un formulaire ?"
+    type: "unique"
+    reponses:
+      - texte: "À empêcher le rechargement de la page que déclenche normalement la soumission d'un formulaire"
+        correcte: true
+        explication: "Par défaut, soumettre un formulaire recharge la page (ou navigue vers son action) ; preventDefault() annule ce comportement natif pour laisser le JavaScript gérer la soumission, par exemple en validant les données sans recharger."
+      - texte: "À empêcher l'utilisateur de remplir les champs du formulaire"
+        correcte: false
+        explication: "preventDefault() ne touche pas à la saisie des champs, seulement au comportement automatique du navigateur déclenché par l'événement (ici, la soumission)."
+      - texte: "À supprimer le formulaire de la page"
+        correcte: false
+        explication: "preventDefault() n'affecte pas la structure de la page : il annule seulement l'action par défaut associée à l'événement en cours."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Écouter un clic
+
+<BlocCode
+  langue="javascript"
+  code={`const bouton = document.querySelector("#mon-bouton");
+
+bouton.addEventListener("click", () => {
+  console.log("Bouton clique !");
+});`}
+/>
+
+## L'objet événement
+
+<BlocCode
+  langue="javascript"
+  code={`const champ = document.querySelector("#mon-champ");
+
+champ.addEventListener("input", (event) => {
+  console.log("Valeur actuelle :", event.target.value);
+});`}
+/>
+
+`event.target` désigne l'élément qui a déclenché l'événement : très utile pour lire sa valeur ou son état au moment précis de l'interaction.
+
+## Empêcher le comportement par défaut
+
+<BlocCode
+  langue="javascript"
+  code={`const formulaire = document.querySelector("form");
+
+formulaire.addEventListener("submit", (event) => {
+  event.preventDefault(); // empeche le rechargement de la page
+  console.log("Formulaire intercepte, pas de rechargement");
+});`}
+/>
+
+<Avertissement type="astuce">
+  `event.preventDefault()` est indispensable dès qu'on veut gérer une soumission de formulaire en JavaScript sans recharger la page.
+</Avertissement>
+
+## À toi de jouer
+
+La page contient `<button id="compteur">0</button>`. Écris une fonction `activerCompteur()` qui ajoute un écouteur de clic sur ce bouton : à chaque clic, le nombre affiché dans le bouton doit s'incrémenter de 1.
+
+<ExerciceWeb
+  html={`<button id="compteur">0</button>`}
+  js={`function activerCompteur() {
+  // Ajoute un ecouteur de clic qui incremente le texte du bouton
+
+}`}
+  casDeTest={[
+    { description: "Après un clic, le compteur affiche 1", appel: "(activerCompteur(), document.getElementById('compteur').click(), document.getElementById('compteur').textContent)", attendu: "'1'" },
+    { description: "Après deux clics supplémentaires, le compteur affiche 3", appel: "(document.getElementById('compteur').click(), document.getElementById('compteur').click(), document.getElementById('compteur').textContent)", attendu: "'3'" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "element.addEventListener(type, fonction) enregistre une réaction à un événement",
+    "event.target désigne l'élément qui a déclenché l'événement",
+    "event.preventDefault() annule le comportement par défaut du navigateur pour cet événement",
+    "Les types courants : click, input, submit, keydown"
+  ]}
+/>

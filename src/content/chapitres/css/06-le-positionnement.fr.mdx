@@ -1,0 +1,110 @@
+---
+titre: "Le positionnement"
+titreCourt: "Le positionnement"
+description: "Sortir un élément du flux normal de la page pour le placer précisément, relativement à son conteneur ou à la fenêtre."
+slug: "le-positionnement"
+cours: "css"
+ordre: 6
+duree: 10
+niveau: "intermediaire"
+objectifs:
+  - "Distinguer les valeurs de position : static, relative, absolute et fixed"
+  - "Comprendre par rapport à quel élément se positionne un élément absolute"
+  - "Positionner un badge dans le coin d'une carte, un cas d'usage classique"
+prerequis: ["grid"]
+tags: ["css"]
+quiz:
+  - question: "Par rapport à quoi se positionne un élément en position: absolute ?"
+    type: "unique"
+    reponses:
+      - texte: "Par rapport à son ancêtre positionné le plus proche (n'importe quelle valeur de position autre que static), ou à la page entière à défaut"
+        correcte: true
+        explication: "absolute cherche l'ancêtre le plus proche dont la position n'est pas static ; s'il n'en trouve aucun, il se positionne par rapport au document entier, ce qui surprend souvent sans ce réflexe."
+      - texte: "Toujours par rapport à la fenêtre du navigateur, quel que soit son conteneur"
+        correcte: false
+        explication: "C'est le comportement de position: fixed, pas de absolute, qui dépend au contraire de son ancêtre positionné le plus proche."
+      - texte: "Toujours par rapport à son parent direct dans le HTML, quelle que soit sa position"
+        correcte: false
+        explication: "Le parent direct ne sert de référence que s'il est lui-même positionné (relative, absolute...) : sinon, absolute remonte plus loin dans l'arbre, jusqu'au document si nécessaire."
+  - question: "Pourquoi donner position: relative à un conteneur, sans lui ajouter aucun décalage (top, left...) ?"
+    type: "unique"
+    reponses:
+      - texte: "Pour qu'il devienne la référence de positionnement d'un enfant en absolute, sans que sa propre position change visuellement"
+        correcte: true
+        explication: "relative sans décalage ne change rien à l'apparence du conteneur lui-même, mais en fait le point de référence pour tout enfant absolute, un usage extrêmement courant (le cas du badge dans une carte)."
+      - texte: "Pour empêcher l'élément de recevoir des enfants en position absolute"
+        correcte: false
+        explication: "C'est l'inverse : relative sur un conteneur permet justement à ses enfants absolute de s'y référer, plutôt que de l'en empêcher."
+      - texte: "relative sans décalage n'a aucun effet, autant ne rien écrire du tout"
+        correcte: false
+        explication: "Même sans décalage visible, relative change la référence de positionnement pour les enfants absolute : ce n'est pas sans effet, juste un effet invisible en apparence."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Quatre valeurs de position
+
+<BlocCode
+  langue="text"
+  code={`static   : comportement par defaut, aucun positionnement special
+relative : reste a sa place, mais devient une reference pour ses enfants absolute
+absolute : sort du flux normal, se place par rapport a son ancetre positionne
+fixed    : se place par rapport a la fenetre, reste visible meme au defilement`}
+/>
+
+## Le cas classique : un badge dans une carte
+
+<BlocCode
+  langue="css"
+  code={`.carte {
+  position: relative;   /* devient la reference, sans se deplacer elle-meme */
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+}`}
+/>
+
+<Avertissement type="attention">
+  Sans `position: relative` sur `.carte`, le badge en `absolute` chercherait un ancêtre positionné plus haut dans la page, potentiellement le document entier : un piège fréquent quand le badge se retrouve dans un coin inattendu de la page.
+</Avertissement>
+
+## À toi de jouer
+
+Positionne `.carte` en `relative`, et `.badge` en `absolute` avec `top: 0` et `right: 0`, pour que le badge apparaisse dans le coin supérieur droit de la carte.
+
+<ExerciceWeb
+  html={`<div class="carte">
+  <span class="badge">Nouveau</span>
+  Contenu de la carte
+</div>`}
+  css={`.carte {
+  /* Complete le style ici */
+}
+
+.badge {
+  /* Complete le style ici */
+}`}
+  casDeTest={[
+    { description: "La carte est en position relative", appel: "getComputedStyle(document.querySelector('.carte')).position", attendu: "'relative'" },
+    { description: "Le badge est en position absolute", appel: "getComputedStyle(document.querySelector('.badge')).position", attendu: "'absolute'" },
+    { description: "Le badge est collé en haut (top: 0)", appel: "getComputedStyle(document.querySelector('.badge')).top", attendu: "'0px'" },
+    { description: "Le badge est collé à droite (right: 0)", appel: "getComputedStyle(document.querySelector('.badge')).right", attendu: "'0px'" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "static (par défaut), relative, absolute et fixed sont les quatre valeurs de position les plus courantes",
+    "absolute se positionne par rapport à son ancêtre positionné le plus proche, ou au document à défaut",
+    "relative sans décalage sert souvent uniquement à devenir cette référence pour un enfant absolute",
+    "fixed se positionne par rapport à la fenêtre, indépendamment du défilement de la page"
+  ]}
+/>

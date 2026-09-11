@@ -1,0 +1,49 @@
+---
+titre: "Fiche de révision : HTML"
+description: "L'essentiel à retenir : titres et paragraphes, listes, liens, images, tableaux, formulaires, balises sémantiques et accessibilité."
+slug: "html"
+coursLie: "html"
+tags: ["html"]
+questions:
+  - question: "Que fait HTML par rapport à CSS et JavaScript ?"
+    reponse: "HTML structure le contenu (ce qui existe). CSS gère l'apparence. JavaScript gère le comportement. Trois rôles distincts et complémentaires."
+  - question: "Quand utiliser ol plutôt que ul ?"
+    reponse: "ol (liste ordonnée) quand l'ordre des éléments a un sens et doit être numéroté. ul (liste non ordonnée) quand l'ordre est indifférent."
+  - question: "Quel attribut de la balise a définit sa destination, et à quoi sert rel=\"noopener\" ?"
+    reponse: "href définit la destination. rel=\"noopener\", associé à target=\"_blank\", empêche la nouvelle page d'accéder à la page d'origine via window.opener, une précaution de sécurité."
+  - question: "Pourquoi l'attribut alt d'une image ne doit-il jamais être vide sur une image porteuse de sens ?"
+    reponse: "Un lecteur d'écran lit ce texte à la place de l'image, et il s'affiche si l'image ne charge pas. Le laisser vide prive l'utilisateur de cette information."
+  - question: "Un tableau HTML doit-il servir à la mise en page générale d'un site ?"
+    reponse: "Non : un tableau décrit des données tabulaires. L'utiliser pour la mise en page perturbe les lecteurs d'écran ; CSS (Flexbox, Grid) gère la mise en page aujourd'hui."
+  - question: "Comment associer correctement un label à un champ de formulaire ?"
+    reponse: "L'attribut for du label doit contenir exactement la même valeur que l'attribut id du champ. La simple proximité visuelle ne crée aucune association réelle."
+  - question: "Quelle est la différence entre section et article ?"
+    reponse: "article a du sens isolé de son contexte (un billet de blog). section regroupe une partie thématique qui dépend du contexte qui l'entoure."
+  - question: "À quoi sert aria-label, et que ne remplace-t-il jamais ?"
+    reponse: "aria-label nomme un élément sans texte visible (un bouton icône, par exemple), pour les technologies d'assistance. Il ne remplace jamais le choix de la bonne balise (button plutôt qu'un div cliquable)."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Le squelette d'un formulaire accessible
+
+<BlocCode
+  langue="html"
+  code={`<label for="prenom">Ton prénom</label>
+<input type="text" id="prenom" name="prenom" />`}
+/>
+
+## Le squelette d'une page sémantique
+
+<BlocCode
+  langue="html"
+  code={`<header><nav>...</nav></header>
+<main><section>...</section></main>
+<footer>...</footer>`}
+/>
+
+<Avertissement type="astuce">
+  Trois réflexes couvrent une bonne partie de l'accessibilité de base : jamais d'image sans alt porteur de sens, toujours un label associé par for/id, et un aria-label sur tout élément sans texte visible.
+</Avertissement>

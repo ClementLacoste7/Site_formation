@@ -1,0 +1,50 @@
+---
+titre: "Fiche de révision : CSS"
+description: "L'essentiel à retenir : sélecteurs, modèle de boîte, couleurs et texte, Flexbox, Grid, positionnement, responsive et transitions."
+slug: "css"
+coursLie: "css"
+tags: ["css"]
+questions:
+  - question: "Quelle est la différence entre une classe (.exemple) et un identifiant (#exemple) ?"
+    reponse: "Une classe peut s'appliquer à plusieurs éléments et se réutilise librement. Un identifiant devrait rester unique dans toute la page."
+  - question: "Dans quel ordre s'empilent les couches du modèle de boîte, de l'intérieur vers l'extérieur ?"
+    reponse: "Contenu, padding, bordure, marge. Le padding sépare le contenu de la bordure, la marge sépare la bordure des éléments voisins."
+  - question: "Que change box-sizing: border-box ?"
+    reponse: "La largeur déclarée (width) inclut alors le padding et la bordure, au lieu de s'ajouter en plus comme avec le comportement par défaut (content-box)."
+  - question: "Quelle est la différence entre justify-content et align-items en Flexbox ?"
+    reponse: "justify-content répartit les enfants sur l'axe principal (horizontal par défaut). align-items les aligne sur l'axe perpendiculaire (vertical par défaut)."
+  - question: "Quelle est la différence fondamentale entre Flexbox et Grid ?"
+    reponse: "Flexbox aligne des éléments sur une seule dimension (une ligne ou une colonne). Grid organise lignes et colonnes simultanément, en deux dimensions."
+  - question: "Par rapport à quoi se positionne un élément en position: absolute ?"
+    reponse: "Par rapport à son ancêtre positionné le plus proche (relative, absolute ou fixed), ou au document entier à défaut d'un tel ancêtre."
+  - question: "Que fait @media (max-width: 600px) { ... } ?"
+    reponse: "Applique les règles à l'intérieur uniquement quand la largeur de la fenêtre est de 600 pixels ou moins."
+  - question: "Quelle est la différence entre une transition et une animation (@keyframes) ?"
+    reponse: "Une transition adoucit un changement déclenché ailleurs (:hover, une classe ajoutée). Une animation @keyframes définit une séquence autonome, qui peut démarrer seule sans déclencheur."
+maj: 2026-08-07
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Le badge dans une carte, un cas classique
+
+<BlocCode
+  langue="css"
+  code={`.carte { position: relative; }
+.badge { position: absolute; top: 0; right: 0; }`}
+/>
+
+## Trois colonnes égales
+
+<BlocCode
+  langue="css"
+  code={`.conteneur {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}`}
+/>
+
+<Avertissement type="astuce">
+  Trois réflexes couvrent une bonne partie des surprises de débutant : box-sizing: border-box pour une largeur prévisible, position: relative sur le conteneur avant tout enfant absolute, et justify-content/align-items jamais confondus.
+</Avertissement>

@@ -1,0 +1,98 @@
+---
+titre: "Couleurs, texte et polices"
+titreCourt: "Couleurs et texte"
+description: "Les propriétés les plus utilisées de tout CSS : colorer, dimensionner et aligner du texte."
+slug: "couleurs-texte-et-polices"
+cours: "css"
+ordre: 3
+duree: 10
+niveau: "debutant"
+objectifs:
+  - "Distinguer color (texte) de background-color (arrière-plan)"
+  - "Ajuster la taille et la graisse d'un texte avec font-size et font-weight"
+  - "Aligner du texte avec text-align"
+prerequis: ["le-modele-de-boite"]
+tags: ["css"]
+quiz:
+  - question: "Quelle est la différence entre color et background-color ?"
+    type: "unique"
+    reponses:
+      - texte: "color colore le texte lui-même, background-color colore l'arrière-plan de la boîte de l'élément"
+        correcte: true
+        explication: "Ces deux propriétés agissent sur deux couches distinctes : le texte pour color, tout l'arrière-plan de la boîte (visible même là où il n'y a pas de texte) pour background-color."
+      - texte: "Les deux propriétés sont strictement identiques, deux noms pour le même effet"
+        correcte: false
+        explication: "Elles produisent des effets visuels différents et bien distincts : l'une teinte le texte, l'autre l'arrière-plan."
+      - texte: "background-color ne fonctionne que sur la balise body"
+        correcte: false
+        explication: "background-color s'applique à n'importe quel élément, pas seulement body : un simple paragraphe ou une div peuvent avoir leur propre arrière-plan."
+  - question: "Quelle valeur de font-weight correspond typiquement au mot-clé bold ?"
+    type: "unique"
+    reponses:
+      - texte: "700"
+        correcte: true
+        explication: "L'échelle numérique de font-weight va de 100 (très fin) à 900 (très gras) ; bold correspond conventionnellement à 700, normal à 400."
+      - texte: "100"
+        correcte: false
+        explication: "100 est au contraire l'extrémité la plus fine de l'échelle, l'opposé de bold."
+      - texte: "1"
+        correcte: false
+        explication: "L'échelle de font-weight utilise des valeurs de 100 à 900 par pas de 100, pas une échelle de 1 à quelques unités."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Colorer le texte et son arrière-plan
+
+<BlocCode
+  langue="css"
+  code={`p {
+  color: white;             /* couleur du texte */
+  background-color: navy;   /* couleur de l'arriere-plan de la boite */
+}`}
+/>
+
+## Taille, graisse et alignement
+
+<BlocCode
+  langue="css"
+  code={`h1 {
+  font-size: 32px;
+  font-weight: bold;   /* equivaut a 700 sur l'echelle 100-900 */
+  text-align: center;
+}`}
+/>
+
+<Avertissement type="astuce">
+  `font-weight` accepte aussi bien des mots-clés (`normal`, `bold`) qu'une valeur numérique précise (`400`, `700`), utile pour des polices proposant plusieurs graisses intermédiaires.
+</Avertissement>
+
+## À toi de jouer
+
+Style le titre `h1` ci-dessous : une taille de `24px`, une graisse `bold`, et un alignement centré (`center`).
+
+<ExerciceWeb
+  html={`<h1>Titre stylé</h1>`}
+  css={`h1 {
+  /* Complete le style ici */
+}`}
+  casDeTest={[
+    { description: "La taille du texte est de 24px", appel: "getComputedStyle(document.querySelector('h1')).fontSize", attendu: "'24px'" },
+    { description: "Le texte est en gras (font-weight 700)", appel: "getComputedStyle(document.querySelector('h1')).fontWeight", attendu: "'700'" },
+    { description: "Le texte est centré", appel: "getComputedStyle(document.querySelector('h1')).textAlign", attendu: "'center'" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "color colore le texte, background-color colore l'arrière-plan de la boîte",
+    "font-size ajuste la taille, en pixels ou une autre unité",
+    "font-weight ajuste la graisse : bold équivaut à 700 sur une échelle de 100 à 900",
+    "text-align aligne le texte horizontalement dans sa boîte (left, center, right)"
+  ]}
+/>

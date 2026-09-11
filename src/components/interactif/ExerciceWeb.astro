@@ -1,0 +1,64 @@
+---
+// Exercice HTML/CSS/JS corrigé automatiquement (cours de développement) :
+// même sandbox que BacASableWeb (iframe sandbox="allow-scripts" sans
+// allow-same-origin), mais le code de l'apprenant est comparé à des cas de
+// test évalués dans le même contexte JS plutôt que de se contenter d'un
+// aperçu. Voir SPEC.md section 8.5bis.
+import BlocCode from '../contenu/BlocCode.astro';
+import { useTranslations } from '../../i18n/utils';
+
+interface CasDeTest {
+  /** Ce que ce cas de test vérifie, affiché à l'apprenant. */
+  description: string;
+  /** Expression JavaScript à évaluer dans l'iframe, ex. "document.querySelectorAll('li').length". */
+  appel: string;
+  /** Valeur attendue, sous forme d'une expression JavaScript littérale, ex. "3" ou "\"Bonjour\"". */
+  attendu: string;
+}
+
+interface Props {
+  html?: string;
+  css?: string;
+  js?: string;
+  casDeTest: CasDeTest[];
+}
+
+const { html = '', css = '', js = '', casDeTest } = Astro.props;
+const t = useTranslations();
+const id = `exercice-web-${Math.random().toString(36).slice(2, 9)}`;
+const exemple = [html && `<!-- HTML -->\n${html}`, css && `/* CSS */\n${css}`, js && `// JS\n${js}`]
+  .filter(Boolean)
+  .join('\n\n');
+const propsJson = JSON.stringify({ html, css, js, casDeTest });
+---
+
+<div
+  class="not-prose my-4"
+  data-conteneur-ilot={id}
+  data-props={propsJson}
+  style="min-height: 12rem;"
+>
+  <BlocCode code={exemple} langue="html" />
+  <button
+    type="button"
+    data-bouton-essayer={id}
+    class="mt-2 w-full rounded-lg border py-2 text-sm font-medium"
+    style="border-color: var(--couleur-accent); color: var(--couleur-accent);"
+  >
+    {t.bacASable.essayer}
+  </button>
+</div>
+
+<script>
+  import { monterAuClic } from '../../scripts/monter-ilot';
+
+  document
+    .querySelectorAll<HTMLElement>('[data-conteneur-ilot^="exercice-web-"]')
+    .forEach((conteneur) => {
+      const id = conteneur.dataset.conteneurIlot as string;
+      const bouton = conteneur.querySelector<HTMLButtonElement>(`[data-bouton-essayer="${id}"]`);
+      if (!bouton) return;
+      const props = JSON.parse(conteneur.dataset.props ?? '{}');
+      monterAuClic(bouton, conteneur, props, () => import('./ExerciceWebIlot'));
+    });
+</script>

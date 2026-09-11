@@ -1,0 +1,87 @@
+---
+titre: "Attributs et accessibilité"
+titreCourt: "Accessibilité"
+description: "Un bouton sans texte visible reste muet pour un lecteur d'écran, sauf à lui donner un nom accessible avec aria-label."
+slug: "attributs-et-accessibilite"
+cours: "html"
+ordre: 8
+duree: 9
+niveau: "intermediaire"
+objectifs:
+  - "Utiliser aria-label pour nommer un élément sans texte visible"
+  - "Faire le lien entre les attributs d'accessibilité déjà vus (alt, label/for) et aria-label"
+  - "Comprendre qu'un attribut d'accessibilité ne remplace jamais une bonne structure HTML"
+prerequis: ["les-balises-semantiques"]
+tags: ["html"]
+quiz:
+  - question: "Pourquoi un bouton contenant seulement une icône (sans texte visible) a-t-il besoin d'un aria-label ?"
+    type: "unique"
+    reponses:
+      - texte: "Sans texte ni aria-label, un lecteur d'écran n'a rien à annoncer pour décrire l'action du bouton"
+        correcte: true
+        explication: "Une icône seule (souvent une image de fond ou une police d'icônes) ne porte aucun texte que le navigateur puisse transmettre : aria-label fournit ce nom accessible manquant."
+      - texte: "aria-label change l'apparence visuelle du bouton pour le rendre plus visible"
+        correcte: false
+        explication: "aria-label n'a aucun effet visuel : son texte n'est jamais affiché à l'écran, seulement transmis aux technologies d'assistance."
+      - texte: "aria-label est nécessaire uniquement sur les boutons de couleur rouge"
+        correcte: false
+        explication: "La couleur n'a aucun rapport avec ce besoin : c'est l'absence de texte visible qui rend aria-label nécessaire, quelle que soit l'apparence du bouton."
+  - question: "aria-label peut-il corriger une structure HTML fondamentalement incorrecte, comme un div cliquable à la place d'un vrai bouton ?"
+    type: "unique"
+    reponses:
+      - texte: "Non, aria-label nomme un élément mais ne lui donne pas le comportement clavier et les rôles qu'un vrai button possède nativement"
+        correcte: true
+        explication: "Un div avec aria-label reste inaccessible au clavier (pas de focus, pas d'activation par Entrée ou Espace) sans code supplémentaire : mieux vaut utiliser button, qui offre tout cela nativement, plutôt que rattraper ses manques après coup."
+      - texte: "Oui, aria-label suffit à rendre n'importe quel élément entièrement accessible"
+        correcte: false
+        explication: "aria-label nomme un élément, mais ne lui donne ni focus clavier, ni activation par Entrée/Espace, ni rôle sémantique natif : la bonne balise reste indispensable."
+      - texte: "aria-label ne fonctionne que sur des éléments déjà nativement accessibles, comme button"
+        correcte: false
+        explication: "aria-label peut techniquement s'appliquer à n'importe quel élément, y compris un div : le problème n'est pas son application, mais son insuffisance seule sur un élément mal choisi."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Ce que ce cours a déjà couvert sur l'accessibilité
+
+Deux réflexes vus dans les chapitres précédents sont déjà de l'accessibilité concrète : `alt` sur une image (chapitre 4) et l'association `label`/`for` sur un champ de formulaire (chapitre 6). `aria-label` complète ces deux outils pour un cas qu'ils ne couvrent pas : un élément sans texte visible du tout.
+
+## aria-label : nommer sans afficher
+
+<BlocCode
+  langue="html"
+  code={`<button aria-label="Fermer">&times;</button>`}
+/>
+
+Le symbole `&times;` (un `x`) s'affiche visuellement, mais ne dit rien de l'action à un lecteur d'écran. `aria-label="Fermer"` fournit ce nom, sans jamais s'afficher lui-même à l'écran.
+
+<Avertissement type="danger">
+  `aria-label` ne transforme jamais un élément mal choisi en élément accessible. Un `div` cliquable avec `aria-label` reste inatteignable au clavier et n'a pas de rôle de bouton pour les technologies d'assistance : utiliser `button` reste indispensable, `aria-label` vient en complément, jamais en remplacement.
+</Avertissement>
+
+## À toi de jouer
+
+Crée un bouton sans texte visible (par exemple juste un symbole `×` ou `+`), avec un `aria-label` décrivant clairement son action.
+
+<ExerciceWeb
+  html={`<!-- Ecris ton bouton ici -->
+`}
+  casDeTest={[
+    { description: "Il y a un bouton", appel: "document.querySelector('button') !== null", attendu: "true" },
+    { description: "Le bouton a un aria-label non vide", appel: "document.querySelector('button') && document.querySelector('button').getAttribute('aria-label') && document.querySelector('button').getAttribute('aria-label').trim().length > 0", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "alt (images), label/for (formulaires) et aria-label (éléments sans texte visible) forment un trio d'accessibilité de base",
+    "aria-label fournit un nom accessible, jamais affiché à l'écran, pour un élément sans texte visible",
+    "aria-label ne remplace jamais une bonne structure HTML : un div n'obtient pas le comportement clavier natif d'un button",
+    "Choisir la bonne balise reste la première étape, les attributs d'accessibilité viennent ensuite"
+  ]}
+/>

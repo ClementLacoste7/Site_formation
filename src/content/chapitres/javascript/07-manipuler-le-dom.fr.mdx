@@ -1,0 +1,110 @@
+---
+titre: "Manipuler le DOM"
+titreCourt: "Manipuler le DOM"
+description: "Sélectionner un élément de la page avec querySelector et modifier son contenu ou ses classes directement depuis JavaScript."
+slug: "manipuler-le-dom"
+cours: "javascript"
+ordre: 7
+duree: 14
+niveau: "intermediaire"
+objectifs:
+  - "Sélectionner un élément avec document.querySelector"
+  - "Modifier le texte et les classes CSS d'un élément"
+  - "Créer et insérer un nouvel élément dans la page"
+prerequis: ["les-objets"]
+tags: ["javascript"]
+quiz:
+  - question: "Que fait `document.querySelector(\".carte\")` ?"
+    type: "unique"
+    reponses:
+      - texte: "Il renvoie le premier élément de la page ayant la classe CSS \"carte\", ou null si aucun n'existe"
+        correcte: true
+        explication: "querySelector prend un sélecteur CSS (ici une classe, avec le point) et renvoie le premier élément correspondant dans la page ; s'il n'y en a aucun, il renvoie null plutôt que de lever une erreur."
+      - texte: "Il renvoie tous les éléments ayant la classe \"carte\", sous forme de tableau"
+        correcte: false
+        explication: "Renvoyer tous les éléments correspondants est le rôle de querySelectorAll, pas de querySelector qui s'arrête au tout premier trouvé."
+      - texte: "Il crée un nouvel élément avec la classe \"carte\""
+        correcte: false
+        explication: "querySelector ne crée rien : il cherche et renvoie un élément déjà présent dans la page. Créer un élément se fait avec document.createElement."
+  - question: "Quelle est la différence entre `.textContent` et `.classList.add(...)` sur un élément du DOM ?"
+    type: "unique"
+    reponses:
+      - texte: "textContent lit ou change le texte affiché dans l'élément ; classList.add ajoute une classe CSS sans toucher au texte"
+        correcte: true
+        explication: "element.textContent = \"...\" remplace le contenu textuel de l'élément ; element.classList.add(\"nom\") ajoute une classe CSS à l'élément, ce qui peut changer son apparence via le CSS existant, sans modifier son texte."
+      - texte: "Les deux font exactement la même chose : changer l'apparence visuelle de l'élément"
+        correcte: false
+        explication: "Leur effet diffère : textContent change le contenu textuel affiché, classList.add change les classes CSS appliquées, qui peuvent ensuite influencer l'apparence via des règles CSS."
+      - texte: "textContent modifie le HTML de la page, classList.add ne modifie que la mémoire sans effet visible"
+        correcte: false
+        explication: "Les deux ont un effet visible immédiat sur la page rendue : textContent change le texte affiché, classList.add change l'apparence via les classes CSS actives."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Sélectionner un élément
+
+<BlocCode
+  langue="javascript"
+  code={`const titre = document.querySelector("h1");
+console.log(titre.textContent); // le texte actuel du <h1>
+
+const items = document.querySelectorAll("li");
+console.log(items.length); // le nombre de <li> dans la page`}
+/>
+
+`querySelector` renvoie le premier élément correspondant au sélecteur CSS, ou `null` si aucun n'existe. `querySelectorAll` renvoie tous les éléments correspondants.
+
+## Modifier le texte et les classes
+
+<BlocCode
+  langue="javascript"
+  code={`const titre = document.querySelector("h1");
+titre.textContent = "Nouveau titre";
+titre.classList.add("actif");
+titre.classList.remove("inactif");
+titre.classList.toggle("surligne");`}
+/>
+
+<Avertissement type="attention">
+  Vérifie toujours qu'un élément a bien été trouvé avant de le manipuler : appeler une méthode sur `null` (élément absent) provoque une erreur qui arrête le script.
+</Avertissement>
+
+## Créer un nouvel élément
+
+<BlocCode
+  langue="javascript"
+  code={`const nouvelleLi = document.createElement("li");
+nouvelleLi.textContent = "Nouvel élément";
+document.querySelector("ul").appendChild(nouvelleLi);`}
+/>
+
+## À toi de jouer
+
+La page contient un élément `<p id="message">En attente</p>`. Écris une fonction `mettreAJourMessage(texte)` qui remplace le texte de cet élément par `texte` et lui ajoute la classe `"actif"`.
+
+<ExerciceWeb
+  html={`<p id="message">En attente</p>`}
+  js={`function mettreAJourMessage(texte) {
+  // Change le texte de #message et ajoute la classe "actif"
+
+}`}
+  casDeTest={[
+    { description: "Le texte est mis à jour", appel: "(mettreAJourMessage('Termine'), document.getElementById('message').textContent)", attendu: "'Termine'" },
+    { description: "La classe actif est ajoutée", appel: "(mettreAJourMessage('Termine'), document.getElementById('message').classList.contains('actif'))", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "document.querySelector(sélecteur) renvoie le premier élément correspondant, ou null",
+    "element.textContent lit ou change le texte affiché dans un élément",
+    "element.classList.add/remove/toggle gère les classes CSS d'un élément",
+    "document.createElement + appendChild insère un nouvel élément dans la page"
+  ]}
+/>

@@ -1,0 +1,108 @@
+---
+titre: "Transitions et animations simples"
+titreCourt: "Transitions"
+description: "Faire évoluer une propriété en douceur plutôt que d'un coup, sans écrire la moindre ligne de JavaScript."
+slug: "transitions-et-animations"
+cours: "css"
+ordre: 8
+duree: 9
+niveau: "avance"
+objectifs:
+  - "Déclarer une transition sur une propriété précise, avec une durée"
+  - "Déclencher une transition avec :hover"
+  - "Distinguer une transition (entre deux états) d'une animation (une séquence autonome via @keyframes)"
+prerequis: ["responsive-design"]
+tags: ["css"]
+quiz:
+  - question: "Que fait `transition: background-color 0.3s;` sur un élément ?"
+    type: "unique"
+    reponses:
+      - texte: "Quand la couleur d'arrière-plan change (par exemple au survol), le changement s'étale sur 0,3 seconde au lieu d'être instantané"
+        correcte: true
+        explication: "La transition n'ajoute pas de changement elle-même : elle adoucit dans le temps un changement qui se produit par ailleurs (souvent déclenché par :hover ou une classe ajoutée en JavaScript)."
+      - texte: "Change immédiatement la couleur d'arrière-plan de l'élément"
+        correcte: false
+        explication: "transition ne déclenche aucun changement seule : elle définit comment un changement, déclenché ailleurs, doit s'animer dans le temps."
+      - texte: "Répète indéfiniment un changement de couleur toutes les 0,3 secondes"
+        correcte: false
+        explication: "C'est le rôle d'une animation avec @keyframes et animation-iteration-count, pas d'une simple transition qui ne joue qu'une fois, d'un état à un autre."
+  - question: "Quelle est la différence entre une transition et une animation (@keyframes) ?"
+    type: "unique"
+    reponses:
+      - texte: "Une transition adoucit le passage entre deux états déclenché par autre chose (:hover, une classe ajoutée), une animation définit une séquence autonome qui peut se jouer sans déclencheur externe"
+        correcte: true
+        explication: "Une transition a besoin d'un changement d'état pour se déclencher ; une animation @keyframes peut démarrer seule au chargement et se répéter indéfiniment, sans dépendre d'une interaction."
+      - texte: "Une transition ne fonctionne qu'en CSS, une animation nécessite obligatoirement du JavaScript"
+        correcte: false
+        explication: "Les deux sont des mécanismes purement CSS : @keyframes ne nécessite aucun JavaScript pour fonctionner."
+      - texte: "Les deux termes désignent exactement la même chose en CSS"
+        correcte: false
+        explication: "Ce sont deux mécanismes distincts, avec des syntaxes et des cas d'usage différents, pas deux noms pour la même fonctionnalité."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Adoucir un changement d'état
+
+<BlocCode
+  langue="css"
+  code={`.bouton {
+  background-color: navy;
+  transition: background-color 0.3s;
+}
+
+.bouton:hover {
+  background-color: royalblue;
+}`}
+/>
+
+La transition ne déclenche rien seule : c'est `:hover` qui change la couleur, `transition` se contente d'étaler ce changement sur 0,3 seconde plutôt que de le rendre instantané.
+
+<Avertissement type="astuce">
+  `transition: all 0.3s;` applique cet adoucissement à toutes les propriétés qui changent, pratique mais moins précis que cibler une propriété exacte comme `background-color`.
+</Avertissement>
+
+## Une animation autonome, avec @keyframes
+
+<BlocCode
+  langue="css"
+  code={`@keyframes apparition {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.element {
+  animation: apparition 0.5s;
+}`}
+/>
+
+Contrairement à une transition, cette animation démarre seule au chargement, sans attendre un `:hover` ou tout autre déclencheur.
+
+## À toi de jouer
+
+Ajoute une transition sur `.bouton` : la propriété `background-color` doit s'animer sur une durée de `0.3s`.
+
+<ExerciceWeb
+  html={`<button class="bouton">Survole-moi</button>`}
+  css={`.bouton {
+  /* Ajoute ta transition ici */
+}`}
+  casDeTest={[
+    { description: "La transition porte sur background-color", appel: "getComputedStyle(document.querySelector('.bouton')).transitionProperty", attendu: "'background-color'" },
+    { description: "La durée de la transition est de 0.3s", appel: "getComputedStyle(document.querySelector('.bouton')).transitionDuration", attendu: "'0.3s'" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "transition adoucit dans le temps un changement déclenché ailleurs (:hover, une classe ajoutée)",
+    "transition: propriete duree cible précisément ce qui doit s'animer",
+    "@keyframes définit une animation autonome, qui peut démarrer seule sans déclencheur",
+    "Une transition réagit à un changement d'état, une animation joue une séquence indépendante"
+  ]}
+/>

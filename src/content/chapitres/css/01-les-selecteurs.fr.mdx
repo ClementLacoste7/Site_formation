@@ -1,0 +1,96 @@
+---
+titre: "Sélecteurs : cibler les bons éléments"
+titreCourt: "Les sélecteurs"
+description: "Avant de savoir quoi écrire en CSS, il faut savoir cibler précisément l'élément concerné : par balise, par classe, par identifiant, ou par leur relation."
+slug: "les-selecteurs"
+cours: "css"
+ordre: 1
+duree: 10
+niveau: "debutant"
+objectifs:
+  - "Cibler des éléments par balise, par classe et par identifiant"
+  - "Cibler un élément selon sa position dans un autre (sélecteur descendant)"
+  - "Comprendre pourquoi une classe reste le sélecteur le plus flexible au quotidien"
+prerequis: []
+tags: ["css"]
+quiz:
+  - question: "Quelle est la différence entre un sélecteur de classe (.exemple) et un sélecteur d'identifiant (#exemple) ?"
+    type: "unique"
+    reponses:
+      - texte: "Une classe peut s'appliquer à plusieurs éléments de la page, un identifiant ne devrait cibler qu'un seul élément unique"
+        correcte: true
+        explication: "Un id est censé être unique dans toute la page (dupliqué, il devient invalide), alors qu'une classe se réutilise librement sur autant d'éléments que nécessaire."
+      - texte: "Un identifiant ne peut jamais être stylé en CSS, contrairement à une classe"
+        correcte: false
+        explication: "Un id peut être ciblé en CSS aussi bien qu'une classe (avec #identifiant) : ce n'est pas une limitation de style, mais d'unicité et de réutilisation."
+      - texte: "Une classe et un identifiant sont strictement interchangeables en CSS"
+        correcte: false
+        explication: "Leur syntaxe diffère (. contre #) et surtout leur usage prévu : réutilisable pour une classe, unique pour un identifiant."
+  - question: "Que cible le sélecteur `.carte p` ?"
+    type: "unique"
+    reponses:
+      - texte: "Tout élément p situé à l'intérieur d'un élément portant la classe carte, à n'importe quelle profondeur"
+        correcte: true
+        explication: "L'espace entre deux sélecteurs forme un sélecteur descendant : .carte p cible tous les p imbriqués dans un élément .carte, directement ou non."
+      - texte: "Uniquement un élément qui possède à la fois la classe carte et la balise p"
+        correcte: false
+        explication: "Ce cas correspondrait à p.carte (collés, sans espace), pas à .carte p (séparés par un espace) qui décrit une relation d'imbrication."
+      - texte: "Tout élément p de la page, la classe carte étant ignorée dans ce sélecteur"
+        correcte: false
+        explication: "La classe carte n'est pas ignorée : elle restreint la sélection aux p imbriqués dans un élément .carte, pas à tous les p de la page."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Trois façons de cibler un élément
+
+<BlocCode
+  langue="css"
+  code={`p { color: navy; }          /* tous les paragraphes */
+.important { color: red; }  /* tous les elements avec class="important" */
+#titre { color: green; }    /* l'element unique avec id="titre" */`}
+/>
+
+<Avertissement type="astuce">
+  Un `id` doit rester unique dans toute la page ; une classe se réutilise librement sur autant d'éléments que nécessaire. Au quotidien, la classe reste le sélecteur le plus flexible.
+</Avertissement>
+
+## Cibler selon la position : le sélecteur descendant
+
+<BlocCode
+  langue="css"
+  code={`.carte p {
+  color: gray;
+}`}
+/>
+
+Un espace entre deux sélecteurs forme une relation d'imbrication : `.carte p` cible tout `p` situé à l'intérieur d'un élément `.carte`, à n'importe quelle profondeur, jamais les `p` ailleurs sur la page.
+
+## À toi de jouer
+
+Le HTML ci-dessous contient deux paragraphes. Écris le CSS pour que le paragraphe portant la classe `important` s'affiche en rouge (`red`), sans changer l'autre.
+
+<ExerciceWeb
+  html={`<p class="important">Ceci est important</p>
+<p>Ceci est un texte normal</p>`}
+  css={`/* Ecris ton style pour .important ici */
+`}
+  casDeTest={[
+    { description: "Le paragraphe important est en rouge", appel: "getComputedStyle(document.querySelector('.important')).color", attendu: "'rgb(255, 0, 0)'" },
+    { description: "Le paragraphe normal n'est pas rouge", appel: "getComputedStyle(document.querySelectorAll('p')[1]).color !== 'rgb(255, 0, 0)'", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Un sélecteur de balise cible tous les éléments de ce type, une classe cible tous les éléments qui la portent",
+    "Un identifiant (#) devrait rester unique dans la page, contrairement à une classe (.) réutilisable",
+    "Un espace entre deux sélecteurs (.carte p) cible un descendant, pas une combinaison sur le même élément",
+    "La classe reste le sélecteur le plus flexible pour un usage quotidien"
+  ]}
+/>

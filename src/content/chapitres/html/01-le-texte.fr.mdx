@@ -1,0 +1,97 @@
+---
+titre: "Le texte : titres et paragraphes"
+titreCourt: "Le texte"
+description: "Les balises de base pour structurer du texte : titres hiérarchiques et paragraphes, avant même de parler de mise en forme."
+slug: "le-texte"
+cours: "html"
+ordre: 1
+duree: 10
+niveau: "debutant"
+objectifs:
+  - "Situer HTML dans le trio HTML/CSS/JS et ce que chacun fait"
+  - "Utiliser les six niveaux de titres (h1 à h6) selon la hiérarchie du contenu"
+  - "Structurer un texte en paragraphes avec la balise p"
+prerequis: []
+tags: ["html"]
+quiz:
+  - question: "Que fait HTML, par rapport à CSS et JavaScript ?"
+    type: "unique"
+    reponses:
+      - texte: "HTML décrit la structure et le contenu d'une page, sans se préoccuper de son apparence ni de son comportement"
+        correcte: true
+        explication: "CSS s'occupe de l'apparence (couleurs, mise en page), JavaScript du comportement (interactions) : HTML pose seulement la structure du contenu."
+      - texte: "HTML gère uniquement les couleurs et les polices d'une page"
+        correcte: false
+        explication: "C'est le rôle de CSS, pas de HTML : HTML ne décrit que la structure et le contenu, pas son apparence visuelle."
+      - texte: "HTML permet de rendre une page interactive au clic"
+        correcte: false
+        explication: "L'interactivité relève de JavaScript : HTML se contente de structurer le contenu, sans gérer d'événements."
+  - question: "Pourquoi ne faut-il pas choisir un niveau de titre (h1 à h6) uniquement pour sa taille d'affichage par défaut ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que ces balises décrivent une hiérarchie logique du contenu, pas seulement une taille de texte, ce qui compte pour l'accessibilité et le référencement"
+        correcte: true
+        explication: "Un lecteur d'écran ou un moteur de recherche s'appuie sur cette hiérarchie pour comprendre la structure de la page : sauter des niveaux ou les choisir juste pour la taille casse cette logique, même si la taille peut être changée en CSS."
+      - texte: "Parce que h1 est la seule balise de titre reconnue par les navigateurs modernes"
+        correcte: false
+        explication: "Les six niveaux (h1 à h6) sont tous parfaitement reconnus : le problème n'est pas leur reconnaissance technique, mais leur usage cohérent."
+      - texte: "Parce que la taille d'un titre ne peut jamais être modifiée avec CSS"
+        correcte: false
+        explication: "C'est l'inverse : CSS peut modifier l'apparence de n'importe quel titre, ce qui est justement une raison de ne pas choisir un niveau de titre pour sa seule taille par défaut."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Un trio, trois rôles distincts
+
+HTML structure le contenu d'une page (ce qui existe : un titre, un paragraphe, une image). CSS lui donne une apparence (couleurs, mise en page). JavaScript la rend interactive (réagir à un clic, modifier le contenu). Ce cours traite exclusivement de HTML ; les deux suivants couvrent CSS puis JavaScript.
+
+<Avertissement type="info">
+  Dans les exercices de ce cours, tu écris seulement ce qui irait dans le `&lt;body&gt;` d'une vraie page. Le reste (`&lt;!doctype html&gt;`, `&lt;head&gt;`, encodage des caractères) existe dans toute page réelle, mais reste hors de l'éditeur pour se concentrer sur le contenu.
+</Avertissement>
+
+## Une hiérarchie de titres
+
+<BlocCode
+  langue="html"
+  code={`<h1>Titre principal de la page</h1>
+<h2>Un grand titre de section</h2>
+<h3>Un sous-titre</h3>`}
+/>
+
+Il n'existe qu'un seul `h1` par page en général (le titre principal), puis les niveaux suivants (`h2`, `h3`...) structurent les sections et sous-sections, sans en sauter : un `h3` doit suivre un `h2`, pas directement un `h1`.
+
+## Le paragraphe
+
+<BlocCode
+  langue="html"
+  code={`<p>Un paragraphe de texte ordinaire, qui peut s'étendre sur plusieurs lignes dans le code sans que ça change son affichage.</p>`}
+/>
+
+## À toi de jouer
+
+Écris un titre principal (`h1`) contenant exactement `Mon blog`, suivi d'un paragraphe (`p`) d'au moins 10 caractères, sur le sujet de ton choix.
+
+<ExerciceWeb
+  html={`<!-- Ecris ton h1 et ton p ici -->
+`}
+  casDeTest={[
+    { description: "Le titre h1 contient exactement \"Mon blog\"", appel: "document.querySelector('h1') && document.querySelector('h1').textContent", attendu: "'Mon blog'" },
+    { description: "Il y a au moins un paragraphe", appel: "document.querySelectorAll('p').length >= 1", attendu: "true" },
+    { description: "Le paragraphe contient au moins 10 caractères", appel: "document.querySelector('p') && document.querySelector('p').textContent.length >= 10", attendu: "true" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "HTML structure le contenu, CSS l'apparence, JavaScript le comportement : trois rôles distincts",
+    "h1 à h6 forment une hiérarchie logique de titres, pas seulement des tailles de texte",
+    "Un h1 unique par page en général, puis des niveaux suivants sans en sauter",
+    "p délimite un paragraphe de texte ordinaire"
+  ]}
+/>

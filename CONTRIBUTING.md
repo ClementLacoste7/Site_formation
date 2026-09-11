@@ -17,7 +17,7 @@ Copier l'en-tête (tout ce qui est entre les deux lignes `---`) d'un chapitre ex
 | `titre` | Titre complet de la page |
 | `titreCourt` | Version courte, utilisée dans la navigation et le sommaire du cours |
 | `description` | 1-2 phrases, idéalement 120-160 caractères (référencement) |
-| `slug` | Identifiant dans l'URL, en minuscules avec des tirets |
+| `slug` | Identifiant dans l'URL, en minuscules avec des tirets. **Doit être unique dans tout le site, pas seulement dans ce cours** : deux chapitres de cours différents partageant le même slug entrent en collision (l'un des deux disparaît silencieusement du build, sans erreur). En cas de titre générique déjà pris ailleurs (« Les listes », « Les fonctions »...), ajouter un suffixe au slug (`-html`, `-js`...), le `titre` affiché peut rester inchangé |
 | `cours` | Doit correspondre exactement au `slug` du cours lié |
 | `ordre` | Position du chapitre dans le cours (nombre) |
 | `duree` | Temps de lecture estimé, en minutes |
@@ -29,7 +29,7 @@ Copier l'en-tête (tout ce qui est entre les deux lignes `---`) d'un chapitre ex
 | `maj` | Date du jour |
 | `publie` | `true` pour que le chapitre soit visible |
 
-Si un champ est mal renseigné ou manquant, **le build échoue avec un message précis indiquant lequel** — c'est voulu, pas un bug à contourner.
+Si un champ est mal renseigné ou manquant, **le build échoue avec un message précis indiquant lequel** : c'est voulu, pas un bug à contourner. Un slug dupliqué entre deux cours, en revanche, ne provoque aucune erreur : vérifier son unicité reste à la charge de l'auteur (voir la remarque sur `slug` ci-dessus).
 
 ### 3. Écrire le corps du chapitre
 

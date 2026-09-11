@@ -1,0 +1,116 @@
+---
+titre: "Les fonctions"
+titreCourt: "Les fonctions"
+description: "Déclarer des fonctions classiques et des fonctions fléchées, les paramètres par défaut, et pourquoi une fonction sans return renvoie undefined."
+slug: "les-fonctions-js"
+cours: "javascript"
+ordre: 4
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Déclarer une fonction avec function et avec la syntaxe fléchée =>"
+  - "Utiliser des paramètres par défaut"
+  - "Comprendre ce que renvoie une fonction sans instruction return"
+prerequis: ["les-boucles-js"]
+tags: ["javascript"]
+quiz:
+  - question: "Que renvoie une fonction JavaScript qui n'a pas d'instruction return ?"
+    type: "unique"
+    reponses:
+      - texte: "undefined"
+        correcte: true
+        explication: "En l'absence de return explicite, une fonction JavaScript renvoie automatiquement undefined, quel que soit le traitement effectué à l'intérieur."
+      - texte: "null"
+        correcte: false
+        explication: "null représente une absence de valeur volontaire assignée explicitement ; l'absence de return produit undefined, pas null."
+      - texte: "Une erreur est levée à l'exécution"
+        correcte: false
+        explication: "Aucune erreur n'est levée : la fonction s'exécute normalement et renvoie simplement undefined."
+  - question: "Quelle est la différence entre `function carre(x) { return x * x; }` et `const carre = (x) => x * x;` ?"
+    type: "unique"
+    reponses:
+      - texte: "Ce sont deux syntaxes différentes pour un résultat équivalent : la seconde, une fonction fléchée à corps concis, renvoie implicitement le résultat de l'expression"
+        correcte: true
+        explication: "Une fonction fléchée sans accolades ({}) renvoie automatiquement la valeur de son expression, sans avoir besoin d'écrire return : les deux écritures produisent donc le même comportement pour cet exemple."
+      - texte: "La fonction fléchée ne peut jamais prendre de paramètres"
+        correcte: false
+        explication: "Une fonction fléchée peut prendre autant de paramètres qu'une fonction classique : (x) => x * x en prend un, (a, b) => a + b en prend deux."
+      - texte: "function carre ne peut être appelée qu'une seule fois"
+        correcte: false
+        explication: "Une fonction déclarée avec function peut être appelée autant de fois que nécessaire, exactement comme une fonction fléchée."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Déclarer une fonction
+
+<BlocCode
+  langue="javascript"
+  code={`function saluer(nom) {
+  return \`Bonjour, \${nom} !\`;
+}
+
+console.log(saluer("Alice")); // "Bonjour, Alice !"`}
+/>
+
+## Les fonctions fléchées
+
+<BlocCode
+  langue="javascript"
+  code={`const carre = (x) => x * x;
+console.log(carre(5)); // 25
+
+const addition = (a, b) => {
+  const resultat = a + b;
+  return resultat;
+};
+console.log(addition(2, 3)); // 5`}
+/>
+
+Avec des accolades, une fonction fléchée a besoin d'un `return` explicite comme une fonction classique. Sans accolades, l'expression après `=>` est renvoyée directement.
+
+## Paramètres par défaut
+
+<BlocCode
+  langue="javascript"
+  code={`function saluer(nom = "visiteur") {
+  return \`Bonjour, \${nom} !\`;
+}
+
+console.log(saluer());        // "Bonjour, visiteur !"
+console.log(saluer("Bob"));   // "Bonjour, Bob !"`}
+/>
+
+<Avertissement type="info">
+  Une fonction sans `return` renvoie toujours `undefined`, même si elle affiche quelque chose avec `console.log` à l'intérieur. Afficher une valeur et la renvoyer sont deux choses différentes.
+</Avertissement>
+
+## À toi de jouer
+
+Écris une fonction `calculerPrix(prix, remise = 0)` qui renvoie le prix après application d'un pourcentage de remise (`remise` est un nombre entre 0 et 100, par défaut 0).
+
+<ExerciceWeb
+  js={`function calculerPrix(prix, remise = 0) {
+  // Renvoie prix diminué du pourcentage remise
+
+}`}
+  casDeTest={[
+    { description: "Sans remise", appel: "calculerPrix(100)", attendu: "100" },
+    { description: "Avec 20% de remise", appel: "calculerPrix(100, 20)", attendu: "80" },
+    { description: "Avec 50% de remise sur 200", appel: "calculerPrix(200, 50)", attendu: "100" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "function nom(params) { ... } déclare une fonction classique",
+    "(params) => expression déclare une fonction fléchée à corps concis, avec retour implicite",
+    "Sans return explicite, une fonction renvoie toujours undefined",
+    "Un paramètre par défaut (param = valeur) s'applique quand l'argument n'est pas fourni"
+  ]}
+/>

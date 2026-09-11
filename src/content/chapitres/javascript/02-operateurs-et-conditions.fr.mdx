@@ -1,0 +1,120 @@
+---
+titre: "Opérateurs et conditions"
+titreCourt: "Opérateurs et conditions"
+description: "Les opérateurs de comparaison, la différence cruciale entre === et ==, et les structures if/else if/else pour brancher l'exécution."
+slug: "operateurs-et-conditions"
+cours: "javascript"
+ordre: 2
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Utiliser les opérateurs de comparaison et logiques"
+  - "Comprendre pourquoi === est préférable à == en JavaScript"
+  - "Écrire des branches conditionnelles avec if / else if / else"
+prerequis: ["variables-et-types"]
+tags: ["javascript"]
+quiz:
+  - question: "Que renvoie `\"5\" == 5` ? Et `\"5\" === 5` ?"
+    type: "unique"
+    reponses:
+      - texte: "true puis false : == convertit les types avant de comparer, === non"
+        correcte: true
+        explication: "== (égalité faible) convertit un des deux opérandes pour que les types correspondent avant de comparer ; === (égalité stricte) refuse la comparaison si les types diffèrent déjà, donc renvoie false entre une chaîne et un nombre."
+      - texte: "false puis true : c'est l'inverse"
+        correcte: false
+        explication: "C'est l'inverse : == est la version permissive qui convertit les types, === est la version stricte qui les compare sans conversion."
+      - texte: "true dans les deux cas, == et === sont equivalents en JavaScript"
+        correcte: false
+        explication: "== et === ne sont pas équivalents : c'est justement leur différence de gestion des types qui pousse à toujours préférer === en pratique."
+  - question: "Pourquoi préfère-t-on systématiquement === à == en JavaScript ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que == peut produire des résultats surprenants en convertissant silencieusement les types avant de comparer"
+        correcte: true
+        explication: "Des cas comme `0 == \"\"` ou `null == undefined` renvoient true à cause des conversions implicites de ==, ce qui cause des bugs difficiles à repérer ; === évite ce piège en comparant sans convertir."
+      - texte: "Parce que == est plus lent à l'exécution que ==="
+        correcte: false
+        explication: "La différence n'est pas une question de performance : elle porte sur la fiabilité du résultat, à cause des conversions de types implicites de ==."
+      - texte: "Parce que == ne fonctionne pas avec les nombres"
+        correcte: false
+        explication: "== fonctionne avec tous les types, y compris les nombres : le problème n'est pas qu'il ne fonctionne pas, mais qu'il convertit les types avant de comparer, ce qui donne des résultats parfois inattendus."
+maj: 2026-08-07
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import ExerciceWeb from '../../../components/interactif/ExerciceWeb.astro';
+
+## Comparer des valeurs
+
+<BlocCode
+  langue="javascript"
+  code={`console.log(5 > 3);   // true
+console.log(5 === 5); // true
+console.log(5 !== 3); // true
+console.log("5" == 5);  // true  : == convertit les types
+console.log("5" === 5); // false : === refuse, les types different`}
+/>
+
+<Avertissement type="attention">
+  Utilise toujours `===` et `!==`, jamais `==` ni `!=`. L'égalité faible convertit silencieusement les types avant de comparer, ce qui produit des résultats surprenants comme `null == undefined` (true) ou `0 == ""` (true).
+</Avertissement>
+
+## Combiner des conditions
+
+<BlocCode
+  langue="javascript"
+  code={`const age = 20;
+const aPermis = true;
+
+console.log(age >= 18 && aPermis); // true : les deux doivent etre vraies
+console.log(age < 18 || aPermis);  // true : au moins une est vraie
+console.log(!aPermis);             // false : inverse la valeur`}
+/>
+
+## Brancher l'exécution avec if / else if / else
+
+<BlocCode
+  langue="javascript"
+  code={`function categoriser(note) {
+  if (note >= 16) {
+    return "Excellent";
+  } else if (note >= 10) {
+    return "Admis";
+  } else {
+    return "Ajourne";
+  }
+}
+
+console.log(categoriser(18)); // "Excellent"
+console.log(categoriser(12)); // "Admis"
+console.log(categoriser(5));  // "Ajourne"`}
+/>
+
+## À toi de jouer
+
+Écris une fonction `estMajeurEtVote(age, aVote)` qui renvoie `true` seulement si `age` est supérieur ou égal à 18 **et** `aVote` vaut `true`.
+
+<ExerciceWeb
+  js={`function estMajeurEtVote(age, aVote) {
+  // Renvoie true seulement si age >= 18 ET aVote est true
+
+}`}
+  casDeTest={[
+    { description: "18 ans et a voté", appel: "estMajeurEtVote(18, true)", attendu: "true" },
+    { description: "18 ans mais n'a pas voté", appel: "estMajeurEtVote(18, false)", attendu: "false" },
+    { description: "16 ans et pretend avoir voté", appel: "estMajeurEtVote(16, true)", attendu: "false" },
+    { description: "Le résultat est bien un booléen", appel: "typeof estMajeurEtVote(20, true)", attendu: "'boolean'" }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "=== et !== comparent sans convertir les types : à utiliser systématiquement",
+    "== et != convertissent les types avant de comparer, source de bugs : à éviter",
+    "&& (et), || (ou), ! (non) combinent des conditions booléennes",
+    "if / else if / else exécute la première branche dont la condition est vraie"
+  ]}
+/>

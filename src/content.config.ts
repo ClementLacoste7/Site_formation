@@ -123,7 +123,10 @@ const niveauxExamen = defineCollection({
     description: z.string(),
     slug: z.string(),
     examen: reference('examens'),
-    niveau: z.enum(['debutant', 'intermediaire', 'expert']),
+    // "general" : cas d'un examen à un seul niveau (quizz de révision d'un
+    // cours existant), par opposition aux trois niveaux d'un examen de
+    // certification comme CCNA ou Security+.
+    niveau: z.enum(['debutant', 'intermediaire', 'expert', 'general']),
     ordre: z.number(),
     nombreQuizz: z.number(),
     questionsParQuizz: z.number(),

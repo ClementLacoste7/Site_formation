@@ -26,10 +26,11 @@ export async function getStaticPaths() {
 const { niveau, examen } = Astro.props;
 const t = useTranslations();
 
-const COULEUR_PAR_NIVEAU: Record<'debutant' | 'intermediaire' | 'expert', string> = {
+const COULEUR_PAR_NIVEAU: Record<'debutant' | 'intermediaire' | 'expert' | 'general', string> = {
   debutant: 'var(--couleur-succes)',
   intermediaire: 'var(--couleur-attention)',
-  expert: 'var(--couleur-danger)'
+  expert: 'var(--couleur-danger)',
+  general: 'var(--couleur-accent)'
 };
 const couleurNiveau = COULEUR_PAR_NIVEAU[niveau.data.niveau];
 

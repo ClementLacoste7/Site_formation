@@ -22,11 +22,14 @@ const t = useTranslations();
 
 // Ordre d'affichage fixe (débutant → expert), indépendant de l'ordre des
 // fichiers de contenu : la couleur associée porte le sens du niveau.
-const ORDRE_NIVEAUX = ['debutant', 'intermediaire', 'expert'] as const;
+// "general" : cas d'un examen à un seul niveau (quizz de révision d'un cours
+// existant plutôt qu'une certification à plusieurs niveaux).
+const ORDRE_NIVEAUX = ['debutant', 'intermediaire', 'expert', 'general'] as const;
 const COULEUR_PAR_NIVEAU: Record<(typeof ORDRE_NIVEAUX)[number], string> = {
   debutant: 'var(--couleur-succes)',
   intermediaire: 'var(--couleur-attention)',
-  expert: 'var(--couleur-danger)'
+  expert: 'var(--couleur-danger)',
+  general: 'var(--couleur-accent)'
 };
 
 const tousLesNiveaux = await getCollection('niveauxExamen');
@@ -49,7 +52,7 @@ const fils = [{ label: t.nav.quizz, href: urlQuizz() }, { label: examen.data.tit
     <p class="mt-2" style="color: var(--couleur-texte-attenue);">{examen.data.description}</p>
 
     <h2 class="mt-8 font-semibold">{t.examen.niveauxDisponibles}</h2>
-    <div class="mt-3 grid gap-4 sm:grid-cols-3">
+    <div class={`mt-3 grid gap-4 ${niveaux.length === 1 ? 'sm:max-w-sm' : 'sm:grid-cols-3'}`}>
       {niveaux.map((niveau) => (
         <a
           href={urlNiveauExamen(niveau, examen)}

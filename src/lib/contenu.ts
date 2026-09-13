@@ -34,3 +34,18 @@ export function urlFiches(): string {
 export function urlFiche(fiche: CollectionEntry<'fiches'>): string {
   return `${urlFiches()}${fiche.data.slug}/`;
 }
+
+export function urlQuizz(): string {
+  return '/fr/quizz/';
+}
+
+export function urlExamen(examen: CollectionEntry<'examens'>): string {
+  return `${urlQuizz()}${examen.data.slug}/`;
+}
+
+export function urlNiveauExamen(
+  niveauExamen: CollectionEntry<'niveauxExamen'>,
+  examen: CollectionEntry<'examens'>
+): string {
+  return `${urlExamen(examen)}${niveauExamen.data.slug}/`;
+}

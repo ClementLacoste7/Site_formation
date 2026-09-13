@@ -1,0 +1,67 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import BaseLayout from '../../../../../layouts/BaseLayout.astro';
+import FilAriane from '../../../../../components/nav/FilAriane.astro';
+import DonneesStructurees from '../../../../../components/seo/DonneesStructurees.astro';
+import QuizExamen from '../../../../../components/interactif/QuizExamen.astro';
+import { locales, useTranslations } from '../../../../../i18n/utils';
+import { urlExamen, urlQuizz } from '../../../../../lib/contenu';
+
+export async function getStaticPaths() {
+  const niveaux = await getCollection('niveauxExamen');
+  const paths = [];
+  for (const niveau of niveaux) {
+    const examen = await getEntry(niveau.data.examen);
+    if (!examen) continue;
+    for (const lang of locales) {
+      paths.push({
+        params: { lang, examen: examen.data.slug, niveau: niveau.data.slug },
+        props: { niveau, examen }
+      });
+    }
+  }
+  return paths;
+}
+
+const { niveau, examen } = Astro.props;
+const t = useTranslations();
+
+const COULEUR_PAR_NIVEAU: Record<'debutant' | 'intermediaire' | 'expert', string> = {
+  debutant: 'var(--couleur-succes)',
+  intermediaire: 'var(--couleur-attention)',
+  expert: 'var(--couleur-danger)'
+};
+const couleurNiveau = COULEUR_PAR_NIVEAU[niveau.data.niveau];
+
+const fils = [
+  { label: t.nav.quizz, href: urlQuizz() },
+  { label: examen.data.titre, href: urlExamen(examen) },
+  { label: t.niveauExamen[niveau.data.niveau] }
+];
+
+const titrePage = `${examen.data.titre} : ${t.niveauExamen[niveau.data.niveau]}`;
+---
+
+<BaseLayout titre={titrePage} description={niveau.data.description}>
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+  </Fragment>
+
+  <div class="mx-auto max-w-5xl px-4 py-8">
+    <FilAriane fils={fils} />
+
+    <h1 class="mt-3 text-3xl font-bold" style={`color: ${couleurNiveau};`}>{titrePage}</h1>
+    <p class="mt-2" style="color: var(--couleur-texte-attenue);">{niveau.data.description}</p>
+
+    <h2 class="mt-8 font-semibold">{t.niveauExamen.quizzDisponibles}</h2>
+    <div class="mt-3">
+      <QuizExamen
+        pool={niveau.data.pool}
+        nombreQuizz={niveau.data.nombreQuizz}
+        questionsParQuizz={niveau.data.questionsParQuizz}
+        cleBase={`quizz/${examen.data.slug}/${niveau.data.niveau}`}
+        couleurNiveau={couleurNiveau}
+      />
+    </div>
+  </div>
+</BaseLayout>

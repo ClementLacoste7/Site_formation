@@ -1,0 +1,45 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FilAriane from '../../../components/nav/FilAriane.astro';
+import DonneesStructurees from '../../../components/seo/DonneesStructurees.astro';
+import { locales, useTranslations } from '../../../i18n/utils';
+import { urlExamen } from '../../../lib/contenu';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const t = useTranslations();
+const fils = [{ label: t.nav.quizz }];
+
+const examens = (await getCollection('examens'))
+  .filter((e) => e.data.publie)
+  .sort((a, b) => a.data.ordre - b.data.ordre);
+---
+
+<BaseLayout titre={t.catalogueQuizz.titre} description={t.catalogueQuizz.description}>
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+  </Fragment>
+
+  <div class="mx-auto max-w-5xl px-4 py-8">
+    <FilAriane fils={fils} />
+
+    <h1 class="mt-3 text-3xl font-bold">{t.catalogueQuizz.titre}</h1>
+    <p class="mt-2" style="color: var(--couleur-texte-attenue);">{t.catalogueQuizz.description}</p>
+
+    <div class="mt-6 grid gap-4 sm:grid-cols-2">
+      {examens.map((examen) => (
+        <a
+          href={urlExamen(examen)}
+          class="block rounded-lg border p-4 transition hover:border-[var(--couleur-accent)]"
+          style="border-color: var(--couleur-bordure);"
+        >
+          <h2 class="font-semibold">{examen.data.titre}</h2>
+          <p class="mt-1 text-sm" style="color: var(--couleur-texte-attenue);">{examen.data.description}</p>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

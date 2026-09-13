@@ -2,6 +2,7 @@
   "nav": {
     "accueil": "Accueil",
     "cours": "Cours",
+    "quizz": "Quizz",
     "fiches": "Fiches de révision",
     "recherche": "Recherche"
   },
@@ -54,6 +55,26 @@
   "domaine": {
     "coursDisponibles": "Cours disponibles",
     "afficherCoursDe": "Afficher les cours de"
+  },
+  "catalogueQuizz": {
+    "titre": "Quizz de préparation aux certifications",
+    "description": "Des quizz chronométrés par niveau, tirés à chaque tentative d'un large pool de questions pour ne jamais retomber sur le même test."
+  },
+  "examen": {
+    "niveauxDisponibles": "Niveaux disponibles"
+  },
+  "niveauExamen": {
+    "debutant": "Débutant",
+    "intermediaire": "Intermédiaire",
+    "expert": "Expert",
+    "quizzDisponibles": "Quizz disponibles"
+  },
+  "quizExamen": {
+    "quizzLabel": "Quizz",
+    "commencer": "Commencer",
+    "meilleurScore": "Meilleur score :",
+    "questionsSuffixe": "questions",
+    "nouvelleTentative": "Refaire un quizz avec de nouvelles questions"
   },
   "cours": {
     "chapitres": "Chapitres du cours",

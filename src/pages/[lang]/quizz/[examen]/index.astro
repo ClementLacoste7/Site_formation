@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import FilAriane from '../../../../components/nav/FilAriane.astro';
+import DonneesStructurees from '../../../../components/seo/DonneesStructurees.astro';
+import { locales, useTranslations } from '../../../../i18n/utils';
+import { urlNiveauExamen, urlQuizz } from '../../../../lib/contenu';
+
+export async function getStaticPaths() {
+  const examens = await getCollection('examens');
+  const paths = [];
+  for (const examen of examens) {
+    for (const lang of locales) {
+      paths.push({ params: { lang, examen: examen.data.slug }, props: { examen } });
+    }
+  }
+  return paths;
+}
+
+const { examen } = Astro.props;
+const t = useTranslations();
+
+// Ordre d'affichage fixe (débutant → expert), indépendant de l'ordre des
+// fichiers de contenu : la couleur associée porte le sens du niveau.
+const ORDRE_NIVEAUX = ['debutant', 'intermediaire', 'expert'] as const;
+const COULEUR_PAR_NIVEAU: Record<(typeof ORDRE_NIVEAUX)[number], string> = {
+  debutant: 'var(--couleur-succes)',
+  intermediaire: 'var(--couleur-attention)',
+  expert: 'var(--couleur-danger)'
+};
+
+const tousLesNiveaux = await getCollection('niveauxExamen');
+const niveaux = ORDRE_NIVEAUX.map((niveau) =>
+  tousLesNiveaux.find((n) => n.data.examen.id === examen.id && n.data.niveau === niveau && n.data.publie)
+).filter((n): n is NonNullable<typeof n> => n !== undefined);
+
+const fils = [{ label: t.nav.quizz, href: urlQuizz() }, { label: examen.data.titre }];
+---
+
+<BaseLayout titre={examen.data.titre} description={examen.data.description}>
+  <Fragment slot="tete">
+    <DonneesStructurees type="BreadcrumbList" fils={fils} />
+  </Fragment>
+
+  <div class="mx-auto max-w-5xl px-4 py-8">
+    <FilAriane fils={fils} />
+
+    <h1 class="mt-3 text-3xl font-bold">{examen.data.titre}</h1>
+    <p class="mt-2" style="color: var(--couleur-texte-attenue);">{examen.data.description}</p>
+
+    <h2 class="mt-8 font-semibold">{t.examen.niveauxDisponibles}</h2>
+    <div class="mt-3 grid gap-4 sm:grid-cols-3">
+      {niveaux.map((niveau) => (
+        <a
+          href={urlNiveauExamen(niveau, examen)}
+          class="block rounded-lg border-2 p-4 transition"
+          style={`border-color: ${COULEUR_PAR_NIVEAU[niveau.data.niveau]};`}
+        >
+          <p class="font-semibold" style={`color: ${COULEUR_PAR_NIVEAU[niveau.data.niveau]};`}>
+            {t.niveauExamen[niveau.data.niveau]}
+          </p>
+          <p class="mt-1 text-sm" style="color: var(--couleur-texte-attenue);">{niveau.data.description}</p>
+          <p class="mt-2 text-xs" style="color: var(--couleur-texte-attenue);">
+            {niveau.data.nombreQuizz} × {niveau.data.questionsParQuizz} {t.quizExamen.questionsSuffixe}
+          </p>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

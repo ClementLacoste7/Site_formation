@@ -83,4 +83,46 @@ const fiches = defineCollection({
   })
 });
 
-export const collections = { domaines, cours, chapitres, fiches };
+const examens = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/examens' }),
+  schema: z.object({
+    titre: z.string(),
+    description: z.string(),
+    slug: z.string(),
+    ordre: z.number(),
+    publie: z.boolean()
+  })
+});
+
+const questionExamen = z.object({
+  question: z.string(),
+  type: z.enum(['unique', 'multiple']),
+  reponses: z.array(
+    z.object({
+      texte: z.string(),
+      correcte: z.boolean(),
+      explication: z.string()
+    })
+  )
+});
+
+const niveauxExamen = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/niveaux-examen' }),
+  schema: z.object({
+    titre: z.string(),
+    description: z.string(),
+    slug: z.string(),
+    examen: reference('examens'),
+    niveau: z.enum(['debutant', 'intermediaire', 'expert']),
+    ordre: z.number(),
+    nombreQuizz: z.number(),
+    questionsParQuizz: z.number(),
+    // Pool bien plus large que questionsParQuizz : chaque quizz tire un
+    // sous-ensemble aléatoire côté client (voir QuizExamen.astro), pour que
+    // reprendre le test plusieurs fois ne retombe pas sur les mêmes questions.
+    pool: z.array(questionExamen),
+    publie: z.boolean()
+  })
+});
+
+export const collections = { domaines, cours, chapitres, fiches, examens, niveauxExamen };

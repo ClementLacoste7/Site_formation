@@ -107,7 +107,17 @@ const questionExamen = z.object({
 });
 
 const niveauxExamen = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/niveaux-examen' }),
+  // generateId explicite : par défaut, le glob loader utilise data.slug comme
+  // identité d'entrée dès qu'il est présent (voir CONTRIBUTING.md, gotcha déjà
+  // rencontré sur "chapitres"). Ici, chaque examen réutilise volontairement
+  // les mêmes slugs "debutant"/"intermediaire"/"expert" pour des URLs lisibles
+  // (/fr/quizz/ccna/debutant/), ce qui provoquerait la même collision : on
+  // force donc l'id sur le chemin de fichier, unique par examen.
+  loader: glob({
+    pattern: '**/*.md',
+    base: './src/content/niveaux-examen',
+    generateId: ({ entry }) => entry.replace(/\.md$/, '')
+  }),
   schema: z.object({
     titre: z.string(),
     description: z.string(),

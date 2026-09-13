@@ -58,8 +58,8 @@
     "afficherCoursDe": "Afficher les cours de"
   },
   "catalogueQuizz": {
-    "titre": "Quizz de préparation aux certifications",
-    "description": "Des quizz chronométrés par niveau, tirés à chaque tentative d'un large pool de questions pour ne jamais retomber sur le même test."
+    "titre": "Catalogue des quizz",
+    "description": "Des quizz par niveau, tirés à chaque tentative d'un large pool de questions pour ne jamais retomber sur le même test."
   },
   "examen": {
     "niveauxDisponibles": "Niveaux disponibles"

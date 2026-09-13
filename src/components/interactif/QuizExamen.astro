@@ -3,6 +3,8 @@
 // Quiz.astro (liste fixe rendue côté serveur), ici la liste de questions
 // n'est connue qu'au clic, puisqu'elle est tirée aléatoirement d'un pool
 // bien plus large à chaque lancement (voir content.config.ts, niveauxExamen).
+// Les questions s'affichent une par une (navigation libre tant que le
+// quizz n'est pas validé), sans limite de temps.
 import { useTranslations } from '../../i18n/utils';
 
 interface Reponse {
@@ -39,15 +41,19 @@ const id = `quiz-examen-${Math.random().toString(36).slice(2, 9)}`;
   data-cle-base={cleBase}
   data-taille={questionsParQuizz}
   data-libelle-score={t.quiz.score}
-  data-libelle-valider={t.quiz.valider}
+  data-libelle-precedent={t.quizExamen.precedent}
+  data-libelle-suivant={t.quizExamen.suivant}
+  data-libelle-terminer={t.quizExamen.terminer}
+  data-libelle-question={t.quizExamen.question}
   data-libelle-recommencer={t.quizExamen.nouvelleTentative}
+  data-libelle-non-repondu={t.quizExamen.nonRepondu}
   style={`--couleur-niveau: ${couleurNiveau};`}
 >
   <div class="grid gap-4 sm:grid-cols-3">
     {
       Array.from({ length: nombreQuizz }).map((_, index) => (
         <div
-          class="quiz-examen__carte rounded-lg border p-4"
+          class="quiz-examen__carte rounded-lg border p-4 transition"
           style="border-color: var(--couleur-bordure);"
           data-carte={index}
         >
@@ -71,16 +77,201 @@ const id = `quiz-examen-${Math.random().toString(36).slice(2, 9)}`;
     }
   </div>
 
-  <div class="quiz-examen__zone mt-6 space-y-6" hidden />
+  <div class="quiz-examen__zone mt-6" hidden />
 </div>
 
-<style>
-  .quiz-examen__question {
+<style is:global>
+  /* Portée globale volontaire : la quasi-totalité de cette interface (une
+     question à la fois, navigation, options) est construite dynamiquement
+     en JS après le clic sur "Commencer", donc absente du template au moment
+     où Astro applique le hash de portée habituel (data-astro-cid-*) — ces
+     éléments ne le recevraient jamais. Les classes sont préfixées
+     quiz-examen__ pour rester sans risque de collision avec le reste du site. */
+  .quiz-examen__carte:hover {
+    border-color: var(--couleur-niveau);
+  }
+
+  /* Barre et compteur de progression */
+  .quiz-examen__progression {
+    margin-bottom: 1.25rem;
+  }
+  .quiz-examen__barre-fond {
+    height: 0.375rem;
+    width: 100%;
+    border-radius: 9999px;
+    overflow: hidden;
+    background-color: var(--couleur-bordure);
+  }
+  .quiz-examen__barre-remplie {
+    height: 100%;
+    border-radius: 9999px;
+    background-color: var(--couleur-niveau);
+    transition: width 0.25s ease;
+  }
+
+  /* Points de navigation cliquables */
+  .quiz-examen__points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+  }
+  .quiz-examen__point {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    border: 1px solid var(--couleur-bordure);
+    background-color: transparent;
+    color: var(--couleur-texte-attenue);
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .quiz-examen__point:hover {
+    border-color: var(--couleur-niveau);
+  }
+  .quiz-examen__point--repondu {
+    background-color: color-mix(in srgb, var(--couleur-niveau) 22%, transparent);
+    border-color: var(--couleur-niveau);
+    color: var(--couleur-texte);
+  }
+  .quiz-examen__point--actif {
+    outline: 2px solid var(--couleur-niveau);
+    outline-offset: 2px;
+  }
+
+  /* Carte de la question courante */
+  .quiz-examen__carte-question {
+    border-radius: 0.75rem;
+    border: 1px solid var(--couleur-bordure);
+    padding: 1.25rem;
+  }
+  .quiz-examen__enonce {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .quiz-examen__consigne-type {
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--couleur-texte-attenue);
+  }
+
+  /* Options de réponse, style "carte à cocher" */
+  .quiz-examen__options {
+    margin-top: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .quiz-examen__option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    border-radius: 0.75rem;
+    border: 1.5px solid var(--couleur-bordure);
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .quiz-examen__option:hover {
+    border-color: var(--couleur-niveau);
+  }
+  .quiz-examen__option:focus-within {
+    outline: 2px solid var(--couleur-niveau);
+    outline-offset: 2px;
+  }
+  .quiz-examen__option--selectionnee {
+    border-color: var(--couleur-niveau);
+    background-color: color-mix(in srgb, var(--couleur-niveau) 10%, transparent);
+  }
+  .quiz-examen__entree {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .quiz-examen__lettre {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    border: 2px solid var(--couleur-bordure);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--couleur-texte-attenue);
+    transition: all 0.15s ease;
+  }
+  .quiz-examen__lettre--radio {
+    border-radius: 9999px;
+  }
+  .quiz-examen__lettre--case {
+    border-radius: 0.4rem;
+  }
+  .quiz-examen__option--selectionnee .quiz-examen__lettre {
+    border-color: var(--couleur-niveau);
+    background-color: var(--couleur-niveau);
+    color: #fff;
+  }
+  .quiz-examen__texte-option {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+  }
+
+  /* Navigation précédent/suivant */
+  .quiz-examen__nav {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .quiz-examen__bouton-secondaire {
+    border-radius: 0.5rem;
+    border: 1px solid var(--couleur-bordure);
+    padding: 0.55rem 1.1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background-color: transparent;
+    color: var(--couleur-texte);
+  }
+  .quiz-examen__bouton-secondaire:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .quiz-examen__bouton-principal {
+    border-radius: 0.5rem;
+    border: none;
+    padding: 0.55rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: var(--couleur-niveau);
+  }
+
+  /* Résultats */
+  .quiz-examen__resultats-entete {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .quiz-examen__question-resultat {
     border-radius: 0.5rem;
     border: 1px solid var(--couleur-bordure);
     padding: 1rem;
   }
-  .quiz-examen__reponse {
+  .quiz-examen__reponse-resultat {
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;
@@ -120,13 +311,19 @@ const id = `quiz-examen-${Math.random().toString(36).slice(2, 9)}`;
     return copie;
   }
 
+  const LETTRES = 'ABCDEFGH';
+
   document.querySelectorAll<HTMLElement>('.quiz-examen').forEach((conteneur) => {
     const pool: Question[] = JSON.parse(conteneur.dataset.pool ?? '[]');
     const cleBase = conteneur.dataset.cleBase ?? '';
     const taille = Number(conteneur.dataset.taille ?? '20');
     const libelleScore = conteneur.dataset.libelleScore ?? '';
-    const libelleValider = conteneur.dataset.libelleValider ?? '';
+    const libellePrecedent = conteneur.dataset.libellePrecedent ?? '';
+    const libelleSuivant = conteneur.dataset.libelleSuivant ?? '';
+    const libelleTerminer = conteneur.dataset.libelleTerminer ?? '';
+    const libelleQuestion = conteneur.dataset.libelleQuestion ?? '';
     const libelleRecommencer = conteneur.dataset.libelleRecommencer ?? '';
+    const libelleNonRepondu = conteneur.dataset.libelleNonRepondu ?? '';
     const zone = conteneur.querySelector<HTMLElement>('.quiz-examen__zone')!;
 
     function cleQuizz(index: number): string {
@@ -146,120 +343,246 @@ const id = `quiz-examen-${Math.random().toString(36).slice(2, 9)}`;
       afficherMeilleurScore(carte, Number(carte.dataset.carte));
     });
 
-    function construireQuestionDOM(question: Question, indexQuestion: number): HTMLElement {
-      const fieldset = document.createElement('fieldset');
-      fieldset.className = 'quiz-examen__question';
+    function lancerQuizz(indexQuizz: number) {
+      // Chaque question conserve l'ordre de ses réponses mélangé une seule
+      // fois au tirage : naviguer en arrière ne doit jamais les remélanger.
+      const questions = melanger(pool)
+        .slice(0, taille)
+        .map((question) => ({ ...question, reponses: melanger(question.reponses) }));
 
-      const legend = document.createElement('legend');
-      legend.className = 'font-medium';
-      legend.textContent = question.question;
-      fieldset.appendChild(legend);
-
-      const zoneReponses = document.createElement('div');
-      zoneReponses.className = 'mt-2 space-y-1';
-
-      const reponsesMelangees = melanger(question.reponses);
-      reponsesMelangees.forEach((reponse, indexReponse) => {
-        const label = document.createElement('label');
-        label.className = 'quiz-examen__reponse';
-        label.dataset.correcte = String(reponse.correcte);
-
-        const input = document.createElement('input');
-        input.type = question.type === 'unique' ? 'radio' : 'checkbox';
-        input.name = `q${indexQuestion}`;
-        input.className = 'mt-1';
-        input.id = `q${indexQuestion}-r${indexReponse}`;
-
-        const texte = document.createElement('span');
-        texte.textContent = reponse.texte;
-
-        const explication = document.createElement('span');
-        explication.className = 'quiz-examen__explication mt-1 block text-xs';
-        explication.style.color = 'var(--couleur-texte-attenue)';
-        explication.textContent = reponse.explication;
-        explication.hidden = true;
-        texte.appendChild(document.createElement('br'));
-        texte.appendChild(explication);
-
-        label.appendChild(input);
-        label.appendChild(texte);
-        zoneReponses.appendChild(label);
-      });
-
-      fieldset.appendChild(zoneReponses);
-      return fieldset;
-    }
-
-    function lancerQuizz(index: number) {
-      const cle = cleQuizz(index);
-      const questions = melanger(pool).slice(0, taille);
+      // Une entrée par question : ensemble des index de réponse cochés.
+      const selections: Set<number>[] = questions.map(() => new Set());
+      let indexActuel = 0;
 
       zone.innerHTML = '';
       zone.hidden = false;
 
       const boiteQuizz = document.createElement('div');
-      boiteQuizz.className = 'space-y-6 rounded-lg border p-4';
-      boiteQuizz.style.borderColor = 'var(--couleur-bordure)';
-
-      questions.forEach((question, indexQuestion) => {
-        boiteQuizz.appendChild(construireQuestionDOM(question, indexQuestion));
-      });
-
-      const barreActions = document.createElement('div');
-      barreActions.className = 'flex items-center gap-4';
-
-      const boutonValider = document.createElement('button');
-      boutonValider.type = 'button';
-      boutonValider.textContent = libelleValider;
-      boutonValider.className = 'rounded px-4 py-2 text-sm font-medium text-white';
-      boutonValider.style.backgroundColor = 'var(--couleur-niveau)';
-
-      const zoneScore = document.createElement('p');
-      zoneScore.className = 'font-medium';
-      zoneScore.hidden = true;
-
-      const boutonRecommencer = document.createElement('button');
-      boutonRecommencer.type = 'button';
-      boutonRecommencer.textContent = libelleRecommencer;
-      boutonRecommencer.className = 'rounded border px-3 py-1.5 text-sm';
-      boutonRecommencer.style.borderColor = 'var(--couleur-bordure)';
-      boutonRecommencer.hidden = true;
-
-      barreActions.appendChild(boutonValider);
-      barreActions.appendChild(zoneScore);
-      barreActions.appendChild(boutonRecommencer);
-      boiteQuizz.appendChild(barreActions);
+      boiteQuizz.className = 'space-y-1';
       zone.appendChild(boiteQuizz);
 
-      boutonValider.addEventListener('click', () => {
-        let score = 0;
-        boiteQuizz.querySelectorAll('fieldset').forEach((fieldset) => {
-          let questionCorrecte = true;
-          fieldset.querySelectorAll<HTMLLabelElement>('.quiz-examen__reponse').forEach((label) => {
-            const input = label.querySelector<HTMLInputElement>('input')!;
-            const correcte = label.dataset.correcte === 'true';
-            if (input.checked !== correcte) questionCorrecte = false;
-            label.classList.toggle('quiz-examen__correcte', correcte);
-            label.classList.toggle('quiz-examen__incorrecte', !correcte && input.checked);
-            label.querySelector<HTMLElement>('.quiz-examen__explication')!.hidden = false;
-            input.disabled = true;
+      function construireEcranQuestion() {
+        boiteQuizz.innerHTML = '';
+        const question = questions[indexActuel];
+
+        // Barre de progression + compteur.
+        const progression = document.createElement('div');
+        progression.className = 'quiz-examen__progression';
+        const compteur = document.createElement('p');
+        compteur.className = 'text-xs font-medium';
+        compteur.style.color = 'var(--couleur-texte-attenue)';
+        compteur.textContent = `${libelleQuestion} ${indexActuel + 1} / ${questions.length}`;
+        const barreFond = document.createElement('div');
+        barreFond.className = 'quiz-examen__barre-fond mt-1.5';
+        const barreRemplie = document.createElement('div');
+        barreRemplie.className = 'quiz-examen__barre-remplie';
+        barreRemplie.style.width = `${((indexActuel + 1) / questions.length) * 100}%`;
+        barreFond.appendChild(barreRemplie);
+        progression.appendChild(compteur);
+        progression.appendChild(barreFond);
+
+        // Points de navigation cliquables (retour libre avant validation).
+        const points = document.createElement('div');
+        points.className = 'quiz-examen__points';
+        questions.forEach((_, i) => {
+          const point = document.createElement('button');
+          point.type = 'button';
+          point.className = 'quiz-examen__point';
+          point.textContent = String(i + 1);
+          if (selections[i].size > 0) point.classList.add('quiz-examen__point--repondu');
+          if (i === indexActuel) point.classList.add('quiz-examen__point--actif');
+          point.addEventListener('click', () => {
+            indexActuel = i;
+            construireEcranQuestion();
           });
-          if (questionCorrecte) score += 1;
+          points.appendChild(point);
         });
+        progression.appendChild(points);
+        boiteQuizz.appendChild(progression);
+
+        // Carte de la question courante.
+        const carteQuestion = document.createElement('div');
+        carteQuestion.className = 'quiz-examen__carte-question';
+
+        const enonce = document.createElement('p');
+        enonce.className = 'quiz-examen__enonce';
+        enonce.textContent = question.question;
+        carteQuestion.appendChild(enonce);
+
+        const optionsConteneur = document.createElement('div');
+        optionsConteneur.className = 'quiz-examen__options';
+
+        question.reponses.forEach((reponse, indexReponse) => {
+          const label = document.createElement('label');
+          label.className = 'quiz-examen__option';
+          if (selections[indexActuel].has(indexReponse)) {
+            label.classList.add('quiz-examen__option--selectionnee');
+          }
+
+          const input = document.createElement('input');
+          input.type = question.type === 'unique' ? 'radio' : 'checkbox';
+          input.name = `${cleBase}-q${indexActuel}`;
+          input.className = 'quiz-examen__entree';
+          input.checked = selections[indexActuel].has(indexReponse);
+
+          const lettre = document.createElement('span');
+          lettre.className = `quiz-examen__lettre ${question.type === 'unique' ? 'quiz-examen__lettre--radio' : 'quiz-examen__lettre--case'}`;
+          lettre.textContent = LETTRES[indexReponse] ?? '?';
+          lettre.setAttribute('aria-hidden', 'true');
+
+          const texte = document.createElement('span');
+          texte.className = 'quiz-examen__texte-option';
+          texte.textContent = reponse.texte;
+
+          input.addEventListener('change', () => {
+            if (question.type === 'unique') {
+              selections[indexActuel].clear();
+              selections[indexActuel].add(indexReponse);
+            } else if (input.checked) {
+              selections[indexActuel].add(indexReponse);
+            } else {
+              selections[indexActuel].delete(indexReponse);
+            }
+            construireEcranQuestion();
+          });
+
+          label.appendChild(input);
+          label.appendChild(lettre);
+          label.appendChild(texte);
+          optionsConteneur.appendChild(label);
+        });
+
+        carteQuestion.appendChild(optionsConteneur);
+        boiteQuizz.appendChild(carteQuestion);
+
+        // Navigation précédent / suivant (ou terminer sur la dernière question).
+        const nav = document.createElement('div');
+        nav.className = 'quiz-examen__nav';
+
+        const boutonPrecedent = document.createElement('button');
+        boutonPrecedent.type = 'button';
+        boutonPrecedent.className = 'quiz-examen__bouton-secondaire';
+        boutonPrecedent.textContent = libellePrecedent;
+        boutonPrecedent.disabled = indexActuel === 0;
+        boutonPrecedent.addEventListener('click', () => {
+          if (indexActuel > 0) {
+            indexActuel -= 1;
+            construireEcranQuestion();
+          }
+        });
+
+        const estDerniere = indexActuel === questions.length - 1;
+        const boutonSuivant = document.createElement('button');
+        boutonSuivant.type = 'button';
+        boutonSuivant.className = 'quiz-examen__bouton-principal';
+        boutonSuivant.style.backgroundColor = 'var(--couleur-niveau)';
+        boutonSuivant.textContent = estDerniere ? libelleTerminer : libelleSuivant;
+        boutonSuivant.addEventListener('click', () => {
+          if (estDerniere) {
+            afficherResultats();
+          } else {
+            indexActuel += 1;
+            construireEcranQuestion();
+          }
+        });
+
+        nav.appendChild(boutonPrecedent);
+        nav.appendChild(boutonSuivant);
+        boiteQuizz.appendChild(nav);
+      }
+
+      function afficherResultats() {
+        boiteQuizz.innerHTML = '';
+
+        let score = 0;
+        const cartesResultats: HTMLElement[] = [];
+
+        questions.forEach((question, indexQuestion) => {
+          const attendu = new Set(
+            question.reponses.map((r, i) => (r.correcte ? i : -1)).filter((i) => i !== -1)
+          );
+          const obtenu = selections[indexQuestion];
+          const memeTaille = attendu.size === obtenu.size;
+          const questionCorrecte = memeTaille && [...attendu].every((i) => obtenu.has(i));
+          if (questionCorrecte) score += 1;
+
+          const carte = document.createElement('div');
+          carte.className = 'quiz-examen__question-resultat';
+
+          const enonce = document.createElement('p');
+          enonce.className = 'font-medium';
+          enonce.textContent = `${indexQuestion + 1}. ${question.question}`;
+          carte.appendChild(enonce);
+
+          const zoneReponses = document.createElement('div');
+          zoneReponses.className = 'mt-2 space-y-1';
+          question.reponses.forEach((reponse, indexReponse) => {
+            const ligne = document.createElement('div');
+            ligne.className = 'quiz-examen__reponse-resultat';
+            const futChoisie = obtenu.has(indexReponse);
+            ligne.classList.toggle('quiz-examen__correcte', reponse.correcte);
+            ligne.classList.toggle('quiz-examen__incorrecte', !reponse.correcte && futChoisie);
+
+            const texte = document.createElement('span');
+            const prefixe = futChoisie ? '☑ ' : '☐ ';
+            texte.textContent = `${prefixe}${LETTRES[indexReponse] ?? '?'}. ${reponse.texte}`;
+
+            const explication = document.createElement('span');
+            explication.className = 'mt-1 block text-xs';
+            explication.style.color = 'var(--couleur-texte-attenue)';
+            explication.textContent = reponse.explication;
+
+            const conteneurTexte = document.createElement('span');
+            conteneurTexte.appendChild(texte);
+            conteneurTexte.appendChild(document.createElement('br'));
+            conteneurTexte.appendChild(explication);
+            ligne.appendChild(conteneurTexte);
+            zoneReponses.appendChild(ligne);
+          });
+
+          if (obtenu.size === 0) {
+            const nonRepondu = document.createElement('p');
+            nonRepondu.className = 'mt-2 text-xs font-medium';
+            nonRepondu.style.color = 'var(--couleur-danger)';
+            nonRepondu.textContent = libelleNonRepondu;
+            carte.appendChild(nonRepondu);
+          }
+
+          carte.appendChild(zoneReponses);
+          cartesResultats.push(carte);
+        });
+
         const pourcentage = Math.round((score / questions.length) * 100);
-        zoneScore.textContent = `${libelleScore} : ${score} / ${questions.length}`;
-        zoneScore.hidden = false;
-        boutonValider.hidden = true;
-        boutonRecommencer.hidden = false;
-        enregistrerResultatQuiz(cle, pourcentage);
-        const carte = conteneur.querySelector<HTMLElement>(`.quiz-examen__carte[data-carte="${index}"]`);
-        if (carte) afficherMeilleurScore(carte, index);
-      });
+        enregistrerResultatQuiz(cleQuizz(indexQuizz), pourcentage);
+        const carteLanceur = conteneur.querySelector<HTMLElement>(
+          `.quiz-examen__carte[data-carte="${indexQuizz}"]`
+        );
+        if (carteLanceur) afficherMeilleurScore(carteLanceur, indexQuizz);
 
-      boutonRecommencer.addEventListener('click', () => {
-        lancerQuizz(index);
-      });
+        const entete = document.createElement('div');
+        entete.className = 'quiz-examen__resultats-entete';
+        const titreScore = document.createElement('p');
+        titreScore.className = 'text-lg font-semibold';
+        titreScore.textContent = `${libelleScore} : ${score} / ${questions.length} (${pourcentage}%)`;
+        const boutonRecommencer = document.createElement('button');
+        boutonRecommencer.type = 'button';
+        boutonRecommencer.className = 'quiz-examen__bouton-principal';
+        boutonRecommencer.style.backgroundColor = 'var(--couleur-niveau)';
+        boutonRecommencer.textContent = libelleRecommencer;
+        boutonRecommencer.addEventListener('click', () => lancerQuizz(indexQuizz));
+        entete.appendChild(titreScore);
+        entete.appendChild(boutonRecommencer);
+        boiteQuizz.appendChild(entete);
 
+        const listeResultats = document.createElement('div');
+        listeResultats.className = 'mt-4 space-y-4';
+        cartesResultats.forEach((carte) => listeResultats.appendChild(carte));
+        boiteQuizz.appendChild(listeResultats);
+
+        zone.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      construireEcranQuestion();
       zone.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 

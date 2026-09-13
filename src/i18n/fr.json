@@ -27,6 +27,7 @@
     ],
     "ctaCommencer": "Commencer",
     "ctaCatalogue": "Voir tous les cours",
+    "ctaQuizz": "Voir les quizz",
     "sandboxTitre": "Essaie tout de suite",
     "sandboxDescription": "Un vrai formulaire de connexion, une vraie base SQL en mémoire dans ton navigateur. Trouve la valeur qui contourne l'authentification.",
     "pourquoiTitre": "Pourquoi ce site",
@@ -74,7 +75,12 @@
     "commencer": "Commencer",
     "meilleurScore": "Meilleur score :",
     "questionsSuffixe": "questions",
-    "nouvelleTentative": "Refaire un quizz avec de nouvelles questions"
+    "nouvelleTentative": "Refaire un quizz avec de nouvelles questions",
+    "question": "Question",
+    "suivant": "Suivant",
+    "precedent": "Précédent",
+    "terminer": "Terminer le quizz",
+    "nonRepondu": "Sans réponse"
   },
   "cours": {
     "chapitres": "Chapitres du cours",

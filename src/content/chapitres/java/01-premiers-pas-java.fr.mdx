@@ -1,0 +1,132 @@
+---
+titre: "Premiers pas en Java"
+titreCourt: "Premiers pas"
+description: "Structure minimale d'un programme Java, variables et types primitifs, et affichage avec System.out.println."
+slug: "premiers-pas-java"
+cours: "java"
+ordre: 1
+duree: 14
+niveau: "debutant"
+objectifs:
+  - "Écrire et comprendre la structure minimale d'un programme Java"
+  - "Déclarer des variables typées avec les types primitifs de base"
+  - "Afficher un message dans la console avec System.out.println"
+prerequis: []
+tags: ["java"]
+quiz:
+  - question: "Pourquoi doit-on déclarer le type d'une variable en Java, contrairement à Python ou JavaScript ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que Java est un langage à typage statique : le type de chaque variable est fixé à la compilation et ne peut pas changer ensuite"
+        correcte: true
+        explication: "Le compilateur Java vérifie dès la compilation que chaque variable est utilisée conformément à son type déclaré, ce qui permet de détecter de nombreuses erreurs avant même l'exécution du programme."
+      - texte: "Parce que Java ne sait pas deviner automatiquement le type d'une valeur numérique"
+        correcte: false
+        explication: "Le problème n'est pas une incapacité technique à deviner un type ; c'est un choix de conception du langage (typage statique) qui impose de déclarer explicitement chaque type."
+      - texte: "Parce que cela accélère l'affichage du texte dans la console"
+        correcte: false
+        explication: "Le typage statique n'a pas de rapport avec la vitesse d'affichage ; son intérêt est la détection d'erreurs à la compilation, pas la performance d'affichage."
+      - texte: "Parce que Java ne peut stocker que des nombres, jamais du texte"
+        correcte: false
+        explication: "Java peut stocker du texte (via le type String) tout comme des nombres ; le typage statique concerne la déclaration explicite du type choisi, pas une limitation aux seuls nombres."
+  - question: "Pourquoi la méthode main doit-elle être déclarée public static void main(String[] args) dans une classe Java exécutable ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que la machine virtuelle Java (JVM) recherche précisément cette signature comme point d'entrée du programme au démarrage"
+        correcte: true
+        explication: "public la rend accessible depuis l'extérieur de la classe, static permet de l'appeler sans créer d'instance, void indique qu'elle ne renvoie rien, et String[] args reçoit d'éventuels arguments de ligne de commande : cette signature précise est la convention attendue par la JVM."
+      - texte: "Parce que c'est simplement une convention de style sans conséquence si elle n'est pas respectée"
+        correcte: false
+        explication: "Ce n'est pas qu'une convention esthétique : si la signature ne correspond pas exactement à celle attendue, la JVM ne trouve pas de point d'entrée et le programme ne peut pas démarrer."
+      - texte: "Parce que main doit toujours être la seule méthode de la classe"
+        correcte: false
+        explication: "Une classe peut contenir autant d'autres méthodes que nécessaire en plus de main, ce n'est pas une limitation à une méthode unique."
+      - texte: "Parce que le mot-clé static chiffre automatiquement le code de la méthode"
+        correcte: false
+        explication: "static n'a aucune fonction de chiffrement ; il indique que la méthode appartient à la classe elle-même, pas à une instance particulière."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## La structure minimale d'un programme Java
+
+Contrairement à Python, qui exécute directement un fichier de haut en bas, Java exige que tout code vive à l'intérieur d'une classe, elle-même exécutée par une méthode `main` précise :
+
+<BlocCode
+  langue="java"
+  code={`public class Bonjour {
+    public static void main(String[] args) {
+        System.out.println("Bonjour, le monde !");
+    }
+}`}
+/>
+
+Le nom du fichier (`Bonjour.java`) doit correspondre exactement au nom de la classe publique qu'il contient. `System.out.println` affiche une ligne de texte dans la console, l'équivalent du `print()` de Python.
+
+## Déclarer des variables typées
+
+<BlocCode
+  langue="java"
+  code={`int age = 25;
+double prix = 19.99;
+boolean estMajeur = true;
+char initiale = 'A';
+String prenom = "Alice";
+
+System.out.println(prenom + " a " + age + " ans.");`}
+/>
+
+<Avertissement type="info">
+  Java distingue les types primitifs (`int`, `double`, `boolean`, `char`), stockés directement en mémoire, des types objets comme `String`, qui référencent un objet. Cette distinction a des implications plus tard, notamment pour la comparaison de valeurs.
+</Avertissement>
+
+## Les types primitifs les plus courants
+
+<BlocCode
+  langue="java"
+  code={`int nombreEntier = 42;        // nombre entier
+double nombreDecimal = 3.14;  // nombre à virgule flottante
+boolean estVrai = false;      // true ou false uniquement
+char lettre = 'Z';            // un seul caractère, entre guillemets simples`}
+/>
+
+Contrairement à Python où `True` et `False` commencent par une majuscule, Java utilise `true` et `false` entièrement en minuscules.
+
+## À toi de jouer
+
+<BlocCode
+  langue="java"
+  code={`int x = 10;
+int y = 3;
+System.out.println(x / y);`}
+/>
+
+<Quiz
+  cle="java/premiers-pas-java/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "3", correcte: true, explication: "x et y sont tous deux des int : la division / entre deux entiers en Java effectue une division entière, qui tronque la partie décimale (10 / 3 = 3.33... tronqué à 3)." },
+        { texte: "3.33", correcte: false, explication: "Ce résultat serait obtenu si au moins l'un des deux opérandes était un double ; ici, x et y sont des int, donc la division est entière." },
+        { texte: "3.0", correcte: false, explication: "Le résultat d'une division entre deux int reste un int en Java, pas un nombre à virgule comme 3.0." },
+        { texte: "Une erreur de compilation", correcte: false, explication: "Ce code est parfaitement valide et compile sans erreur ; la division entière est un comportement normal de Java, pas une erreur." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Un programme Java vit dans une classe, exécutée via une méthode public static void main(String[] args)",
+    "Java est à typage statique : chaque variable a un type déclaré et fixé à la compilation",
+    "Les types primitifs courants sont int, double, boolean et char ; String est un type objet",
+    "La division entre deux int effectue une division entière, qui tronque la partie décimale"
+  ]}
+/>

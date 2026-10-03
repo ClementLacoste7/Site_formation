@@ -1,0 +1,164 @@
+---
+titre: "Gérer les exceptions"
+titreCourt: "Gérer les exceptions"
+description: "Intercepter une exception avec try/catch, lever ses propres exceptions, et la différence entre exceptions vérifiées et non vérifiées."
+slug: "gerer-les-exceptions-java"
+cours: "java"
+ordre: 10
+duree: 15
+niveau: "intermediaire"
+objectifs:
+  - "Intercepter une exception avec try/catch"
+  - "Lever une exception volontairement avec throw"
+  - "Distinguer les exceptions vérifiées (checked) des exceptions non vérifiées (unchecked)"
+prerequis: ["les-collections-java"]
+tags: ["java"]
+quiz:
+  - question: "Que se passe-t-il si une exception est levée dans un bloc try qui a un catch correspondant à son type ?"
+    type: "unique"
+    reponses:
+      - texte: "L'exécution du bloc try s'arrête immédiatement et passe au bloc catch correspondant, qui reçoit l'exception en paramètre"
+        correcte: true
+        explication: "Dès qu'une exception est levée dans le bloc try, le reste de ce bloc est ignoré et l'exécution saute directement au bloc catch dont le type correspond (ou est compatible avec) l'exception levée."
+      - texte: "Le programme s'arrête complètement, catch n'ayant aucun effet"
+        correcte: false
+        explication: "C'est l'inverse : catch existe justement pour empêcher l'arrêt complet du programme en interceptant l'exception, qui serait fatale sans lui si elle remontait jusqu'en haut de la pile d'appels."
+      - texte: "Le reste du bloc try continue de s'exécuter normalement, catch s'exécutant en plus à la fin"
+        correcte: false
+        explication: "Le reste du bloc try est bien ignoré dès qu'une exception survient : l'exécution ne continue pas après le point de l'exception, elle saute directement au catch."
+      - texte: "Catch ne peut intercepter que les exceptions de type RuntimeException"
+        correcte: false
+        explication: "Un bloc catch peut intercepter n'importe quel type d'exception correspondant à celui déclaré dans sa signature, pas exclusivement les RuntimeException."
+  - question: "Quelle est la différence entre une exception vérifiée (checked, comme IOException) et une exception non vérifiée (unchecked, comme NullPointerException) en Java ?"
+    type: "unique"
+    reponses:
+      - texte: "Une exception vérifiée doit obligatoirement être interceptée ou déclarée dans la signature de la méthode (throws), sous peine d'erreur de compilation ; une exception non vérifiée n'impose aucune de ces obligations"
+        correcte: true
+        explication: "Le compilateur Java force explicitement la gestion des exceptions vérifiées (généralement des erreurs prévisibles comme un problème de lecture de fichier), alors que les exceptions non vérifiées (souvent des erreurs de programmation comme un accès à un objet null) peuvent survenir sans déclaration préalable obligatoire."
+      - texte: "Une exception non vérifiée ne peut jamais être interceptée par un bloc catch"
+        correcte: false
+        explication: "Une exception non vérifiée peut parfaitement être interceptée par un catch si on le souhaite ; la différence porte sur l'obligation ou non de le faire (ou de la déclarer), pas sur la possibilité technique de l'intercepter."
+      - texte: "Une exception vérifiée ne peut survenir que dans la méthode main"
+        correcte: false
+        explication: "Une exception vérifiée peut survenir dans n'importe quelle méthode qui effectue une opération risquée (comme lire un fichier), pas exclusivement dans main."
+      - texte: "Les deux types d'exceptions ont un comportement strictement identique, sans différence"
+        correcte: false
+        explication: "Leur traitement par le compilateur diffère nettement (obligation de gestion ou non), ce n'est pas une équivalence stricte."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Intercepter une exception
+
+<BlocCode
+  langue="java"
+  code={`try {
+    int resultat = 10 / 0;
+    System.out.println(resultat);
+} catch (ArithmeticException e) {
+    System.out.println("Erreur : " + e.getMessage());
+}
+System.out.println("Le programme continue normalement");`}
+/>
+
+Sans `try/catch`, une exception non interceptée arrête l'exécution du programme à cet endroit précis (ou plus exactement, elle remonte la pile d'appels jusqu'à trouver un gestionnaire, sinon le programme se termine).
+
+## Lever ses propres exceptions
+
+<BlocCode
+  langue="java"
+  code={`public static double diviser(double a, double b) {
+    if (b == 0) {
+        throw new IllegalArgumentException("Division par zero impossible");
+    }
+    return a / b;
+}
+
+try {
+    System.out.println(diviser(10, 0));
+} catch (IllegalArgumentException e) {
+    System.out.println("Erreur : " + e.getMessage());
+}`}
+/>
+
+<Avertissement type="info">
+  `throw new IllegalArgumentException("message")` crée et lève une exception en une seule instruction. Le `catch` le plus proche capable de la traiter l'interceptera.
+</Avertissement>
+
+## Exceptions vérifiées et non vérifiées
+
+<BlocCode
+  langue="java"
+  code={`// Exception verifiee (checked) : doit etre geree ou declaree
+public static void lireFichier(String chemin) throws java.io.IOException {
+    // ... code qui peut lever IOException
+}
+
+// Exception non verifiee (unchecked) : aucune obligation
+public static int diviserEntiers(int a, int b) {
+    return a / b; // peut lever ArithmeticException, sans obligation de la declarer
+}`}
+/>
+
+Les exceptions vérifiées héritent de `Exception` (hors `RuntimeException`), les non vérifiées héritent de `RuntimeException`. Le compilateur impose une gestion explicite seulement pour les premières.
+
+## Le bloc finally
+
+<BlocCode
+  langue="java"
+  code={`try {
+    System.out.println("Tentative...");
+    throw new RuntimeException("Erreur");
+} catch (RuntimeException e) {
+    System.out.println("Interceptee : " + e.getMessage());
+} finally {
+    System.out.println("Toujours execute, erreur ou non");
+}`}
+/>
+
+Le bloc `finally` s'exécute toujours, qu'une exception ait été levée et interceptée ou non, souvent utilisé pour libérer des ressources (fermer un fichier, une connexion).
+
+## À toi de jouer
+
+<BlocCode
+  langue="java"
+  code={`public static int diviserEnSecurite(int a, int b) {
+    try {
+        return a / b;
+    } catch (ArithmeticException e) {
+        return -1;
+    }
+}
+
+System.out.println(diviserEnSecurite(10, 0));`}
+/>
+
+<Quiz
+  cle="java/gerer-les-exceptions-java/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "-1", correcte: true, explication: "a / b avec b = 0 lève une ArithmeticException (division par zéro) ; le bloc catch l'intercepte et la méthode renvoie -1 à la place." },
+        { texte: "Le programme plante avec une ArithmeticException non interceptée", correcte: false, explication: "L'exception est justement interceptée par le bloc catch à l'intérieur de la méthode ; elle ne remonte donc pas jusqu'à provoquer un arrêt du programme." },
+        { texte: "0", correcte: false, explication: "La division par zéro ne renvoie pas 0 en Java pour des entiers ; elle lève une exception, interceptée ici pour renvoyer -1 à la place." },
+        { texte: "Infinity", correcte: false, explication: "Infinity serait le résultat d'une division par zéro avec des nombres à virgule flottante (double) ; avec des int, c'est une exception ArithmeticException qui est levée à la place." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "try { ... } catch (Type e) { ... } intercepte une exception sans arrêter le programme",
+    "throw new TypeException(\"message\") lève volontairement une exception",
+    "Une exception vérifiée (checked) doit être gérée ou déclarée avec throws, sous peine d'erreur de compilation",
+    "finally s'exécute toujours, qu'une exception ait été levée ou non, utile pour libérer des ressources"
+  ]}
+/>

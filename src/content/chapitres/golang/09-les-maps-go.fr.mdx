@@ -1,0 +1,145 @@
+---
+titre: "Les maps"
+titreCourt: "Les maps"
+description: "Associer des clés à des valeurs avec une map, et l'idiome valeur, ok pour vérifier la présence d'une clé."
+slug: "les-maps-go"
+cours: "go"
+ordre: 9
+duree: 13
+niveau: "intermediaire"
+objectifs:
+  - "Créer et utiliser une map pour associer des clés à des valeurs"
+  - "Vérifier la présence d'une clé avec l'idiome valeur, ok"
+  - "Supprimer une clé d'une map avec delete"
+prerequis: ["methodes-interfaces-go"]
+tags: ["go"]
+quiz:
+  - question: "Que renvoie `ages[\"Zoe\"]` si la clé \"Zoe\" n'existe pas dans la map ages (de type map[string]int) ?"
+    type: "unique"
+    reponses:
+      - texte: "La valeur zéro du type des valeurs de la map, ici 0 pour int, sans provoquer d'erreur ni de panique"
+        correcte: true
+        explication: "Contrairement à un accès hors limites sur un tableau ou un slice, accéder à une clé absente d'une map en Go ne provoque jamais d'erreur : elle renvoie silencieusement la valeur zéro du type concerné, ce qui peut être trompeur si on ne vérifie pas explicitement la présence de la clé."
+      - texte: "Une exception NullPointerException, comme en Java"
+        correcte: false
+        explication: "Go n'a pas de système d'exceptions comme Java ; l'accès à une clé absente ne lève jamais d'exception, il renvoie silencieusement la valeur zéro du type des valeurs de la map."
+      - texte: "nil, quel que soit le type des valeurs de la map"
+        correcte: false
+        explication: "nil n'est renvoyé que pour des types qui acceptent nil comme valeur zéro (comme un pointeur ou une interface) ; pour un map[string]int, la valeur zéro est 0, pas nil."
+      - texte: "Le programme s'arrête immédiatement avec une erreur de compilation"
+        correcte: false
+        explication: "Ce n'est pas une erreur de compilation : le code compile et s'exécute normalement, l'accès à une clé absente étant géré silencieusement à l'exécution, sans arrêt du programme."
+  - question: "Pourquoi l'idiome `valeur, ok := ages[\"Alice\"]` est-il recommandé plutôt qu'un simple `valeur := ages[\"Alice\"]` pour vérifier la présence d'une clé ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que la forme à deux valeurs distingue une clé absente (ok vaut false) d'une clé présente mais associée à la valeur zéro elle-même (ok vaut true, valeur vaut 0), une ambiguïté que la forme simple ne permet pas de lever"
+        correcte: true
+        explication: "Sans ok, il serait impossible de savoir si valeur vaut 0 parce que la clé est absente, ou parce que la clé existe réellement avec la valeur 0 associée ; l'idiome valeur, ok lève cette ambiguïté de façon fiable."
+      - texte: "Parce que la forme simple valeur := ages[\"Alice\"] provoque systématiquement une erreur de compilation"
+        correcte: false
+        explication: "La forme simple est parfaitement valide et compile sans erreur ; elle renvoie juste la valeur zéro en cas d'absence de clé, sans indiquer explicitement si la clé était présente ou non."
+      - texte: "Parce que ok doit obligatoirement valoir true pour que le programme compile"
+        correcte: false
+        explication: "ok est un simple booléen qui peut valoir true ou false selon que la clé existe ou non ; aucune des deux valeurs ne provoque d'erreur de compilation, car ce comportement est précisément voulu par cette syntaxe."
+      - texte: "Parce que cette syntaxe à deux valeurs est plus rapide à exécuter"
+        correcte: false
+        explication: "La différence de performance entre les deux formes est négligeable ; la raison de préférer valeur, ok est la fiabilité de la vérification d'existence de la clé, pas la vitesse d'exécution."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Créer et utiliser une map
+
+<BlocCode
+  langue="go"
+  code={`ages := map[string]int{"Alice": 25, "Bob": 30}
+
+fmt.Println(ages["Alice"])  // 25
+ages["Claire"] = 28         // ajoute une nouvelle cle
+ages["Bob"] = 31            // modifie une cle existante
+
+fmt.Println(len(ages))      // 3`}
+/>
+
+`map[string]int` déclare le type des clés (`string`) et le type des valeurs (`int`) entre crochets.
+
+<Avertissement type="attention">
+  Accéder à une clé absente (`ages["Zoe"]`) ne provoque aucune erreur : elle renvoie silencieusement `0` (la valeur zéro de `int`), ce qui peut masquer un bug si on ne vérifie pas explicitement la présence de la clé.
+</Avertissement>
+
+## Vérifier la présence d'une clé
+
+<BlocCode
+  langue="go"
+  code={`valeur, ok := ages["Zoe"]
+fmt.Println(valeur, ok) // 0 false : Zoe est absente
+
+valeur, ok = ages["Alice"]
+fmt.Println(valeur, ok) // 25 true : Alice est presente`}
+/>
+
+`ok` distingue de façon fiable une clé absente (`ok` à `false`) d'une clé présente valant justement `0` (`ok` à `true`), une ambiguïté impossible à lever avec un simple accès direct.
+
+## Supprimer une clé
+
+<BlocCode
+  langue="go"
+  code={`delete(ages, "Bob")
+fmt.Println(ages) // map[Alice:25 Claire:28]`}
+/>
+
+`delete()` ne provoque aucune erreur même si la clé n'existe pas, elle ne fait simplement rien dans ce cas.
+
+## Parcourir une map
+
+<BlocCode
+  langue="go"
+  code={`for nom, age := range ages {
+    fmt.Println(nom, "a", age, "ans.")
+}
+// l'ordre de parcours d'une map n'est jamais garanti en Go`}
+/>
+
+<Avertissement type="info">
+  Contrairement à un slice, l'ordre de parcours d'une map avec `range` n'est jamais garanti : deux exécutions successives du même programme peuvent afficher les paires dans un ordre différent.
+</Avertissement>
+
+## À toi de jouer
+
+<BlocCode
+  langue="go"
+  code={`stock := map[string]int{"pommes": 10, "bananes": 5}
+
+quantite, existe := stock["cerises"]
+fmt.Println(quantite, existe)`}
+/>
+
+<Quiz
+  cle="go/les-maps-go/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "0 false", correcte: true, explication: "\"cerises\" n'existe pas dans la map stock ; quantite reçoit la valeur zéro du type int (0), et existe vaut false pour signaler l'absence de la clé." },
+        { texte: "0 true", correcte: false, explication: "existe vaudrait true seulement si la clé \"cerises\" était réellement présente dans la map, même avec une valeur de 0 associée ; ici, la clé est absente, donc existe vaut false." },
+        { texte: "Une erreur de compilation, la clé cerises n'existant pas", correcte: false, explication: "Accéder à une clé absente d'une map ne provoque jamais d'erreur en Go ; ce code compile et s'exécute normalement, renvoyant la valeur zéro et false." },
+        { texte: "nil false", correcte: false, explication: "La valeur zéro d'un map[string]int est 0 (un int), pas nil ; nil serait renvoyé uniquement pour des types qui l'acceptent comme valeur zéro, comme un pointeur." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "map[TypeCle]TypeValeur associe des clés à des valeurs",
+    "Accéder à une clé absente renvoie silencieusement la valeur zéro du type, sans erreur",
+    "valeur, ok := maMap[cle] distingue de façon fiable une clé absente d'une clé présente valant zéro",
+    "delete(maMap, cle) supprime une clé, sans erreur même si elle n'existe pas ; l'ordre de parcours d'une map n'est jamais garanti"
+  ]}
+/>

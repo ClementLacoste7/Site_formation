@@ -1,0 +1,137 @@
+---
+titre: "Les boucles"
+titreCourt: "Les boucles"
+description: "Répéter du code avec for et while, et parcourir un tableau avec la boucle for-each de Java."
+slug: "les-boucles-java"
+cours: "java"
+ordre: 3
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Écrire une boucle for classique avec compteur"
+  - "Écrire une boucle while pour répéter tant qu'une condition est vraie"
+  - "Parcourir un tableau avec la boucle for-each"
+prerequis: ["operateurs-et-conditions-java"]
+tags: ["java"]
+quiz:
+  - question: "Combien de fois `for (int i = 0; i < 5; i++) { ... }` exécute-t-elle son bloc ?"
+    type: "unique"
+    reponses:
+      - texte: "5 fois, pour i valant 0, 1, 2, 3 et 4"
+        correcte: true
+        explication: "La boucle continue tant que i < 5 : elle s'exécute pour i = 0, 1, 2, 3, 4, puis s'arrête quand i atteint 5."
+      - texte: "4 fois, pour i valant 1, 2, 3 et 4"
+        correcte: false
+        explication: "i démarre à 0 (l'initialisation int i = 0), pas à 1 : la première exécution a lieu avec i = 0."
+      - texte: "6 fois, pour i valant 0, 1, 2, 3, 4 et 5"
+        correcte: false
+        explication: "La condition i < 5 devient fausse dès que i atteint 5 : le bloc ne s'exécute pas pour i = 5."
+      - texte: "Une boucle infinie"
+        correcte: false
+        explication: "i++ incrémente bien i à chaque tour ; la boucle se termine normalement une fois la condition devenue fausse."
+  - question: "Quel est l'avantage principal de la boucle for-each (`for (int n : nombres)`) par rapport à une boucle for classique pour parcourir un tableau ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle donne directement chaque élément du tableau, sans avoir à gérer manuellement un index ni le risque de dépasser les limites du tableau"
+        correcte: true
+        explication: "La boucle for-each élimine le risque d'erreur d'index (comme accéder à nombres[nombres.length], qui provoquerait une exception), en itérant directement sur les valeurs du tableau."
+      - texte: "Elle est la seule boucle capable de parcourir un tableau en Java"
+        correcte: false
+        explication: "Une boucle for classique avec un index peut parfaitement parcourir un tableau également ; for-each est simplement plus sûre et lisible pour ce cas précis."
+      - texte: "Elle permet de modifier la taille du tableau pendant le parcours"
+        correcte: false
+        explication: "Un tableau Java a une taille fixe une fois créé, qu'on utilise for-each ou une boucle for classique ; aucune des deux ne permet de redimensionner le tableau en cours de parcours."
+      - texte: "Elle s'exécute plus rapidement qu'une boucle for classique"
+        correcte: false
+        explication: "La différence de performance entre les deux approches est négligeable en pratique ; l'avantage de for-each est la lisibilité et la sécurité, pas la vitesse."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## La boucle for classique
+
+<BlocCode
+  langue="java"
+  code={`for (int i = 0; i < 5; i++) {
+    System.out.println(i); // 0, 1, 2, 3, 4
+}`}
+/>
+
+## La boucle while
+
+<BlocCode
+  langue="java"
+  code={`int energie = 100;
+int tours = 0;
+
+while (energie > 0) {
+    energie -= 30;
+    tours++;
+}
+
+System.out.println(tours); // 4`}
+/>
+
+<Avertissement type="attention">
+  Une boucle `while` dont la condition ne devient jamais fausse tourne indéfiniment. Vérifie toujours qu'une valeur utilisée dans la condition change bien à l'intérieur du bloc.
+</Avertissement>
+
+## Parcourir un tableau avec for-each
+
+<BlocCode
+  langue="java"
+  code={`int[] notes = {12, 15, 8, 20};
+
+for (int note : notes) {
+    System.out.println(note);
+}
+// 12
+// 15
+// 8
+// 20`}
+/>
+
+`for (int note : notes)` se lit « pour chaque note dans notes » : chaque élément du tableau est donné directement, sans index à gérer.
+
+## À toi de jouer
+
+<BlocCode
+  langue="java"
+  code={`int total = 0;
+for (int i = 1; i <= 5; i++) {
+    if (i % 2 == 0) {
+        total += i;
+    }
+}
+System.out.println(total);`}
+/>
+
+<Quiz
+  cle="java/les-boucles-java/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "6", correcte: true, explication: "La boucle parcourt i de 1 à 5 ; seuls les nombres pairs (2 et 4) satisfont i % 2 == 0 et sont ajoutés à total, soit 2 + 4 = 6." },
+        { texte: "15", correcte: false, explication: "15 serait la somme de 1 à 5 sans filtrage ; ici, seuls les nombres pairs (2 et 4) sont additionnés grâce à la condition if." },
+        { texte: "9", correcte: false, explication: "9 correspondrait à la somme des nombres impairs (1 + 3 + 5) ; mais la condition i % 2 == 0 sélectionne les nombres pairs, pas impairs." },
+        { texte: "0", correcte: false, explication: "total n'est pas nul : la condition i % 2 == 0 est vraie pour i = 2 et i = 4, qui sont bien ajoutés à total." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "for (init; condition; incrementation) convient quand le nombre de tours est connu",
+    "while (condition) répète tant que la condition reste vraie",
+    "for (type element : tableau) parcourt directement les éléments, sans index manuel",
+    "Toujours vérifier qu'une boucle while progresse vers l'arrêt, sous peine de boucle infinie"
+  ]}
+/>

@@ -1,0 +1,140 @@
+---
+titre: "Les chaînes de caractères"
+titreCourt: "Les chaînes"
+description: "Manipuler des chaînes avec le package strings, et la différence entre octets (bytes) et caractères Unicode (runes)."
+slug: "les-chaines-de-caracteres-go"
+cours: "go"
+ordre: 6
+duree: 13
+niveau: "debutant"
+objectifs:
+  - "Utiliser les fonctions courantes du package strings"
+  - "Comprendre qu'une chaîne Go est une suite d'octets, pas directement de caractères"
+  - "Construire une chaîne efficacement avec strings.Builder"
+prerequis: ["les-fonctions-go"]
+tags: ["go"]
+quiz:
+  - question: "Pourquoi `len(\"café\")` renvoie-t-il 5 en Go, et non 4 comme on pourrait s'y attendre pour un mot de 4 lettres ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que len() sur une chaîne Go compte le nombre d'octets, pas le nombre de caractères visibles ; le caractère é est encodé en UTF-8 sur deux octets, pas un seul"
+        correcte: true
+        explication: "Une chaîne Go est en réalité une séquence d'octets (interprétée comme de l'UTF-8 par convention) ; pour compter correctement le nombre de caractères Unicode réels (appelés runes en Go), il faut utiliser une boucle for...range sur la chaîne ou la fonction utf8.RuneCountInString."
+      - texte: "Parce que len() compte toujours un caractère de trop par convention"
+        correcte: false
+        explication: "len() ne compte pas systématiquement un caractère de trop ; le résultat dépend précisément du nombre d'octets utilisés pour encoder chaque caractère en UTF-8, qui peut être supérieur à 1 pour certains caractères accentués."
+      - texte: "Parce que \"café\" contient en réalité un caractère invisible supplémentaire"
+        correcte: false
+        explication: "Il n'y a pas de caractère invisible supplémentaire ici ; l'explication tient uniquement à l'encodage UTF-8 du caractère é sur deux octets, comptés tous deux par len()."
+      - texte: "Parce que len() ne fonctionne pas correctement sur les chaînes de caractères en Go"
+        correcte: false
+        explication: "len() fonctionne parfaitement et de façon prévisible sur les chaînes Go : elle compte le nombre d'octets, un comportement cohérent une fois qu'on comprend la représentation interne des chaînes, pas un dysfonctionnement."
+  - question: "Pourquoi utilise-t-on strings.Builder plutôt que des concaténations répétées avec + à l'intérieur d'une boucle qui construit une longue chaîne ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce qu'une chaîne Go est immuable : chaque concaténation avec + crée une nouvelle chaîne en mémoire, un coût qui s'accumule dans une boucle, alors que strings.Builder accumule le texte efficacement avant de le convertir une seule fois"
+        correcte: true
+        explication: "strings.Builder maintient une mémoire tampon interne modifiable, permettant d'ajouter du texte avec .WriteString() sans recréer une chaîne entière à chaque étape, un gain de performance notable pour la construction de texte dans une boucle répétée de nombreuses fois."
+      - texte: "Parce que l'opérateur + ne fonctionne techniquement pas avec les chaînes de caractères en Go"
+        correcte: false
+        explication: "+ fonctionne parfaitement pour concaténer des chaînes ponctuellement en Go ; le problème concerne uniquement son coût en performance quand il est répété de très nombreuses fois dans une boucle."
+      - texte: "Parce que strings.Builder ne peut contenir que des nombres, jamais du texte"
+        correcte: false
+        explication: "strings.Builder est justement conçu pour construire du texte efficacement ; il ne se limite pas aux nombres."
+      - texte: "Parce que les chaînes construites avec + ne peuvent jamais être affichées avec fmt.Println"
+        correcte: false
+        explication: "Une chaîne construite avec + s'affiche normalement avec fmt.Println ; le problème de cette approche est uniquement une question de performance en cas de répétition massive, pas d'affichage."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Le package strings
+
+<BlocCode
+  langue="go"
+  code={`import "strings"
+
+texte := "Bonjour le monde"
+
+fmt.Println(len(texte))                        // 16
+fmt.Println(strings.ToUpper(texte))             // "BONJOUR LE MONDE"
+fmt.Println(strings.Contains(texte, "monde"))   // true
+fmt.Println(strings.Replace(texte, "monde", "Go", 1)) // "Bonjour le Go"
+fmt.Println(strings.Split(texte, " "))          // [Bonjour le monde]`}
+/>
+
+Contrairement à Java où `.toUpperCase()` est une méthode de l'objet String, Go utilise des fonctions du package `strings` qui prennent la chaîne en paramètre : `strings.ToUpper(texte)`, pas `texte.ToUpper()`.
+
+## Octets et runes : le piège de l'Unicode
+
+<BlocCode
+  langue="go"
+  code={`mot := "café"
+fmt.Println(len(mot)) // 5 : nombre d'octets, pas de caracteres !
+
+compteur := 0
+for range mot {
+    compteur++
+}
+fmt.Println(compteur) // 4 : nombre reel de caracteres (runes)`}
+/>
+
+<Avertissement type="attention">
+  `len()` sur une chaîne Go compte des octets, pas des caractères Unicode. Pour un texte contenant des accents ou des caractères non-ASCII, utilise `for range` ou `utf8.RuneCountInString()` pour un compte de caractères fiable.
+</Avertissement>
+
+## Construire une chaîne efficacement
+
+<BlocCode
+  langue="go"
+  code={`import "strings"
+
+var constructeur strings.Builder
+for i := 1; i <= 3; i++ {
+    constructeur.WriteString(fmt.Sprintf("%d, ", i))
+}
+fmt.Println(constructeur.String()) // "1, 2, 3, "`}
+/>
+
+`fmt.Sprintf` fonctionne comme `fmt.Printf`, mais renvoie la chaîne formatée au lieu de l'afficher directement.
+
+## À toi de jouer
+
+<BlocCode
+  langue="go"
+  code={`import "strings"
+
+phrase := "Go est amusant"
+resultat := strings.Contains(phrase, "amusant")
+fmt.Println(resultat)`}
+/>
+
+<Quiz
+  cle="go/les-chaines-de-caracteres-go/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "true", correcte: true, explication: "strings.Contains vérifie si la sous-chaîne \"amusant\" apparaît dans phrase, ce qui est le cas : le résultat est true." },
+        { texte: "false", correcte: false, explication: "\"amusant\" apparaît bien dans la phrase \"Go est amusant\" ; strings.Contains renvoie donc true, pas false." },
+        { texte: "\"amusant\"", correcte: false, explication: "strings.Contains renvoie un booléen (true ou false) indiquant la présence ou l'absence de la sous-chaîne, pas la sous-chaîne elle-même." },
+        { texte: "Une erreur de compilation", correcte: false, explication: "Ce code est parfaitement valide et compile sans erreur ; strings.Contains est une fonction standard du package strings." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Les fonctions du package strings (ToUpper, Contains, Split...) prennent la chaîne en paramètre, contrairement aux méthodes d'autres langages",
+    "len() sur une chaîne Go compte des octets, pas des caractères Unicode visibles",
+    "for range sur une chaîne donne le nombre réel de caractères (runes), utile pour du texte accentué",
+    "strings.Builder et .WriteString() construisent une chaîne efficacement dans une boucle"
+  ]}
+/>

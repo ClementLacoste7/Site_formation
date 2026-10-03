@@ -1,0 +1,159 @@
+---
+titre: "Les boucles"
+titreCourt: "Les boucles"
+description: "Go n'a qu'un seul mot-clé de boucle, for, utilisable sous plusieurs formes : avec compteur, comme un while, infinie, et range."
+slug: "les-boucles-go"
+cours: "go"
+ordre: 3
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Écrire une boucle for classique avec compteur"
+  - "Utiliser for comme équivalent d'un while"
+  - "Parcourir une collection avec for...range"
+prerequis: ["operateurs-et-conditions-go"]
+tags: ["go"]
+quiz:
+  - question: "Pourquoi Go ne propose-t-il qu'un seul mot-clé de boucle, for, là où d'autres langages distinguent for et while ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que for peut être utilisé sous plusieurs formes différentes (avec compteur, avec une seule condition comme un while, ou sans aucune condition pour une boucle infinie), rendant un mot-clé while séparé superflu"
+        correcte: true
+        explication: "Ce choix de conception reflète la philosophie de simplicité de Go : plutôt que de multiplier les mots-clés pour des besoins similaires, for seul couvre tous les cas de répétition grâce à sa syntaxe flexible, ses trois parties (initialisation, condition, incrémentation) étant chacune optionnelles."
+      - texte: "Parce que Go ne permet techniquement pas de répéter du code plusieurs fois"
+        correcte: false
+        explication: "Go permet parfaitement de répéter du code plusieurs fois avec for, sous ses différentes formes ; ce n'est pas une limitation du langage, bien au contraire."
+      - texte: "Parce que while est un mot-clé réservé à un usage futur de Go"
+        correcte: false
+        explication: "while n'est pas un mot-clé réservé en Go ; for couvre déjà tous les usages qu'un while assurerait dans d'autres langages."
+      - texte: "Parce que les boucles while sont considérées comme une erreur de sécurité en Go"
+        correcte: false
+        explication: "Il n'y a aucune préoccupation de sécurité liée à l'absence de while en Go ; c'est un choix de simplicité et d'unification syntaxique autour d'un seul mot-clé for."
+  - question: "Que fait `for i, v := range notes { ... }` pour parcourir un slice notes ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle donne à chaque itération l'index i et la valeur v de l'élément courant du slice"
+        correcte: true
+        explication: "range sur un slice (ou un tableau) renvoie deux valeurs à chaque itération : l'index de l'élément et sa valeur, les deux étant disponibles simultanément sans avoir à accéder manuellement à notes[i]."
+      - texte: "Elle ne donne que l'index i, jamais la valeur de l'élément"
+        correcte: false
+        explication: "range sur un slice fournit bien les deux informations (index et valeur) simultanément ; on peut ignorer l'une des deux avec _ si elle n'est pas utile, mais les deux sont disponibles."
+      - texte: "Elle modifie directement les valeurs du slice notes pendant le parcours"
+        correcte: false
+        explication: "v est une copie de la valeur à chaque itération, pas une référence directe à l'élément du slice ; modifier v n'affecte pas le contenu réel de notes."
+      - texte: "Elle ne fonctionne qu'avec des maps, jamais avec des slices"
+        correcte: false
+        explication: "range fonctionne avec de nombreux types de collections en Go, y compris les slices, les tableaux, les maps et les chaînes de caractères, pas exclusivement les maps."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## La boucle for classique
+
+<BlocCode
+  langue="go"
+  code={`for i := 0; i < 5; i++ {
+    fmt.Println(i) // 0, 1, 2, 3, 4
+}`}
+/>
+
+## for comme équivalent d'un while
+
+<BlocCode
+  langue="go"
+  code={`energie := 100
+tours := 0
+
+for energie > 0 {
+    energie -= 30
+    tours++
+}
+
+fmt.Println(tours) // 4`}
+/>
+
+Avec une seule condition (sans initialisation ni incrémentation explicites), `for` se comporte exactement comme un `while` d'un autre langage.
+
+## La boucle infinie
+
+<BlocCode
+  langue="go"
+  code={`compteur := 0
+for {
+    compteur++
+    if compteur >= 3 {
+        break // sort de la boucle
+    }
+}
+fmt.Println(compteur) // 3`}
+/>
+
+`for` sans aucune condition répète indéfiniment, jusqu'à rencontrer un `break` explicite.
+
+<Avertissement type="attention">
+  Une boucle `for` infinie sans jamais de `break` (ni de condition d'arrêt atteinte) tourne pour toujours et fige le programme.
+</Avertissement>
+
+## Parcourir avec for...range
+
+<BlocCode
+  langue="go"
+  code={`fruits := []string{"pomme", "banane", "cerise"}
+
+for i, fruit := range fruits {
+    fmt.Println(i, fruit)
+}
+// 0 pomme
+// 1 banane
+// 2 cerise
+
+// Si l'index n'est pas utile :
+for _, fruit := range fruits {
+    fmt.Println(fruit)
+}`}
+/>
+
+Le tiret bas `_` ignore explicitement une valeur qu'on ne compte pas utiliser, ici l'index.
+
+## À toi de jouer
+
+<BlocCode
+  langue="go"
+  code={`total := 0
+for i := 1; i <= 5; i++ {
+    if i%2 == 0 {
+        total += i
+    }
+}
+fmt.Println(total)`}
+/>
+
+<Quiz
+  cle="go/les-boucles-go/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "6", correcte: true, explication: "La boucle parcourt i de 1 à 5 ; seuls les nombres pairs (2 et 4) satisfont i%2 == 0 et sont ajoutés à total, soit 2 + 4 = 6." },
+        { texte: "15", correcte: false, explication: "15 serait la somme de 1 à 5 sans filtrage ; ici, seuls les nombres pairs (2 et 4) sont additionnés grâce à la condition if." },
+        { texte: "9", correcte: false, explication: "9 correspondrait à la somme des nombres impairs (1 + 3 + 5) ; mais la condition i%2 == 0 sélectionne les nombres pairs, pas impairs." },
+        { texte: "Une erreur de compilation", correcte: false, explication: "Ce code est parfaitement valide et compile sans erreur ; l'opérateur modulo (%) et la boucle for fonctionnent normalement ici." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Go n'a qu'un seul mot-clé de boucle : for, utilisable sous plusieurs formes différentes",
+    "for condition { ... } (sans init ni incrémentation) équivaut à un while",
+    "for { ... } sans aucune condition crée une boucle infinie, à interrompre avec break",
+    "for index, valeur := range collection parcourt une collection avec son index et sa valeur"
+  ]}
+/>

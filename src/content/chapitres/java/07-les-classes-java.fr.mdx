@@ -1,0 +1,165 @@
+---
+titre: "Les classes"
+titreCourt: "Les classes"
+description: "Définir une classe avec des attributs privés, un constructeur, des méthodes, et le principe d'encapsulation."
+slug: "les-classes-java"
+cours: "java"
+ordre: 7
+duree: 14
+niveau: "intermediaire"
+objectifs:
+  - "Définir une classe avec des attributs, un constructeur et des méthodes"
+  - "Comprendre le principe d'encapsulation avec private et les getters/setters"
+  - "Créer des instances avec new"
+prerequis: ["les-chaines-de-caracteres-java"]
+tags: ["java"]
+quiz:
+  - question: "Pourquoi déclare-t-on généralement les attributs d'une classe Java avec le mot-clé private, plutôt que public ?"
+    type: "unique"
+    reponses:
+      - texte: "Pour empêcher un accès ou une modification directe et incontrôlée de l'attribut depuis l'extérieur de la classe, en forçant son accès via des méthodes publiques (getters/setters) qui peuvent valider la valeur"
+        correcte: true
+        explication: "Ce principe d'encapsulation protège la cohérence interne de l'objet : un setter peut par exemple refuser d'assigner un solde négatif à un compte bancaire, une vérification impossible à garantir si l'attribut était directement modifiable depuis l'extérieur de la classe."
+      - texte: "Parce qu'un attribut private occupe moins de mémoire qu'un attribut public"
+        correcte: false
+        explication: "La visibilité d'un attribut (private ou public) n'a aucun effet sur l'espace mémoire qu'il occupe ; private est un choix de conception pour la protection des données, pas une optimisation mémoire."
+      - texte: "Parce qu'un attribut public ne peut jamais être lu depuis l'intérieur de la classe elle-même"
+        correcte: false
+        explication: "Un attribut, qu'il soit private ou public, reste toujours accessible depuis l'intérieur de sa propre classe ; la restriction private concerne l'accès depuis l'extérieur de la classe, pas depuis l'intérieur."
+      - texte: "Parce que private est obligatoire pour tous les attributs d'une classe Java, sans exception"
+        correcte: false
+        explication: "private est une bonne pratique très répandue mais pas une obligation syntaxique du langage ; un attribut peut techniquement être déclaré public, même si c'est généralement déconseillé."
+  - question: "Que fait le mot-clé new lors de la création d'un objet, comme `CompteBancaire c = new CompteBancaire(100);` ?"
+    type: "unique"
+    reponses:
+      - texte: "Il alloue la mémoire nécessaire pour une nouvelle instance de la classe, puis exécute le constructeur avec les arguments fournis pour l'initialiser"
+        correcte: true
+        explication: "new déclenche la création d'un nouvel objet en mémoire, exécute le constructeur de la classe avec les arguments donnés pour l'initialiser, puis renvoie une référence vers cette instance fraîchement créée, stockée ici dans la variable c."
+      - texte: "Il modifie la classe CompteBancaire elle-même pour toutes les instances déjà créées"
+        correcte: false
+        explication: "new crée une instance indépendante ; il ne modifie ni la classe ni les autres instances déjà créées à partir d'elle."
+      - texte: "Il vérifie seulement que la classe CompteBancaire existe, sans créer d'objet réel"
+        correcte: false
+        explication: "new crée effectivement un nouvel objet en mémoire, utilisable ensuite ; ce n'est pas une simple vérification d'existence de la classe."
+      - texte: "Il supprime l'ancienne instance de CompteBancaire si elle existait déjà"
+        correcte: false
+        explication: "new crée une nouvelle instance indépendante sans supprimer d'éventuelles instances existantes créées précédemment, qui continuent d'exister tant qu'elles sont référencées."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Définir une classe
+
+<BlocCode
+  langue="java"
+  code={`public class CompteBancaire {
+    private double solde;
+
+    public CompteBancaire(double soldeInitial) {
+        this.solde = soldeInitial;
+    }
+
+    public double deposer(double montant) {
+        this.solde += montant;
+        return this.solde;
+    }
+
+    public double getSolde() {
+        return this.solde;
+    }
+}`}
+/>
+
+`private` empêche tout accès direct à `solde` depuis l'extérieur de la classe : on doit passer par les méthodes publiques `deposer()` et `getSolde()`, un principe appelé encapsulation.
+
+## Créer et utiliser une instance
+
+<BlocCode
+  langue="java"
+  code={`CompteBancaire compte = new CompteBancaire(100);
+System.out.println(compte.deposer(50)); // 150
+System.out.println(compte.getSolde());  // 150
+
+// compte.solde = 1000000; // erreur de compilation : solde est private`}
+/>
+
+Chaque instance a son propre `solde`, indépendant des autres instances de `CompteBancaire`.
+
+## Getters et setters
+
+<BlocCode
+  langue="java"
+  code={`public class CompteBancaire {
+    private double solde;
+
+    public CompteBancaire(double soldeInitial) {
+        this.solde = soldeInitial;
+    }
+
+    public double getSolde() {
+        return solde;
+    }
+
+    public void setSolde(double nouveauSolde) {
+        if (nouveauSolde >= 0) {
+            this.solde = nouveauSolde;
+        }
+    }
+}`}
+/>
+
+<Avertissement type="astuce">
+  Un setter peut valider la nouvelle valeur avant de l'accepter, ici en refusant un solde négatif. Cette validation serait impossible à garantir si `solde` était directement modifiable depuis l'extérieur.
+</Avertissement>
+
+## À toi de jouer
+
+<BlocCode
+  langue="java"
+  code={`public class Rectangle {
+    private int largeur;
+    private int hauteur;
+
+    public Rectangle(int largeur, int hauteur) {
+        this.largeur = largeur;
+        this.hauteur = hauteur;
+    }
+
+    public int aire() {
+        return largeur * hauteur;
+    }
+}
+
+Rectangle r = new Rectangle(4, 5);
+System.out.println(r.aire());`}
+/>
+
+<Quiz
+  cle="java/les-classes-java/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "20", correcte: true, explication: "aire() renvoie largeur * hauteur, soit 4 * 5 = 20 pour cette instance de Rectangle." },
+        { texte: "9", correcte: false, explication: "9 correspondrait à largeur + hauteur (4 + 5), pas au produit calculé par la méthode aire()." },
+        { texte: "Une erreur de compilation, largeur et hauteur étant private", correcte: false, explication: "La méthode aire() accède à largeur et hauteur depuis l'intérieur de la classe elle-même, ce qui reste autorisé même si ces attributs sont private ; l'accès private ne bloque que l'extérieur de la classe." },
+        { texte: "0", correcte: false, explication: "Le constructeur initialise bien largeur et hauteur avec les valeurs fournies (4 et 5), le résultat n'est donc pas 0." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "private restreint l'accès à un attribut depuis l'extérieur de la classe, un principe d'encapsulation",
+    "Un getter (lecture) et un setter (écriture, avec validation possible) exposent un accès contrôlé",
+    "new alloue la mémoire et exécute le constructeur pour créer une nouvelle instance",
+    "Chaque instance possède ses propres attributs, indépendants des autres instances"
+  ]}
+/>

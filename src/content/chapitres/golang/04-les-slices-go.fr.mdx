@@ -1,0 +1,147 @@
+---
+titre: "Les slices et tableaux"
+titreCourt: "Les slices"
+description: "La différence entre un tableau à taille fixe et un slice dynamique, et les fonctions append, len et make."
+slug: "les-slices-go"
+cours: "go"
+ordre: 4
+duree: 14
+niveau: "debutant"
+objectifs:
+  - "Comprendre la différence entre un tableau Go et un slice"
+  - "Ajouter des éléments à un slice avec append"
+  - "Utiliser len et make pour gérer la taille d'un slice"
+prerequis: ["les-boucles-go"]
+tags: ["go"]
+quiz:
+  - question: "Quelle est la différence essentielle entre un tableau Go (comme [3]int) et un slice ([]int) ?"
+    type: "unique"
+    reponses:
+      - texte: "Un tableau a une taille fixe incluse dans son type lui-même, un slice est une vue flexible et redimensionnable au-dessus d'un tableau sous-jacent, pouvant grandir avec append"
+        correcte: true
+        explication: "En pratique, les slices sont bien plus utilisés que les tableaux en Go, car ils offrent la flexibilité nécessaire à la plupart des besoins, le tableau à taille strictement fixe étant réservé à des cas plus spécifiques."
+      - texte: "Un tableau ne peut contenir que du texte, un slice que des nombres"
+        correcte: false
+        explication: "Les deux structures peuvent contenir n'importe quel type de données ; leur différence essentielle porte sur la taille fixe ou flexible, pas sur le type de contenu accepté."
+      - texte: "Un slice est toujours plus lent à parcourir qu'un tableau"
+        correcte: false
+        explication: "La différence de performance entre les deux est généralement négligeable en pratique ; ce n'est pas la raison de préférer l'un à l'autre."
+      - texte: "Les deux structures sont strictement identiques, seul le nom change"
+        correcte: false
+        explication: "Leur gestion de la taille diffère fondamentalement (fixe contre flexible), ce n'est pas une simple différence de nom sans conséquence."
+  - question: "Que fait `nombres = append(nombres, 4)` sur un slice nombres ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle renvoie un nouveau slice contenant les éléments d'origine plus la valeur 4 ajoutée à la fin, qu'il faut réassigner à la variable nombres pour conserver le résultat"
+        correcte: true
+        explication: "append() ne modifie pas toujours le slice d'origine en place (selon sa capacité restante) : elle renvoie systématiquement le slice résultant, d'où la nécessité de réassigner le résultat à nombres, sous peine de perdre l'élément ajouté."
+      - texte: "Elle modifie toujours nombres sur place, sans qu'il soit nécessaire de réassigner le résultat"
+        correcte: false
+        explication: "Même si cela peut parfois sembler fonctionner selon la capacité interne du slice, la pratique correcte et garantie est de toujours réassigner le résultat d'append(), qui peut renvoyer un tout nouveau slice sous-jacent si la capacité était insuffisante."
+      - texte: "Elle supprime le dernier élément du slice avant d'y ajouter 4"
+        correcte: false
+        explication: "append() ajoute un élément à la fin sans en supprimer aucun au préalable ; elle agrandit le slice, elle ne le raccourcit jamais."
+      - texte: "Elle provoque une erreur de compilation, append n'acceptant que des slices vides"
+        correcte: false
+        explication: "append() fonctionne parfaitement sur un slice déjà rempli d'éléments, pas exclusivement sur un slice vide ; c'est justement son usage le plus courant."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Les tableaux : taille fixe
+
+<BlocCode
+  langue="go"
+  code={`var notes [3]int = [3]int{12, 15, 8}
+fmt.Println(notes[0])     // 12
+fmt.Println(len(notes))   // 3
+
+// notes[3] = 20 // erreur de compilation : index hors limites, detectable ici car la taille est connue`}
+/>
+
+La taille `[3]` fait partie intégrante du type du tableau : `[3]int` et `[4]int` sont deux types différents et incompatibles.
+
+## Les slices : taille flexible
+
+<BlocCode
+  langue="go"
+  code={`fruits := []string{"pomme", "banane", "cerise"}
+fmt.Println(fruits[0])     // "pomme"
+fmt.Println(len(fruits))   // 3
+
+fruits = append(fruits, "datte")
+fmt.Println(fruits)        // [pomme banane cerise datte]
+fmt.Println(len(fruits))   // 4`}
+/>
+
+Notez l'absence de nombre entre crochets (`[]string` et non `[3]string`) : un slice n'a pas de taille fixe dans son type.
+
+<Avertissement type="attention">
+  `append()` ne modifie pas forcément le slice en place : elle renvoie le résultat, qu'il faut toujours réassigner, comme `fruits = append(fruits, "datte")`. Oublier la réassignation est une source d'erreur classique.
+</Avertissement>
+
+## Créer un slice avec make
+
+<BlocCode
+  langue="go"
+  code={`scores := make([]int, 3) // slice de 3 entiers, initialises a 0
+scores[0] = 10
+scores[1] = 20
+scores[2] = 30
+fmt.Println(scores) // [10 20 30]`}
+/>
+
+`make([]int, 3)` crée un slice déjà rempli de 3 zéros, prêt à être modifié par index, contrairement à un slice vide `[]int{}` qui nécessiterait `append()` pour chaque élément.
+
+## Découper un slice
+
+<BlocCode
+  langue="go"
+  code={`nombres := []int{10, 20, 30, 40, 50}
+sousEnsemble := nombres[1:3] // indices 1 et 2 (3 exclu)
+fmt.Println(sousEnsemble)    // [20 30]`}
+/>
+
+Comme pour les chaînes Python, `[1:3]` extrait les éléments des index 1 et 2, l'index de fin étant exclu.
+
+## À toi de jouer
+
+<BlocCode
+  langue="go"
+  code={`valeurs := []int{4, 8, 15, 16}
+somme := 0
+for _, v := range valeurs {
+    somme += v
+}
+fmt.Println(somme)`}
+/>
+
+<Quiz
+  cle="go/les-slices-go/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "43", correcte: true, explication: "La boucle for...range additionne tous les éléments du slice : 4 + 8 + 15 + 16 = 43." },
+        { texte: "4", correcte: false, explication: "4 est seulement le premier élément du slice ; la boucle parcourt et additionne bien les quatre éléments, pas uniquement le premier." },
+        { texte: "Une erreur de compilation", correcte: false, explication: "Ce code est parfaitement valide et compile sans erreur ; range sur un slice fonctionne normalement ici." },
+        { texte: "16", correcte: false, explication: "16 est seulement le dernier élément du slice ; la boucle additionne bien les quatre éléments ensemble, pas uniquement le dernier." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Un tableau Go ([3]int) a une taille fixe incluse dans son type lui-même",
+    "Un slice ([]int) est flexible, redimensionnable avec append()",
+    "append() renvoie le résultat, toujours à réassigner à la variable d'origine",
+    "make([]type, taille) crée un slice déjà rempli de valeurs par défaut, prêt à être modifié par index"
+  ]}
+/>

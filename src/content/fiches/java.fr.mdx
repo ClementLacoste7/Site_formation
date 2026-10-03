@@ -1,0 +1,62 @@
+---
+titre: "Fiche de révision : Java"
+description: "L'essentiel à retenir : variables typées, tableaux, méthodes, chaînes, classes, héritage, collections et exceptions."
+slug: "java"
+coursLie: "java"
+tags: ["java"]
+questions:
+  - question: "Pourquoi déclare-t-on explicitement le type de chaque variable en Java ?"
+    reponse: "Java est à typage statique : le type est fixé à la compilation, ce qui permet de détecter de nombreuses erreurs avant même l'exécution du programme."
+  - question: "Pourquoi == renvoie-t-il parfois false entre deux String au contenu identique ?"
+    reponse: "== compare les références mémoire des objets, pas leur contenu. Il faut utiliser .equals() pour comparer le contenu réel de deux chaînes."
+  - question: "Quelle est la différence entre un tableau et une ArrayList ?"
+    reponse: "Un tableau a une taille fixe définie à sa création. Une ArrayList peut grandir ou rétrécir dynamiquement avec .add() et .remove(), mais exige un type objet (Integer plutôt que int)."
+  - question: "Pourquoi une méthode void ne peut-elle pas contenir return avec une valeur ?"
+    reponse: "void signifie explicitement que la méthode ne renvoie rien ; le compilateur refuse toute incohérence entre le type de retour déclaré et le contenu des instructions return."
+  - question: "Qu'est-ce que l'encapsulation avec private apporte ?"
+    reponse: "Elle empêche un accès direct et incontrôlé à un attribut depuis l'extérieur de la classe, forçant son accès via des méthodes publiques (getters/setters) qui peuvent valider la valeur."
+  - question: "Que fait super(...) dans le constructeur d'une classe qui utilise extends ?"
+    reponse: "Il appelle le constructeur de la classe parente pour initialiser la partie héritée de l'objet, avant toute autre instruction du constructeur enfant."
+  - question: "Qu'est-ce que le polymorphisme illustré par Animal a = new Chien(); ?"
+    reponse: "Une référence de type parent peut pointer vers un objet enfant ; l'appel d'une méthode redéfinie utilise alors le comportement spécifique de l'enfant, pas celui du parent."
+  - question: "Quelle est la différence entre une exception vérifiée (checked) et non vérifiée (unchecked) ?"
+    reponse: "Une exception vérifiée doit obligatoirement être interceptée ou déclarée avec throws, sous peine d'erreur de compilation. Une exception non vérifiée n'impose aucune de ces obligations."
+maj: 2026-10-03
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Une classe avec encapsulation
+
+<BlocCode
+  langue="java"
+  code={`public class CompteBancaire {
+    private double solde;
+
+    public CompteBancaire(double soldeInitial) {
+        this.solde = soldeInitial;
+    }
+
+    public double getSolde() {
+        return solde;
+    }
+}`}
+/>
+
+## Parcourir une ArrayList
+
+<BlocCode
+  langue="java"
+  code={`ArrayList<Integer> nombres = new ArrayList<>();
+nombres.add(10);
+nombres.add(20);
+
+for (int n : nombres) {
+    System.out.println(n);
+}`}
+/>
+
+<Avertissement type="astuce">
+  Trois réflexes couvrent une bonne partie des surprises de débutant : .equals() plutôt que == pour comparer des String, private par défaut sur les attributs, et @Override systématique en cas de redéfinition de méthode.
+</Avertissement>

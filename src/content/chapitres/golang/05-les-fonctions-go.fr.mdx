@@ -1,0 +1,164 @@
+---
+titre: "Les fonctions"
+titreCourt: "Les fonctions"
+description: "Déclarer une fonction avec func, les valeurs de retour multiples propres à Go, et les fonctions variadiques."
+slug: "les-fonctions-go"
+cours: "go"
+ordre: 5
+duree: 13
+niveau: "debutant"
+objectifs:
+  - "Déclarer une fonction avec func et un type de retour explicite"
+  - "Renvoyer plusieurs valeurs depuis une même fonction"
+  - "Écrire une fonction variadique acceptant un nombre variable d'arguments"
+prerequis: ["les-slices-go"]
+tags: ["go"]
+quiz:
+  - question: "Pourquoi de nombreuses fonctions de la bibliothèque standard Go, comme la division ou l'accès à une map, renvoient-elles deux valeurs plutôt qu'une seule ?"
+    type: "unique"
+    reponses:
+      - texte: "Pour renvoyer à la fois le résultat principal et une information sur la réussite ou l'échec de l'opération (souvent une erreur ou un booléen), sans recourir à un mécanisme d'exceptions comme dans d'autres langages"
+        correcte: true
+        explication: "Go n'a pas de système d'exceptions comme Java ou Python ; le retour de plusieurs valeurs, combiné à la convention de vérifier systématiquement une valeur d'erreur ou un booléen de confirmation, est la façon idiomatique de signaler qu'une opération a échoué ou réussi."
+      - texte: "Parce que Go ne peut techniquement renvoyer qu'un maximum de deux valeurs par fonction"
+        correcte: false
+        explication: "Une fonction Go peut renvoyer plus de deux valeurs si nécessaire ; deux est simplement la convention la plus courante (résultat et erreur, ou valeur et booléen), pas une limite technique stricte."
+      - texte: "Pour que la fonction s'exécute deux fois plus vite"
+        correcte: false
+        explication: "Le retour de plusieurs valeurs n'a aucun rapport avec la vitesse d'exécution ; c'est une convention de gestion des cas d'échec, pas une optimisation de performance."
+      - texte: "Parce que toutes les fonctions Go doivent obligatoirement renvoyer exactement deux valeurs"
+        correcte: false
+        explication: "Une fonction Go peut renvoyer zéro, une, deux ou plusieurs valeurs selon son besoin ; ce n'est pas une obligation systématique d'en renvoyer exactement deux."
+  - question: "Qu'est-ce qu'une fonction variadique, comme `func somme(nombres ...int) int`, permet de faire ?"
+    type: "unique"
+    reponses:
+      - texte: "Accepter un nombre variable d'arguments du même type à l'appel, ceux-ci étant regroupés automatiquement dans un slice à l'intérieur de la fonction"
+        correcte: true
+        explication: "L'appelant peut écrire somme(1, 2, 3) ou somme(1, 2, 3, 4, 5) indifféremment ; à l'intérieur de la fonction, nombres se comporte comme un []int ordinaire regroupant tous les arguments fournis, quel que soit leur nombre exact."
+      - texte: "Accepter exactement trois arguments, ni plus ni moins"
+        correcte: false
+        explication: "Une fonction variadique accepte précisément un nombre variable d'arguments, pas un nombre fixe de trois ; c'est tout l'intérêt de cette syntaxe par rapport à des paramètres fixes."
+      - texte: "Renvoyer un nombre variable de valeurs, selon le nombre d'arguments reçus"
+        correcte: false
+        explication: "Les points de suspension ... concernent ici les paramètres d'entrée de la fonction, pas son nombre de valeurs de retour, qui reste défini normalement dans sa signature."
+      - texte: "Accepter des arguments de n'importe quel type mélangés ensemble"
+        correcte: false
+        explication: "Les arguments variadiques doivent tous être du même type déclaré (ici int) ; ce n'est pas un mélange libre de types différents dans un seul appel."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Déclarer une fonction
+
+<BlocCode
+  langue="go"
+  code={`func carre(x int) int {
+    return x * x
+}
+
+fmt.Println(carre(5)) // 25`}
+/>
+
+`func nom(parametre type) typeDeRetour` déclare une fonction. Le type de retour s'écrit après la liste de paramètres, pas avant le nom comme en Java.
+
+## Les retours multiples
+
+<BlocCode
+  langue="go"
+  code={`func diviser(a, b float64) (float64, error) {
+    if b == 0 {
+        return 0, fmt.Errorf("division par zero impossible")
+    }
+    return a / b, nil
+}
+
+resultat, err := diviser(10, 2)
+if err != nil {
+    fmt.Println("Erreur :", err)
+} else {
+    fmt.Println("Resultat :", resultat)
+}`}
+/>
+
+`nil` représente l'absence d'erreur. Cette convention (vérifier systématiquement `err != nil`) remplace les exceptions des autres langages, un point développé au chapitre sur la gestion des erreurs.
+
+<Avertissement type="info">
+  `a, b float64` dans la signature est un raccourci pour `a float64, b float64` : deux paramètres consécutifs du même type peuvent partager une seule annotation de type.
+</Avertissement>
+
+## Les fonctions variadiques
+
+<BlocCode
+  langue="go"
+  code={`func somme(nombres ...int) int {
+    total := 0
+    for _, n := range nombres {
+        total += n
+    }
+    return total
+}
+
+fmt.Println(somme(1, 2, 3))       // 6
+fmt.Println(somme(1, 2, 3, 4, 5)) // 15
+fmt.Println(somme())              // 0, aucun argument`}
+/>
+
+`...int` accepte un nombre quelconque d'arguments `int`, regroupés automatiquement en `[]int` à l'intérieur de la fonction.
+
+## Les fonctions comme valeurs
+
+<BlocCode
+  langue="go"
+  code={`doubler := func(x int) int {
+    return x * 2
+}
+
+fmt.Println(doubler(5)) // 10`}
+/>
+
+Une fonction peut être assignée à une variable et appelée comme n'importe quelle autre valeur, une fonctionnalité utile pour passer un comportement en paramètre d'une autre fonction.
+
+## À toi de jouer
+
+<BlocCode
+  langue="go"
+  code={`func diviserEnSecurite(a, b int) (int, bool) {
+    if b == 0 {
+        return 0, false
+    }
+    return a / b, true
+}
+
+resultat, ok := diviserEnSecurite(10, 0)
+fmt.Println(resultat, ok)`}
+/>
+
+<Quiz
+  cle="go/les-fonctions-go/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "0 false", correcte: true, explication: "b vaut 0, la fonction entre donc dans la branche if et renvoie (0, false) : resultat vaut 0, ok vaut false." },
+        { texte: "10 true", correcte: false, explication: "Ce résultat correspondrait à une division réussie, mais b vaut 0 ici, ce qui déclenche la branche d'échec qui renvoie (0, false), pas une division réelle." },
+        { texte: "Une erreur de panique (panic) à l'exécution", correcte: false, explication: "La fonction vérifie explicitement b == 0 avant de diviser, évitant ainsi toute division par zéro réelle qui aurait effectivement provoqué un panic ; ici, l'échec est géré proprement via la valeur booléenne renvoyée." },
+        { texte: "0", correcte: false, explication: "La fonction renvoie deux valeurs (int et bool), toutes deux affichées par fmt.Println ; le résultat affiché inclut donc aussi la valeur booléenne, pas seulement 0." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "func nom(parametres) typeDeRetour { ... } déclare une fonction, le type de retour après les paramètres",
+    "Une fonction Go peut renvoyer plusieurs valeurs, souvent un résultat et une erreur (ou un booléen de confirmation)",
+    "nil représente l'absence d'erreur, à vérifier systématiquement avec if err != nil",
+    "nom ...type accepte un nombre variable d'arguments, regroupés en slice à l'intérieur de la fonction"
+  ]}
+/>

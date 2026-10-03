@@ -1,0 +1,151 @@
+---
+titre: "Les collections"
+titreCourt: "Les collections"
+description: "Utiliser ArrayList pour une liste de taille variable, et HashMap pour des paires clé/valeur."
+slug: "les-collections-java"
+cours: "java"
+ordre: 9
+duree: 14
+niveau: "intermediaire"
+objectifs:
+  - "Utiliser ArrayList pour une collection de taille variable"
+  - "Utiliser HashMap pour associer des clés à des valeurs"
+  - "Comprendre l'autoboxing entre types primitifs et classes enveloppantes"
+prerequis: ["heritage-polymorphisme-java"]
+tags: ["java"]
+quiz:
+  - question: "Quelle est la principale différence entre un tableau (int[]) et une ArrayList<Integer> ?"
+    type: "unique"
+    reponses:
+      - texte: "Un tableau a une taille fixe définie à sa création, une ArrayList peut grandir ou rétrécir dynamiquement avec .add() et .remove()"
+        correcte: true
+        explication: "ArrayList gère en interne le redimensionnement de son stockage, offrant une flexibilité qu'un tableau natif n'a pas, au prix d'une légère surcharge de performance et de la nécessité d'utiliser des types objets (Integer plutôt que int)."
+      - texte: "Un tableau ne peut contenir que du texte, une ArrayList ne peut contenir que des nombres"
+        correcte: false
+        explication: "Les deux structures peuvent contenir divers types de données ; leur différence essentielle porte sur la taille fixe ou variable, pas sur le type de contenu accepté."
+      - texte: "Une ArrayList est toujours plus rapide à parcourir qu'un tableau"
+        correcte: false
+        explication: "Un tableau natif est généralement au moins aussi rapide, voire plus rapide, à parcourir qu'une ArrayList, à cause de la surcharge liée à la gestion dynamique de cette dernière."
+      - texte: "Les deux structures sont strictement identiques, seul le nom change"
+        correcte: false
+        explication: "Leur gestion de la taille diffère fondamentalement (fixe contre dynamique), ce n'est pas une simple différence de nom sans conséquence."
+  - question: "Pourquoi une ArrayList ne peut-elle pas être déclarée directement avec des types primitifs, comme `ArrayList<int>` ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que les structures génériques comme ArrayList ne fonctionnent qu'avec des types objets ; il faut utiliser la classe enveloppante correspondante, comme Integer à la place de int"
+        correcte: true
+        explication: "Java convertit automatiquement (autoboxing) un int en Integer lors de l'ajout à une ArrayList<Integer>, et inversement (unboxing) lors de sa lecture, rendant cette contrainte technique largement transparente pour le développeur au quotidien."
+      - texte: "Parce que les nombres ne peuvent techniquement pas être stockés dans une collection Java"
+        correcte: false
+        explication: "Les nombres peuvent parfaitement être stockés dans une collection, via leur classe enveloppante (Integer, Double...) plutôt que directement en type primitif."
+      - texte: "Parce qu'ArrayList est réservée exclusivement aux chaînes de caractères"
+        correcte: false
+        explication: "ArrayList peut contenir n'importe quel type objet, pas exclusivement des chaînes de caractères ; Integer, Double ou des objets personnalisés fonctionnent tout aussi bien."
+      - texte: "Parce que int est un mot réservé qui ne peut jamais apparaître entre chevrons"
+        correcte: false
+        explication: "La restriction n'est pas liée au mot-clé int en tant que tel, mais au fait que les génériques Java (comme ArrayList<T>) exigent un type objet, pas un type primitif."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## ArrayList : une liste de taille variable
+
+<BlocCode
+  langue="java"
+  code={`import java.util.ArrayList;
+
+ArrayList<String> fruits = new ArrayList<>();
+fruits.add("pomme");
+fruits.add("banane");
+fruits.add("cerise");
+
+System.out.println(fruits.get(0));   // "pomme"
+System.out.println(fruits.size());   // 3
+
+fruits.remove("banane");
+System.out.println(fruits);          // [pomme, cerise]`}
+/>
+
+Contrairement à un tableau, `.size()` (pas `.length`) donne le nombre d'éléments, et `.add()`/`.remove()` modifient la taille dynamiquement.
+
+<Avertissement type="info">
+  `ArrayList<Integer>` stocke des objets `Integer`, pas des `int` primitifs directement. Java effectue automatiquement la conversion (autoboxing) entre les deux lors de l'ajout ou de la lecture.
+</Avertissement>
+
+## HashMap : des paires clé/valeur
+
+<BlocCode
+  langue="java"
+  code={`import java.util.HashMap;
+
+HashMap<String, Integer> ages = new HashMap<>();
+ages.put("Alice", 25);
+ages.put("Bob", 30);
+
+System.out.println(ages.get("Alice"));       // 25
+System.out.println(ages.containsKey("Bob")); // true
+System.out.println(ages.getOrDefault("Zoe", 0)); // 0, Zoe absente`}
+/>
+
+`.getOrDefault()` évite une erreur si la clé n'existe pas, en renvoyant une valeur de repli, l'équivalent du `.get()` avec valeur par défaut de Python.
+
+## Parcourir une HashMap
+
+<BlocCode
+  langue="java"
+  code={`for (String nom : ages.keySet()) {
+    System.out.println(nom + " a " + ages.get(nom) + " ans.");
+}
+// "Alice a 25 ans."
+// "Bob a 30 ans."`}
+/>
+
+`.keySet()` renvoie l'ensemble des clés, qu'on peut ensuite parcourir pour accéder à chaque valeur associée.
+
+## À toi de jouer
+
+<BlocCode
+  langue="java"
+  code={`import java.util.ArrayList;
+
+ArrayList<Integer> nombres = new ArrayList<>();
+nombres.add(10);
+nombres.add(20);
+nombres.add(30);
+
+int somme = 0;
+for (int n : nombres) {
+    somme += n;
+}
+System.out.println(somme);`}
+/>
+
+<Quiz
+  cle="java/les-collections-java/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "60", correcte: true, explication: "La boucle for-each additionne les trois éléments de la ArrayList : 10 + 20 + 30 = 60." },
+        { texte: "3", correcte: false, explication: "3 correspondrait à nombres.size() (le nombre d'éléments), pas à la somme de leurs valeurs." },
+        { texte: "10", correcte: false, explication: "10 est seulement le premier élément ajouté ; la boucle parcourt et additionne bien les trois éléments, pas uniquement le premier." },
+        { texte: "Une erreur de compilation, for-each ne fonctionnant pas avec ArrayList", correcte: false, explication: "La boucle for-each fonctionne parfaitement avec une ArrayList, tout comme avec un tableau ; ce code compile et s'exécute normalement." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "ArrayList offre une liste de taille variable, avec .add(), .remove(), .get() et .size()",
+    "Les collections génériques comme ArrayList exigent un type objet (Integer), pas un type primitif (int)",
+    "HashMap associe des clés à des valeurs, avec .put(), .get() et .getOrDefault()",
+    ".keySet() permet de parcourir les clés d'une HashMap pour accéder à chaque valeur associée"
+  ]}
+/>

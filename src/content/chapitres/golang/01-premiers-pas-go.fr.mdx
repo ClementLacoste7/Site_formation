@@ -1,0 +1,144 @@
+---
+titre: "Premiers pas en Go"
+titreCourt: "Premiers pas"
+description: "Structure minimale d'un programme Go, déclaration de variables avec var et :=, et affichage avec fmt.Println."
+slug: "premiers-pas-go"
+cours: "go"
+ordre: 1
+duree: 13
+niveau: "debutant"
+objectifs:
+  - "Écrire et comprendre la structure minimale d'un programme Go"
+  - "Déclarer des variables avec var ou l'opérateur :="
+  - "Afficher un message dans la console avec fmt.Println"
+prerequis: []
+tags: ["go"]
+quiz:
+  - question: "Pourquoi un programme Go commence-t-il toujours par `package main` et une fonction `func main()` ?"
+    type: "unique"
+    reponses:
+      - texte: "Le package main désigne un programme exécutable (plutôt qu'une bibliothèque réutilisable), et la fonction main() en est le point d'entrée, exécutée automatiquement au lancement"
+        correcte: true
+        explication: "Un fichier Go appartenant à un autre package que main serait compilé comme une bibliothèque destinée à être importée ailleurs, sans jamais être exécutable directement ; main() dans le package main est la convention reconnue par l'outil go run ou go build comme point de démarrage."
+      - texte: "C'est une convention de style purement esthétique, sans conséquence si elle n'est pas respectée"
+        correcte: false
+        explication: "Ce n'est pas qu'une question de style : sans package main et une fonction main(), l'outil Go ne peut pas produire ni exécuter de programme autonome."
+      - texte: "package main doit être répété avant chaque fonction du fichier"
+        correcte: false
+        explication: "La déclaration de package n'apparaît qu'une seule fois, en tout début de fichier, pas avant chaque fonction individuelle."
+      - texte: "main() ne peut contenir aucun appel à d'autres fonctions"
+        correcte: false
+        explication: "main() peut parfaitement appeler d'autres fonctions définies dans le même fichier ou importées depuis des packages, ce n'est pas une limitation à un code isolé."
+  - question: "Quelle est la différence entre `var age int = 25` et `age := 25` en Go ?"
+    type: "unique"
+    reponses:
+      - texte: "Les deux déclarent une variable age valant 25, mais := (déclaration courte) déduit automatiquement le type à partir de la valeur, sans avoir à l'écrire explicitement"
+        correcte: true
+        explication: "L'opérateur := est très utilisé en Go pour sa concision, en particulier à l'intérieur des fonctions ; var reste nécessaire pour déclarer une variable sans l'initialiser immédiatement, ou en dehors d'une fonction."
+      - texte: ":= ne peut être utilisé qu'avec des nombres, jamais avec du texte"
+        correcte: false
+        explication: ":= fonctionne avec n'importe quel type de valeur (texte, booléen, nombre...), pas exclusivement avec des nombres."
+      - texte: "var crée une variable constante, := crée une variable modifiable"
+        correcte: false
+        explication: "Les deux créent des variables modifiables ; une constante en Go se déclare avec le mot-clé const, distinct des deux syntaxes de déclaration de variable présentées ici."
+      - texte: "Les deux syntaxes sont interdites en dehors de la fonction main"
+        correcte: false
+        explication: ":= ne peut être utilisé qu'à l'intérieur d'une fonction, mais var peut tout à fait être utilisé aussi bien à l'intérieur qu'au niveau global d'un fichier, en dehors de toute fonction."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## La structure minimale d'un programme Go
+
+<BlocCode
+  langue="go"
+  code={`package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Bonjour, le monde !")
+}`}
+/>
+
+`package main` indique qu'il s'agit d'un programme exécutable. `import "fmt"` importe le package standard contenant `Println`. `func main()` est le point d'entrée, exécuté automatiquement au lancement.
+
+## Déclarer des variables
+
+<BlocCode
+  langue="go"
+  code={`var age int = 25        // declaration explicite avec type
+var prenom string = "Alice"
+estMajeur := true        // declaration courte, type deduit automatiquement
+prix := 19.99
+
+fmt.Println(prenom, "a", age, "ans.")`}
+/>
+
+<Avertissement type="info">
+  `:=` ne fonctionne qu'à l'intérieur d'une fonction. Pour une variable au niveau global du fichier (en dehors de toute fonction), `var` est obligatoire.
+</Avertissement>
+
+## Les types de base
+
+<BlocCode
+  langue="go"
+  code={`var nombreEntier int = 42
+var nombreDecimal float64 = 3.14
+var estVrai bool = false
+var texte string = "bonjour"
+
+fmt.Printf("%T\\n", nombreEntier) // int
+fmt.Printf("%T\\n", nombreDecimal) // float64`}
+/>
+
+`%T` dans `fmt.Printf` affiche le type de la valeur fournie, utile pour vérifier ce que Go a déduit automatiquement.
+
+<Avertissement type="attention">
+  Go refuse de compiler une variable déclarée mais jamais utilisée. Si `age` n'est lu nulle part après sa déclaration, le programme ne compile tout simplement pas.
+</Avertissement>
+
+## À toi de jouer
+
+<BlocCode
+  langue="go"
+  code={`package main
+
+import "fmt"
+
+func main() {
+    x := 10
+    y := 3
+    fmt.Println(x / y)
+}`}
+/>
+
+<Quiz
+  cle="go/premiers-pas-go/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "3", correcte: true, explication: "x et y sont tous deux des int (déduits par :=) : la division entre deux entiers en Go effectue une division entière, qui tronque la partie décimale (10 / 3 = 3.33... tronqué à 3)." },
+        { texte: "3.3333333333333335", correcte: false, explication: "Ce résultat serait obtenu si x et y étaient des float64 ; ici, := déduit le type int à partir des littéraux 10 et 3, donc la division est entière." },
+        { texte: "Une erreur de compilation", correcte: false, explication: "Ce code est parfaitement valide et compile sans erreur ; la division entière est un comportement normal de Go entre deux valeurs de type int." },
+        { texte: "3.0", correcte: false, explication: "Le résultat d'une division entre deux int reste un int en Go, pas une valeur à virgule comme 3.0." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Un programme Go exécutable démarre par package main et une fonction func main()",
+    "var nom type = valeur déclare explicitement une variable, := la déclare avec type déduit automatiquement",
+    ":= ne fonctionne qu'à l'intérieur d'une fonction, pas au niveau global du fichier",
+    "Go refuse de compiler une variable déclarée mais jamais utilisée"
+  ]}
+/>

@@ -1,0 +1,184 @@
+---
+titre: "Les méthodes et les interfaces"
+titreCourt: "Méthodes et interfaces"
+description: "Attacher une méthode à un struct avec un récepteur, et l'implémentation implicite des interfaces en Go."
+slug: "methodes-interfaces-go"
+cours: "go"
+ordre: 8
+duree: 15
+niveau: "intermediaire"
+objectifs:
+  - "Attacher une méthode à un struct avec un récepteur"
+  - "Comprendre la différence entre récepteur par valeur et par pointeur"
+  - "Comprendre l'implémentation implicite des interfaces en Go"
+prerequis: ["les-structs-go"]
+tags: ["go"]
+quiz:
+  - question: "Qu'est-ce qu'un récepteur, dans la déclaration `func (r Rectangle) Aire() int { ... }` ?"
+    type: "unique"
+    reponses:
+      - texte: "Il attache cette méthode au type Rectangle, r représentant l'instance de struct sur laquelle la méthode est appelée"
+        correcte: true
+        explication: "Cette syntaxe (r Rectangle) avant le nom de la méthode transforme une fonction ordinaire en méthode associée au type Rectangle, appelable ensuite via rectangleInstance.Aire(), r jouant un rôle similaire à self en Python ou this en Java."
+      - texte: "Il s'agit d'un paramètre ordinaire de la fonction, sans rapport avec le type Rectangle"
+        correcte: false
+        explication: "Le récepteur, placé entre parenthèses avant le nom de la méthode, est syntaxiquement distinct des paramètres normaux listés après le nom ; il associe spécifiquement la méthode au type indiqué."
+      - texte: "Il désigne le type de retour de la méthode"
+        correcte: false
+        explication: "Le type de retour est indiqué après la liste des paramètres normaux (ici int), pas dans le récepteur qui précède le nom de la méthode."
+      - texte: "Il s'agit d'une erreur de syntaxe, Go ne permettant pas d'attacher de méthode à un struct"
+        correcte: false
+        explication: "C'est au contraire la syntaxe standard et valide pour attacher une méthode à un type en Go, largement utilisée dans tout code Go idiomatique."
+  - question: "Comment une struct implémente-t-elle une interface en Go, par rapport à Java où il faut écrire explicitement implements NomInterface ?"
+    type: "unique"
+    reponses:
+      - texte: "De façon implicite : dès qu'un type possède toutes les méthodes requises par l'interface, avec les bonnes signatures, il l'implémente automatiquement, sans déclaration explicite nécessaire"
+        correcte: true
+        explication: "Cette implémentation implicite (duck typing structurel) est une particularité marquante de Go : si Chien possède une méthode Crier() string et que l'interface Animal exige cette même méthode, Chien implémente automatiquement Animal, sans mot-clé implements à écrire nulle part."
+      - texte: "En écrivant exactement la même syntaxe implements que Java, avec un mot-clé identique"
+        correcte: false
+        explication: "Go n'a pas de mot-clé implements ; l'implémentation d'une interface se fait de façon totalement implicite, par simple correspondance des méthodes du type avec celles exigées par l'interface."
+      - texte: "Uniquement si le struct et l'interface sont définis dans le même fichier"
+        correcte: false
+        explication: "Un struct peut implémenter une interface même si les deux sont définis dans des fichiers ou packages différents, tant que les méthodes requises sont présentes."
+      - texte: "Jamais automatiquement, il faut toujours une conversion de type explicite au préalable"
+        correcte: false
+        explication: "C'est l'inverse : l'implémentation d'interface en Go est justement automatique et implicite dès que les méthodes requises sont présentes, sans conversion ni déclaration explicite nécessaire."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Attacher une méthode à un struct
+
+<BlocCode
+  langue="go"
+  code={`type Rectangle struct {
+    Largeur int
+    Hauteur int
+}
+
+func (r Rectangle) Aire() int {
+    return r.Largeur * r.Hauteur
+}
+
+rect := Rectangle{Largeur: 4, Hauteur: 5}
+fmt.Println(rect.Aire()) // 20`}
+/>
+
+`(r Rectangle)` avant le nom de la méthode est le récepteur : il attache `Aire()` au type `Rectangle`, rendant possible l'appel `rect.Aire()`.
+
+## Récepteur par valeur ou par pointeur
+
+<BlocCode
+  langue="go"
+  code={`func (r Rectangle) DoublerParValeur() {
+    r.Largeur *= 2 // modifie seulement la copie locale
+}
+
+func (r *Rectangle) DoublerParPointeur() {
+    r.Largeur *= 2 // modifie l'original, via le pointeur
+}
+
+rect := Rectangle{Largeur: 4, Hauteur: 5}
+rect.DoublerParValeur()
+fmt.Println(rect.Largeur) // 4, inchange
+
+rect.DoublerParPointeur()
+fmt.Println(rect.Largeur) // 8, modifie`}
+/>
+
+<Avertissement type="attention">
+  Un récepteur par valeur `(r Rectangle)` reçoit une copie, comme n'importe quel paramètre de fonction. Pour qu'une méthode modifie réellement l'instance d'origine, le récepteur doit être un pointeur `(r *Rectangle)`.
+</Avertissement>
+
+## Les interfaces
+
+<BlocCode
+  langue="go"
+  code={`type Animal interface {
+    Crier() string
+}
+
+type Chien struct {
+    Nom string
+}
+
+func (c Chien) Crier() string {
+    return c.Nom + " aboie !"
+}
+
+var a Animal = Chien{Nom: "Rex"} // Chien implemente Animal implicitement
+fmt.Println(a.Crier()) // "Rex aboie !"`}
+/>
+
+Aucune déclaration `implements` n'est nécessaire : dès que `Chien` possède une méthode `Crier() string`, elle satisfait automatiquement l'interface `Animal`.
+
+## Utiliser une interface pour du code générique
+
+<BlocCode
+  langue="go"
+  code={`type Chat struct {
+    Nom string
+}
+
+func (c Chat) Crier() string {
+    return c.Nom + " miaule !"
+}
+
+animaux := []Animal{Chien{Nom: "Rex"}, Chat{Nom: "Felix"}}
+for _, animal := range animaux {
+    fmt.Println(animal.Crier())
+}
+// "Rex aboie !"
+// "Felix miaule !"`}
+/>
+
+## À toi de jouer
+
+<BlocCode
+  langue="go"
+  code={`type Forme interface {
+    Aire() float64
+}
+
+type Carre struct {
+    Cote float64
+}
+
+func (c Carre) Aire() float64 {
+    return c.Cote * c.Cote
+}
+
+var f Forme = Carre{Cote: 5}
+fmt.Println(f.Aire())`}
+/>
+
+<Quiz
+  cle="go/methodes-interfaces-go/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "25", correcte: true, explication: "Carre implémente implicitement l'interface Forme grâce à sa méthode Aire(), qui calcule 5 * 5 = 25." },
+        { texte: "Une erreur de compilation, Carre n'implémentant pas explicitement Forme", correcte: false, explication: "Aucune déclaration explicite n'est nécessaire en Go : Carre possède la méthode Aire() float64 exigée par l'interface Forme, il l'implémente donc automatiquement et implicitement." },
+        { texte: "0", correcte: false, explication: "Le struct Carre est initialisé avec Cote: 5, et sa méthode Aire() calcule bien 5 * 5 = 25, pas 0." },
+        { texte: "5", correcte: false, explication: "5 correspond seulement à la valeur du côté, pas à l'aire calculée qui est le côté multiplié par lui-même (25)." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "func (r Type) Methode() { ... } attache une méthode à un type, r étant le récepteur",
+    "Un récepteur par valeur reçoit une copie ; un récepteur par pointeur (*Type) modifie l'original",
+    "Une interface définit un ensemble de méthodes requises, sans implémentation",
+    "Un type implémente une interface implicitement, dès qu'il possède toutes ses méthodes requises"
+  ]}
+/>

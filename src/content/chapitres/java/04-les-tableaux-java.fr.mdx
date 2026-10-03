@@ -1,0 +1,135 @@
+---
+titre: "Les tableaux"
+titreCourt: "Les tableaux"
+description: "Déclarer un tableau à taille fixe, y accéder par index, et utiliser la classe utilitaire Arrays."
+slug: "les-tableaux-java"
+cours: "java"
+ordre: 4
+duree: 12
+niveau: "debutant"
+objectifs:
+  - "Déclarer et initialiser un tableau Java"
+  - "Comprendre pourquoi la taille d'un tableau est fixe une fois créée"
+  - "Utiliser quelques méthodes utilitaires de la classe Arrays"
+prerequis: ["les-boucles-java"]
+tags: ["java"]
+quiz:
+  - question: "Que se passe-t-il si on tente d'accéder à l'index 5 d'un tableau Java qui n'en contient que 5 (indices 0 à 4) ?"
+    type: "unique"
+    reponses:
+      - texte: "Une exception ArrayIndexOutOfBoundsException est levée à l'exécution"
+        correcte: true
+        explication: "Java vérifie à l'exécution que l'index demandé reste dans les limites valides du tableau ; un index hors limites (ici 5, alors que les indices valides vont de 0 à 4) provoque une exception qui interrompt le programme si elle n'est pas interceptée."
+      - texte: "Java renvoie automatiquement null sans erreur"
+        correcte: false
+        explication: "Contrairement à certains langages plus permissifs, Java ne renvoie pas silencieusement null : il lève une exception explicite pour signaler l'accès invalide."
+      - texte: "Le tableau s'agrandit automatiquement pour accueillir ce nouvel index"
+        correcte: false
+        explication: "La taille d'un tableau Java est fixée définitivement à sa création ; elle ne s'agrandit jamais automatiquement pour accueillir un index supplémentaire."
+      - texte: "Le programme continue normalement en ignorant cet accès"
+        correcte: false
+        explication: "L'exception levée interrompt l'exécution normale du programme à cet endroit précis, sauf si elle est interceptée par un bloc try/catch."
+  - question: "Pourquoi la taille d'un tableau Java (int[] notes = new int[5];) ne peut-elle pas être modifiée après sa création ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce qu'un tableau Java réserve un bloc de mémoire contiguë de taille fixe dès sa création, une caractéristique fondamentale de sa structure de données"
+        correcte: true
+        explication: "Si une taille variable est nécessaire, Java propose des structures comme ArrayList, qui gèrent en interne le redimensionnement, contrairement au tableau natif qui reste de taille fixe une fois alloué."
+      - texte: "Parce que c'est une limitation temporaire qui sera supprimée dans une future version de Java"
+        correcte: false
+        explication: "La taille fixe d'un tableau est une caractéristique structurelle durable de Java, pas une limitation temporaire vouée à disparaître."
+      - texte: "Parce que seuls les tableaux de nombres ont une taille fixe, pas les tableaux de texte"
+        correcte: false
+        explication: "Tous les tableaux Java, quel que soit leur type d'élément, ont une taille fixe une fois créés, pas seulement les tableaux de nombres."
+      - texte: "Parce que modifier la taille effacerait automatiquement toutes les données du tableau"
+        correcte: false
+        explication: "Ce n'est pas la raison : la taille fixe est une contrainte structurelle du tableau natif Java, pas une mesure de protection contre une perte de données lors d'un redimensionnement."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Déclarer et utiliser un tableau
+
+<BlocCode
+  langue="java"
+  code={`int[] notes = {12, 15, 8, 20};
+
+System.out.println(notes[0]);       // 12
+System.out.println(notes.length);   // 4 (propriete, pas methode)
+
+notes[1] = 18; // modifie un element existant`}
+/>
+
+Contrairement à une `ArrayList`, un tableau a une taille fixe : `notes.length` donne cette taille, comme une propriété (sans parenthèses), pas comme une méthode.
+
+<Avertissement type="attention">
+  Accéder à un index inexistant (comme `notes[4]` sur un tableau de taille 4, dont les indices valides vont de 0 à 3) lève une `ArrayIndexOutOfBoundsException` qui arrête le programme si elle n'est pas gérée.
+</Avertissement>
+
+## Créer un tableau de taille fixe vide
+
+<BlocCode
+  langue="java"
+  code={`int[] scores = new int[3]; // tableau de 3 entiers, initialises a 0
+
+scores[0] = 10;
+scores[1] = 20;
+scores[2] = 30;`}
+/>
+
+Un tableau d'entiers créé avec `new int[taille]` initialise automatiquement chaque case à `0` (ou `null` pour un tableau d'objets, `false` pour un tableau de booléens).
+
+## La classe utilitaire Arrays
+
+<BlocCode
+  langue="java"
+  code={`import java.util.Arrays;
+
+int[] nombres = {5, 2, 8, 1};
+Arrays.sort(nombres);
+System.out.println(Arrays.toString(nombres)); // [1, 2, 5, 8]`}
+/>
+
+`Arrays.sort()` trie le tableau sur place, et `Arrays.toString()` construit une représentation textuelle lisible, bien plus pratique que d'afficher directement le tableau (qui afficherait une référence mémoire peu lisible).
+
+## À toi de jouer
+
+<BlocCode
+  langue="java"
+  code={`int[] valeurs = {4, 8, 15, 16};
+int somme = 0;
+for (int i = 0; i < valeurs.length; i++) {
+    somme += valeurs[i];
+}
+System.out.println(somme);`}
+/>
+
+<Quiz
+  cle="java/les-tableaux-java/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "43", correcte: true, explication: "La boucle additionne tous les éléments du tableau : 4 + 8 + 15 + 16 = 43." },
+        { texte: "4", correcte: false, explication: "4 est seulement le premier élément du tableau ; la boucle parcourt et additionne bien les quatre éléments, pas uniquement le premier." },
+        { texte: "Une erreur ArrayIndexOutOfBoundsException", correcte: false, explication: "La condition i < valeurs.length garantit que l'index reste toujours valide (de 0 à 3 pour un tableau de 4 éléments), sans jamais dépasser les limites." },
+        { texte: "16", correcte: false, explication: "16 est seulement le dernier élément du tableau ; la boucle additionne bien les quatre éléments ensemble, pas uniquement le dernier." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Un tableau Java a une taille fixe, définie à sa création et jamais modifiable ensuite",
+    "tableau.length donne la taille du tableau, comme une propriété sans parenthèses",
+    "Un accès à un index hors limites lève une ArrayIndexOutOfBoundsException",
+    "La classe Arrays (java.util.Arrays) fournit des méthodes utilitaires comme sort() et toString()"
+  ]}
+/>

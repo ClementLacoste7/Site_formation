@@ -1,0 +1,133 @@
+---
+titre: "Les chaînes de caractères"
+titreCourt: "Les chaînes"
+description: "Manipuler des objets String : concaténation, méthodes courantes, immutabilité et la classe StringBuilder."
+slug: "les-chaines-de-caracteres-java"
+cours: "java"
+ordre: 6
+duree: 13
+niveau: "debutant"
+objectifs:
+  - "Manipuler des chaînes de caractères avec les méthodes courantes de String"
+  - "Comprendre pourquoi les objets String sont immuables en Java"
+  - "Utiliser StringBuilder pour construire une chaîne efficacement dans une boucle"
+prerequis: ["les-methodes-java"]
+tags: ["java"]
+quiz:
+  - question: "Que signifie le fait qu'un objet String soit immuable en Java ?"
+    type: "unique"
+    reponses:
+      - texte: "Une fois créé, le contenu de l'objet String ne peut jamais être modifié ; toute opération comme concaténer ou mettre en majuscules crée un nouvel objet String"
+        correcte: true
+        explication: "Quand on écrit texte = texte + \"!\", Java ne modifie pas l'objet d'origine : il crée un nouvel objet String contenant le résultat, puis fait pointer la variable texte vers ce nouvel objet, l'ancien objet restant inchangé en mémoire."
+      - texte: "Un objet String ne peut jamais être affiché à l'écran"
+        correcte: false
+        explication: "Les objets String s'affichent parfaitement avec System.out.println ; l'immuabilité concerne l'impossibilité de modifier leur contenu, pas leur capacité à être affichés."
+      - texte: "Une variable de type String ne peut jamais être réaffectée à un autre texte"
+        correcte: false
+        explication: "La variable elle-même peut parfaitement être réaffectée à un nouvel objet String ; c'est l'objet String existant en mémoire qui reste inchangé, pas la variable qui le référence."
+      - texte: "Les chaînes immuables ne peuvent contenir que des lettres, jamais de chiffres"
+        correcte: false
+        explication: "L'immuabilité ne concerne pas le type de caractères autorisés dans la chaîne ; un String peut contenir lettres, chiffres ou symboles, son contenu étant simplement non modifiable après création."
+  - question: "Pourquoi utilise-t-on StringBuilder plutôt que des concaténations répétées avec + à l'intérieur d'une boucle qui construit une longue chaîne ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que chaque concaténation avec + sur un String crée un nouvel objet en mémoire ; répétée de nombreuses fois dans une boucle, cette approche devient coûteuse en performance, alors que StringBuilder modifie son contenu interne sans recréer d'objet à chaque étape"
+        correcte: true
+        explication: "StringBuilder maintient une mémoire tampon modifiable en interne, permettant d'ajouter du texte efficacement avec .append(), sans le surcoût de création d'un nouvel objet String immuable à chaque itération d'une boucle."
+      - texte: "Parce que l'opérateur + ne fonctionne techniquement pas avec les chaînes de caractères"
+        correcte: false
+        explication: "+ fonctionne parfaitement pour concaténer des chaînes ponctuellement ; le problème concerne uniquement son coût en performance quand il est répété de très nombreuses fois dans une boucle."
+      - texte: "Parce que StringBuilder ne peut contenir que des nombres, jamais du texte"
+        correcte: false
+        explication: "StringBuilder est justement conçu pour construire du texte efficacement ; il ne se limite pas aux nombres."
+      - texte: "Parce que les chaînes construites avec + ne peuvent jamais être affichées"
+        correcte: false
+        explication: "Une chaîne construite avec + s'affiche normalement avec System.out.println ; le problème de cette approche est uniquement une question de performance en cas de répétition massive, pas d'affichage."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Les méthodes courantes de String
+
+<BlocCode
+  langue="java"
+  code={`String texte = "Bonjour le monde";
+
+System.out.println(texte.length());               // 16
+System.out.println(texte.toUpperCase());           // "BONJOUR LE MONDE"
+System.out.println(texte.substring(0, 7));         // "Bonjour"
+System.out.println(texte.contains("monde"));       // true
+System.out.println(texte.replace("monde", "Java")); // "Bonjour le Java"`}
+/>
+
+Contrairement à un tableau, `.length()` sur un `String` s'utilise avec des parenthèses : c'est une méthode, pas une propriété.
+
+## L'immuabilité des chaînes
+
+<BlocCode
+  langue="java"
+  code={`String original = "bonjour";
+String modifie = original.toUpperCase();
+
+System.out.println(original); // "bonjour" (inchange)
+System.out.println(modifie);  // "BONJOUR" (nouvel objet)`}
+/>
+
+<Avertissement type="info">
+  Aucune méthode de `String` ne modifie l'objet d'origine : chacune renvoie un nouvel objet. Si tu veux conserver le résultat, il faut l'assigner explicitement, comme `original = original.toUpperCase();`.
+</Avertissement>
+
+## Construire une chaîne efficacement avec StringBuilder
+
+<BlocCode
+  langue="java"
+  code={`StringBuilder resultat = new StringBuilder();
+
+for (int i = 1; i <= 3; i++) {
+    resultat.append(i).append(", ");
+}
+
+System.out.println(resultat.toString()); // "1, 2, 3, "`}
+/>
+
+`.append()` modifie `resultat` sur place, sans créer un nouvel objet à chaque appel, contrairement à une concaténation répétée avec `+`.
+
+## À toi de jouer
+
+<BlocCode
+  langue="java"
+  code={`String phrase = "Java est amusant";
+String resultat = phrase.substring(5, 8);
+System.out.println(resultat);`}
+/>
+
+<Quiz
+  cle="java/les-chaines-de-caracteres-java/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "\"est\"", correcte: true, explication: "substring(5, 8) extrait les caractères des index 5, 6 et 7 (l'index de fin 8 étant exclu) de \"Java est amusant\", soit \"e\", \"s\", \"t\"." },
+        { texte: "\"Java\"", correcte: false, explication: "\"Java\" correspondrait à substring(0, 4), pas substring(5, 8) qui commence après le premier mot." },
+        { texte: "\"est \"", correcte: false, explication: "substring(5, 8) extrait exactement 3 caractères (indices 5, 6, 7), sans inclure l'espace suivant à l'index 8, exclu par la borne de fin." },
+        { texte: "Une erreur, substring n'existant pas en Java", correcte: false, explication: "substring est une méthode standard et valide de la classe String en Java, cet appel ne provoque aucune erreur." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Les méthodes de String comme .length(), .toUpperCase(), .substring() s'appellent avec des parenthèses",
+    "Un objet String est immuable : chaque méthode renvoie un nouvel objet sans modifier l'original",
+    "Il faut réassigner le résultat d'une méthode String pour en garder la trace",
+    "StringBuilder et .append() construisent une chaîne efficacement dans une boucle, sans recréer d'objet à chaque étape"
+  ]}
+/>

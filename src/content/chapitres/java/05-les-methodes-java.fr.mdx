@@ -1,0 +1,137 @@
+---
+titre: "Les méthodes"
+titreCourt: "Les méthodes"
+description: "Déclarer une méthode avec un type de retour explicite, les paramètres, et la surcharge de méthodes."
+slug: "les-methodes-java"
+cours: "java"
+ordre: 5
+duree: 13
+niveau: "debutant"
+objectifs:
+  - "Déclarer une méthode avec un type de retour explicite"
+  - "Comprendre pourquoi une méthode void ne peut pas renvoyer de valeur"
+  - "Utiliser la surcharge de méthodes (plusieurs méthodes de même nom)"
+prerequis: ["les-tableaux-java"]
+tags: ["java"]
+quiz:
+  - question: "Pourquoi une méthode Java déclarée avec `void` comme type de retour ne peut-elle jamais contenir `return valeur;` (avec une valeur) ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que void signifie explicitement que la méthode ne renvoie aucune valeur ; le compilateur refuse donc tout return accompagné d'une valeur dans ce contexte"
+        correcte: true
+        explication: "Contrairement à Python où l'absence de return produit silencieusement None, Java impose une cohérence stricte entre le type de retour déclaré et ce que contient réellement chaque instruction return, vérifiée dès la compilation."
+      - texte: "Parce que void est un mot réservé qui empêche toute exécution de la méthode"
+        correcte: false
+        explication: "void n'empêche pas l'exécution de la méthode ; il indique simplement qu'elle ne renvoie aucune valeur, un choix de signature parfaitement valide et courant."
+      - texte: "Parce qu'une méthode void ne peut contenir aucune instruction return, même sans valeur"
+        correcte: false
+        explication: "Une méthode void peut tout à fait contenir un simple return; (sans valeur), par exemple pour sortir prématurément de la méthode ; ce qui est interdit, c'est d'y associer une valeur."
+      - texte: "Parce que void ne peut être utilisé qu'avec la méthode main"
+        correcte: false
+        explication: "void peut être utilisé comme type de retour pour n'importe quelle méthode qui ne renvoie rien, pas exclusivement pour main."
+  - question: "Qu'est-ce que la surcharge de méthodes (method overloading) permet de faire en Java ?"
+    type: "unique"
+    reponses:
+      - texte: "Définir plusieurs méthodes portant le même nom dans une classe, à condition qu'elles aient des listes de paramètres différentes (nombre ou type)"
+        correcte: true
+        explication: "Le compilateur choisit automatiquement la bonne version de la méthode à appeler selon les arguments fournis à l'appel, par exemple additionner(int, int) et additionner(double, double) pouvant coexister sous le même nom."
+      - texte: "Redéfinir le comportement d'une méthode héritée d'une classe parente"
+        correcte: false
+        explication: "Cette description correspond à la redéfinition (override) dans l'héritage, un concept distinct de la surcharge qui concerne plusieurs méthodes de même nom au sein d'une même classe avec des paramètres différents."
+      - texte: "Appeler plusieurs fois la même méthode avec les mêmes arguments"
+        correcte: false
+        explication: "Appeler plusieurs fois une méthode est une action normale d'exécution, sans rapport avec la surcharge qui concerne la déclaration de plusieurs signatures de méthode sous un même nom."
+      - texte: "Supprimer une méthode existante pour la remplacer par une nouvelle"
+        correcte: false
+        explication: "La surcharge ajoute une variante supplémentaire portant le même nom, elle ne supprime ni ne remplace une méthode existante."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Déclarer une méthode
+
+<BlocCode
+  langue="java"
+  code={`public static int carre(int x) {
+    return x * x;
+}
+
+System.out.println(carre(5)); // 25`}
+/>
+
+Une méthode Java déclare toujours explicitement son type de retour (`int` ici), avant son nom. `static` signifie que la méthode appartient à la classe elle-même, appelable sans créer d'instance, un détail abordé plus en profondeur au chapitre sur les classes.
+
+## Les méthodes void
+
+<BlocCode
+  langue="java"
+  code={`public static void afficherSalutation(String nom) {
+    System.out.println("Bonjour, " + nom + " !");
+    // pas de return avec valeur ici : void l'interdit
+}
+
+afficherSalutation("Alice"); // affiche "Bonjour, Alice !"`}
+/>
+
+<Avertissement type="info">
+  Une méthode `void` ne renvoie rien d'utilisable : `int resultat = afficherSalutation("Alice");` provoquerait une erreur de compilation, puisqu'il n'y a aucune valeur à affecter à `resultat`.
+</Avertissement>
+
+## La surcharge de méthodes
+
+<BlocCode
+  langue="java"
+  code={`public static int additionner(int a, int b) {
+    return a + b;
+}
+
+public static double additionner(double a, double b) {
+    return a + b;
+}
+
+System.out.println(additionner(2, 3));       // 5 (version int)
+System.out.println(additionner(2.5, 3.5));   // 6.0 (version double)`}
+/>
+
+Le compilateur choisit automatiquement la bonne version selon le type des arguments fournis à l'appel.
+
+## À toi de jouer
+
+<BlocCode
+  langue="java"
+  code={`public static int appliquerRemise(int prix, int pourcentage) {
+    return prix - (prix * pourcentage / 100);
+}
+
+System.out.println(appliquerRemise(200, 25));`}
+/>
+
+<Quiz
+  cle="java/les-methodes-java/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "150", correcte: true, explication: "200 * 25 / 100 = 50 (une remise de 25% sur 200), puis 200 - 50 = 150." },
+        { texte: "50", correcte: false, explication: "50 correspond seulement au montant de la remise elle-même, pas au prix final après application de la remise." },
+        { texte: "175", correcte: false, explication: "Ce résultat correspondrait à une remise de 12,5%, pas de 25% comme demandé dans l'appel de la méthode." },
+        { texte: "Une erreur de compilation, int ne pouvant pas être divisé", correcte: false, explication: "La division entre int est parfaitement valide en Java (division entière) ; ce code compile et s'exécute normalement." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Une méthode Java déclare explicitement son type de retour avant son nom",
+    "Une méthode void ne peut jamais contenir return accompagné d'une valeur",
+    "La surcharge permet plusieurs méthodes de même nom avec des paramètres différents",
+    "Le compilateur choisit automatiquement la bonne version surchargée selon les arguments fournis"
+  ]}
+/>

@@ -1,0 +1,176 @@
+---
+titre: "Gérer les erreurs"
+titreCourt: "Gérer les erreurs"
+description: "L'approche idiomatique de Go pour les erreurs, basée sur des valeurs de retour plutôt que des exceptions, et la différence avec panic/recover."
+slug: "gerer-les-erreurs-go"
+cours: "go"
+ordre: 10
+duree: 15
+niveau: "intermediaire"
+objectifs:
+  - "Comprendre pourquoi Go traite les erreurs comme des valeurs ordinaires, pas des exceptions"
+  - "Créer et renvoyer ses propres erreurs avec errors.New ou fmt.Errorf"
+  - "Distinguer une erreur normale (error) d'une panique (panic), réservée aux cas vraiment exceptionnels"
+prerequis: ["les-maps-go"]
+tags: ["go"]
+quiz:
+  - question: "Pourquoi Go n'a-t-il pas de mécanisme try/catch comme Java ou Python pour gérer les erreurs courantes ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que la philosophie de Go traite une erreur comme une valeur de retour ordinaire (de type error), à vérifier explicitement après chaque appel risqué, plutôt que comme un flux de contrôle séparé et parfois invisible comme les exceptions"
+        correcte: true
+        explication: "Ce choix de conception rend visible dans le code chaque endroit où une erreur peut survenir (via if err != nil), au prix d'une certaine verbosité répétitive, mais en échange d'une plus grande prévisibilité du flux d'exécution, sans risque qu'une exception remonte silencieusement de nombreux niveaux d'appel sans être traitée."
+      - texte: "Parce que les erreurs ne peuvent techniquement pas se produire dans un programme Go"
+        correcte: false
+        explication: "Les erreurs peuvent parfaitement se produire en Go (fichier introuvable, division par zéro, etc.) ; ce n'est pas leur absence qui explique l'absence de try/catch, mais un choix différent de les représenter comme des valeurs explicites."
+      - texte: "Parce que Go est un langage trop récent pour avoir implémenté ce mécanisme"
+        correcte: false
+        explication: "L'absence de try/catch en Go est un choix de conception délibéré et assumé par ses créateurs, pas une limitation due à la jeunesse du langage ou un mécanisme qui serait ajouté plus tard."
+      - texte: "Parce que toutes les erreurs en Go sont automatiquement ignorées par le compilateur"
+        correcte: false
+        explication: "Le compilateur n'ignore pas les erreurs ; au contraire, la convention Go pousse explicitement à vérifier chaque erreur retournée avec if err != nil, rendant leur gestion visible plutôt qu'automatiquement ignorée."
+  - question: "Quelle est la différence entre une erreur normale (valeur de type error) et un panic en Go ?"
+    type: "unique"
+    reponses:
+      - texte: "Une erreur normale signale un problème attendu et récupérable, à vérifier explicitement avec if err != nil ; un panic signale une situation vraiment exceptionnelle et interrompt immédiatement le déroulement normal du programme, sauf s'il est récupéré avec recover"
+        correcte: true
+        explication: "La convention Go réserve panic à des cas réellement anormaux (comme une erreur de programmation détectée, un accès hors limites non anticipé), alors qu'une situation prévisible comme un fichier introuvable devrait être gérée avec une valeur error classique, pas un panic."
+      - texte: "Les deux mécanismes sont strictement identiques, ce sont juste deux noms différents"
+        correcte: false
+        explication: "Leur comportement diffère nettement : une erreur normale est une simple valeur à vérifier, un panic interrompt immédiatement le flux d'exécution normal, ce n'est pas une simple synonymie."
+      - texte: "panic ne peut jamais être intercepté, contrairement à une erreur normale"
+        correcte: false
+        explication: "panic peut être intercepté avec la fonction recover(), généralement utilisée dans une fonction différée (defer), ce qui permet d'éviter l'arrêt complet du programme dans certains cas contrôlés."
+      - texte: "Une erreur normale arrête toujours immédiatement le programme, contrairement à panic"
+        correcte: false
+        explication: "C'est l'inverse : une erreur normale (type error) n'arrête rien automatiquement, elle doit être vérifiée explicitement par le code appelant ; c'est panic qui interrompt immédiatement le déroulement normal."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Les erreurs comme valeurs ordinaires
+
+<BlocCode
+  langue="go"
+  code={`import (
+    "errors"
+    "fmt"
+)
+
+func diviser(a, b float64) (float64, error) {
+    if b == 0 {
+        return 0, errors.New("division par zero impossible")
+    }
+    return a / b, nil
+}
+
+resultat, err := diviser(10, 0)
+if err != nil {
+    fmt.Println("Erreur :", err)
+} else {
+    fmt.Println("Resultat :", resultat)
+}`}
+/>
+
+`if err != nil` est le motif le plus répété de tout code Go : on vérifie systématiquement l'erreur juste après chaque appel qui pourrait en produire une, avant de continuer.
+
+<Avertissement type="attention">
+  Ignorer une erreur retournée (en écrivant `resultat, _ := diviser(10, 0)`) fait disparaître silencieusement le signal d'échec. C'est une pratique à éviter, sauf cas vraiment justifié.
+</Avertissement>
+
+## Créer une erreur avec plus de contexte
+
+<BlocCode
+  langue="go"
+  code={`func verifierAge(age int) error {
+    if age < 0 {
+        return fmt.Errorf("age invalide : %d (doit etre positif)", age)
+    }
+    return nil
+}
+
+if err := verifierAge(-5); err != nil {
+    fmt.Println(err) // "age invalide : -5 (doit etre positif)"
+}`}
+/>
+
+`fmt.Errorf` fonctionne comme `fmt.Sprintf`, mais produit directement une valeur `error` formatée, pratique pour inclure des détails utiles au diagnostic.
+
+## panic et recover : les cas vraiment exceptionnels
+
+<BlocCode
+  langue="go"
+  code={`func diviserOuPaniquer(a, b int) int {
+    if b == 0 {
+        panic("division par zero : situation anormale")
+    }
+    return a / b
+}
+
+func executerEnSecurite() {
+    defer func() {
+        if r := recover(); r != nil {
+            fmt.Println("Recupere apres panique :", r)
+        }
+    }()
+    fmt.Println(diviserOuPaniquer(10, 0))
+}
+
+executerEnSecurite()
+// "Recupere apres panique : division par zero : situation anormale"`}
+/>
+
+`defer` programme l'exécution d'une fonction juste avant que la fonction englobante ne se termine, qu'elle se termine normalement ou via un `panic`. `recover()` à l'intérieur d'un `defer` intercepte une panique en cours, empêchant l'arrêt complet du programme.
+
+<Avertissement type="info">
+  En pratique, `panic`/`recover` reste rare dans du code Go idiomatique : la grande majorité des erreurs prévisibles se gèrent avec des valeurs `error` classiques, pas avec `panic`.
+</Avertissement>
+
+## À toi de jouer
+
+<BlocCode
+  langue="go"
+  code={`func diviserEnSecurite(a, b int) (int, error) {
+    if b == 0 {
+        return 0, fmt.Errorf("division par zero impossible")
+    }
+    return a / b, nil
+}
+
+resultat, err := diviserEnSecurite(10, 0)
+if err != nil {
+    fmt.Println("echec")
+} else {
+    fmt.Println(resultat)
+}`}
+/>
+
+<Quiz
+  cle="go/gerer-les-erreurs-go/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "\"echec\"", correcte: true, explication: "b vaut 0 : la fonction renvoie (0, une erreur non nil) ; la condition if err != nil est donc vraie, et le programme affiche \"echec\"." },
+        { texte: "0", correcte: false, explication: "La branche else, qui afficherait resultat (0), ne s'exécute pas ici car err n'est pas nil ; c'est la branche if qui s'exécute, affichant \"echec\"." },
+        { texte: "Le programme panique et s'arrête", correcte: false, explication: "Cette fonction utilise une valeur error classique, pas panic ; l'erreur est gérée proprement avec if err != nil, sans interruption brutale du programme." },
+        { texte: "Rien ne s'affiche", correcte: false, explication: "L'une des deux branches (if ou else) s'exécute toujours et affiche quelque chose ; ici c'est la branche if qui affiche \"echec\"." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "Go traite les erreurs comme des valeurs ordinaires de type error, pas comme des exceptions",
+    "if err != nil est le motif de vérification d'erreur le plus répété en Go",
+    "errors.New et fmt.Errorf créent une erreur, fmt.Errorf permettant d'y inclure des détails formatés",
+    "panic/recover sont réservés aux situations vraiment exceptionnelles, pas aux erreurs prévisibles courantes"
+  ]}
+/>

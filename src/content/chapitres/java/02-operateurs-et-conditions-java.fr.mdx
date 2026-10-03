@@ -1,0 +1,141 @@
+---
+titre: "Les opérateurs et les conditions"
+titreCourt: "Opérateurs et conditions"
+description: "Les opérateurs de comparaison, la différence entre == et .equals() pour les objets, et les structures if/else if/else."
+slug: "operateurs-et-conditions-java"
+cours: "java"
+ordre: 2
+duree: 13
+niveau: "debutant"
+objectifs:
+  - "Utiliser les opérateurs de comparaison et logiques"
+  - "Comprendre pourquoi == ne compare pas le contenu de deux objets String"
+  - "Écrire des branches conditionnelles avec if / else if / else"
+prerequis: ["premiers-pas-java"]
+tags: ["java"]
+quiz:
+  - question: "Pourquoi `\"bonjour\" == new String(\"bonjour\")` renvoie-t-il false en Java, alors que les deux chaînes contiennent le même texte ?"
+    type: "unique"
+    reponses:
+      - texte: "Parce que == compare les références mémoire des deux objets, pas leur contenu ; new String(...) crée volontairement un nouvel objet distinct en mémoire"
+        correcte: true
+        explication: "Pour les types objets comme String, == vérifie si les deux variables pointent vers exactement le même objet en mémoire, pas si leur contenu textuel est identique ; .equals() est la méthode appropriée pour comparer le contenu."
+      - texte: "Parce que Java ne peut pas comparer deux chaînes de caractères entre elles"
+        correcte: false
+        explication: "Java peut parfaitement comparer deux chaînes, mais avec la méthode .equals() pour comparer leur contenu, pas avec == qui compare les références."
+      - texte: "Parce que la chaîne \"bonjour\" est automatiquement convertie en majuscules"
+        correcte: false
+        explication: "Aucune conversion de casse n'intervient ici ; le problème est que == compare des références d'objets, pas le contenu textuel."
+      - texte: "Parce que new String(...) provoque toujours une erreur de compilation"
+        correcte: false
+        explication: "new String(...) est une syntaxe Java valide qui compile sans erreur ; elle crée simplement un nouvel objet String distinct en mémoire."
+  - question: "Quelle est la bonne façon de comparer le contenu de deux chaînes de caractères en Java ?"
+    type: "unique"
+    reponses:
+      - texte: "texte1.equals(texte2)"
+        correcte: true
+        explication: ".equals() compare le contenu réel de deux objets String, caractère par caractère, contrairement à == qui compare leur référence mémoire."
+      - texte: "texte1 == texte2"
+        correcte: false
+        explication: "== compare les références des deux objets String, pas leur contenu, ce qui peut donner un résultat trompeur selon la façon dont les chaînes ont été créées."
+      - texte: "texte1.compare(texte2)"
+        correcte: false
+        explication: "compare() n'est pas la méthode standard de comparaison de contenu des chaînes Java ; c'est .equals() qui joue ce rôle (ou .compareTo() pour un ordre alphabétique)."
+      - texte: "texte1.same(texte2)"
+        correcte: false
+        explication: "same() n'existe pas comme méthode native des chaînes Java ; la comparaison de contenu se fait avec .equals()."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Comparer des valeurs
+
+<BlocCode
+  langue="java"
+  code={`int age = 20;
+boolean aPermis = true;
+
+System.out.println(age >= 18);               // true
+System.out.println(age >= 18 && aPermis);     // true : les deux doivent etre vraies
+System.out.println(age < 18 || aPermis);      // true : au moins une est vraie
+System.out.println(!aPermis);                 // false : inverse la valeur`}
+/>
+
+## Le piège de == sur les objets
+
+<BlocCode
+  langue="java"
+  code={`String a = "bonjour";
+String b = "bonjour";
+String c = new String("bonjour");
+
+System.out.println(a == b);        // true : litteraux partages (pool de chaines)
+System.out.println(a == c);        // false : objets distincts en memoire
+System.out.println(a.equals(c));   // true : meme contenu`}
+/>
+
+<Avertissement type="attention">
+  Utilise toujours `.equals()` pour comparer le contenu de deux objets (comme des `String`), jamais `==`. Pour les types primitifs (`int`, `double`, `boolean`), `==` compare bien les valeurs directement, sans ce piège.
+</Avertissement>
+
+## Brancher l'exécution avec if / else if / else
+
+<BlocCode
+  langue="java"
+  code={`public static String categoriser(int note) {
+    if (note >= 16) {
+        return "Excellent";
+    } else if (note >= 10) {
+        return "Admis";
+    } else {
+        return "Ajourne";
+    }
+}
+
+System.out.println(categoriser(18)); // "Excellent"
+System.out.println(categoriser(5));  // "Ajourne"`}
+/>
+
+## À toi de jouer
+
+<BlocCode
+  langue="java"
+  code={`String motDePasse1 = "secret123";
+String motDePasse2 = new String("secret123");
+
+if (motDePasse1 == motDePasse2) {
+    System.out.println("Acces autorise");
+} else {
+    System.out.println("Acces refuse");
+}`}
+/>
+
+<Quiz
+  cle="java/operateurs-et-conditions-java/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "\"Acces refuse\"", correcte: true, explication: "motDePasse2 est créé avec new String(...), un objet distinct en mémoire de motDePasse1 ; == compare les références, pas le contenu, donc la condition est fausse même si les deux mots de passe sont identiques en texte." },
+        { texte: "\"Acces autorise\"", correcte: false, explication: "Ce résultat supposerait que == compare le contenu des chaînes, ce qui n'est pas le cas en Java pour les objets ; il faudrait .equals() pour obtenir ce résultat." },
+        { texte: "Une erreur de compilation", correcte: false, explication: "Ce code compile et s'exécute normalement ; == est une comparaison valide entre deux objets String, même si son résultat ici est contre-intuitif." },
+        { texte: "Rien ne s'affiche", correcte: false, explication: "Le code exécute bien une des deux branches et affiche un message dans tous les cas, puisque la condition if/else couvre tous les cas possibles." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "&& (et), || (ou), ! (non) combinent des conditions booléennes",
+    "== compare les références mémoire des objets (comme String), pas leur contenu",
+    ".equals() compare le contenu réel de deux objets, à utiliser pour les chaînes",
+    "Pour les types primitifs (int, double, boolean), == compare directement les valeurs"
+  ]}
+/>

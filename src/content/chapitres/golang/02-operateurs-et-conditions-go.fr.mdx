@@ -1,0 +1,147 @@
+---
+titre: "Les opérateurs et les conditions"
+titreCourt: "Opérateurs et conditions"
+description: "Les opérateurs de comparaison, et les structures if/else if/else en Go, sans parenthèses autour de la condition."
+slug: "operateurs-et-conditions-go"
+cours: "go"
+ordre: 2
+duree: 11
+niveau: "debutant"
+objectifs:
+  - "Utiliser les opérateurs de comparaison et logiques"
+  - "Écrire des branches conditionnelles avec if / else if / else, sans parenthèses"
+  - "Utiliser une instruction d'initialisation dans un if"
+prerequis: ["premiers-pas-go"]
+tags: ["go"]
+quiz:
+  - question: "Pourquoi `if (age >= 18) { ... }` (avec parenthèses autour de la condition) provoque-t-il une erreur de style ou de compilation en Go ?"
+    type: "unique"
+    reponses:
+      - texte: "Go n'exige pas de parenthèses autour de la condition d'un if, contrairement à Java ou JavaScript ; les accolades {} restent en revanche obligatoires, même pour un bloc d'une seule ligne"
+        correcte: true
+        explication: "La syntaxe idiomatique Go est if age >= 18 { ... }, sans parenthèses ; en écrire quand même ne provoque pas toujours une erreur stricte, mais va à l'encontre des conventions du langage, que l'outil gofmt corrige automatiquement."
+      - texte: "Go interdit complètement l'utilisation du mot-clé if"
+        correcte: false
+        explication: "if est une structure de contrôle parfaitement valide et couramment utilisée en Go ; ce qui diffère d'autres langages est simplement l'absence de parenthèses autour de la condition."
+      - texte: "Les conditions ne peuvent contenir aucune comparaison en Go"
+        correcte: false
+        explication: "Les conditions Go utilisent les mêmes opérateurs de comparaison que la plupart des langages (>=, ==, <...) ; ce n'est pas une limitation sur le contenu de la condition elle-même."
+      - texte: "if ne peut être utilisé qu'une seule fois par fonction en Go"
+        correcte: false
+        explication: "Une fonction Go peut contenir autant d'instructions if que nécessaire, sans cette limitation à une seule utilisation."
+  - question: "Que permet de faire une instruction d'initialisation dans un if, comme `if valeur, ok := maMap[\"cle\"]; ok { ... }` ?"
+    type: "unique"
+    reponses:
+      - texte: "Déclarer une ou plusieurs variables juste avant d'évaluer la condition, ces variables n'étant visibles qu'à l'intérieur du bloc if (et d'un éventuel else associé)"
+        correcte: true
+        explication: "Cette syntaxe très idiomatique en Go permet de limiter la portée d'une variable intermédiaire (ici valeur et ok) au strict bloc conditionnel qui l'utilise, évitant de polluer le reste de la fonction avec des variables temporaires inutiles ailleurs."
+      - texte: "Elle exécute la condition deux fois de suite avant de continuer"
+        correcte: false
+        explication: "L'instruction d'initialisation s'exécute une seule fois, juste avant l'évaluation de la condition qui suit le point-virgule, pas deux fois."
+      - texte: "Elle rend la variable valeur accessible dans toute la fonction, au-delà du bloc if"
+        correcte: false
+        explication: "C'est l'inverse : la variable déclarée dans l'instruction d'initialisation d'un if reste limitée à la portée de ce bloc if (et de son else associé), elle n'est pas visible dans le reste de la fonction."
+      - texte: "Elle ne peut être utilisée qu'avec des maps, jamais avec d'autres types de données"
+        correcte: false
+        explication: "Cette syntaxe d'initialisation dans un if peut être utilisée avec n'importe quelle expression, pas exclusivement avec un accès à une map."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Comparer des valeurs
+
+<BlocCode
+  langue="go"
+  code={`age := 20
+aPermis := true
+
+fmt.Println(age >= 18)             // true
+fmt.Println(age >= 18 && aPermis)  // true : les deux doivent etre vraies
+fmt.Println(age < 18 || aPermis)   // true : au moins une est vraie
+fmt.Println(!aPermis)              // false : inverse la valeur`}
+/>
+
+## Les conditions, sans parenthèses
+
+<BlocCode
+  langue="go"
+  code={`func categoriser(note int) string {
+    if note >= 16 {
+        return "Excellent"
+    } else if note >= 10 {
+        return "Admis"
+    } else {
+        return "Ajourne"
+    }
+}
+
+fmt.Println(categoriser(18)) // "Excellent"
+fmt.Println(categoriser(5))  // "Ajourne"`}
+/>
+
+<Avertissement type="info">
+  Contrairement à Java ou JavaScript, Go n'exige pas de parenthèses autour de la condition d'un `if`. Les accolades `{}` restent en revanche toujours obligatoires, même pour un bloc d'une seule instruction.
+</Avertissement>
+
+## L'instruction d'initialisation dans un if
+
+<BlocCode
+  langue="go"
+  code={`ages := map[string]int{"Alice": 25, "Bob": 30}
+
+if valeur, existe := ages["Alice"]; existe {
+    fmt.Println("Age trouve :", valeur)
+} else {
+    fmt.Println("Cle absente")
+}
+// valeur et existe ne sont visibles qu'ici, pas en dehors du if/else`}
+/>
+
+Cette syntaxe limite la portée de `valeur` et `existe` au bloc `if`/`else`, évitant de polluer le reste de la fonction avec des variables temporaires.
+
+## À toi de jouer
+
+<BlocCode
+  langue="go"
+  code={`package main
+
+import "fmt"
+
+func estPositifEtPair(n int) bool {
+    return n > 0 && n%2 == 0
+}
+
+func main() {
+    fmt.Println(estPositifEtPair(-4))
+}`}
+/>
+
+<Quiz
+  cle="go/operateurs-et-conditions-go/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "false", correcte: true, explication: "-4 est pair (n%2 == 0 est vrai) mais n'est pas positif (n > 0 est faux) ; && exige que les deux conditions soient vraies, donc le résultat est false." },
+        { texte: "true", correcte: false, explication: "-4 n'est pas strictement positif (n > 0 est faux pour -4), donc la condition combinée avec && ne peut pas être vraie, même si -4 est pair." },
+        { texte: "Une erreur de compilation", correcte: false, explication: "Ce code est parfaitement valide et compile sans erreur ; le modulo (%) et les comparaisons fonctionnent normalement sur les nombres négatifs en Go." },
+        { texte: "-4", correcte: false, explication: "La fonction renvoie un bool (true ou false), pas le nombre n lui-même, puisque son type de retour déclaré est bool." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "&& (et), || (ou), ! (non) combinent des conditions booléennes",
+    "if condition { ... } n'exige pas de parenthèses autour de la condition, mais les accolades restent obligatoires",
+    "Une instruction d'initialisation dans un if (comme if v, ok := m[cle]; ok) limite la portée des variables au bloc",
+    "Go refuse de compiler une variable déclarée mais jamais utilisée, y compris dans ce contexte"
+  ]}
+/>

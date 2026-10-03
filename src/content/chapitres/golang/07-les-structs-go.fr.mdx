@@ -1,0 +1,163 @@
+---
+titre: "Les structs"
+titreCourt: "Les structs"
+description: "Définir un struct pour regrouper des champs liés, et les instancier avec des valeurs littérales."
+slug: "les-structs-go"
+cours: "go"
+ordre: 7
+duree: 13
+niveau: "intermediaire"
+objectifs:
+  - "Définir un struct pour regrouper des données liées"
+  - "Créer des instances avec des valeurs littérales de struct"
+  - "Comprendre que les structs sont copiés par valeur, contrairement aux objets d'autres langages"
+prerequis: ["les-chaines-de-caracteres-go"]
+tags: ["go"]
+quiz:
+  - question: "Go n'ayant pas de classes comme Java ou Python, comment regroupe-t-on des données liées (comme le nom et l'âge d'une personne) dans une même structure ?"
+    type: "unique"
+    reponses:
+      - texte: "Avec un struct, qui définit un ensemble de champs nommés et typés, regroupés sous un même type personnalisé"
+        correcte: true
+        explication: "Un struct Personne avec des champs Nom et Age joue en Go le rôle que jouerait une classe sans méthodes dans un langage orienté objet classique ; le comportement (les méthodes) s'ajoute séparément, comme on le verra au chapitre suivant."
+      - texte: "Avec une map, obligatoirement, les structs n'existant pas en Go"
+        correcte: false
+        explication: "Les structs sont un type de données natif et fondamental de Go, bien distinct des maps ; une map associe des clés dynamiques à des valeurs, un struct définit des champs fixes et nommés à l'avance."
+      - texte: "En créant une nouvelle fonction pour chaque donnée à regrouper"
+        correcte: false
+        explication: "Les fonctions exécutent du code, elles ne servent pas à regrouper des données liées sous un même type ; c'est le rôle du struct."
+      - texte: "Avec un slice de type interface{}, la seule façon de mélanger plusieurs types en Go"
+        correcte: false
+        explication: "Un struct est l'outil approprié et idiomatique pour regrouper des champs nommés de types potentiellement différents, bien plus adapté et lisible qu'un slice générique non typé pour ce besoin."
+  - question: "Que se passe-t-il quand on assigne une variable de type struct à une autre, comme `p2 := p1` (p1 étant un struct Personne) ?"
+    type: "unique"
+    reponses:
+      - texte: "p2 reçoit une copie complète et indépendante des valeurs de p1 ; modifier p2 ensuite n'affecte en rien p1"
+        correcte: true
+        explication: "Contrairement aux objets de Java ou Python qui sont manipulés par référence, un struct Go est copié par valeur lors d'une assignation, un comportement important à connaître pour éviter des surprises, notamment lors du passage d'un struct en paramètre de fonction."
+      - texte: "p2 et p1 pointent vers exactement les mêmes données en mémoire, comme deux noms pour le même objet"
+        correcte: false
+        explication: "C'est le comportement d'un pointeur vers un struct, pas d'une assignation directe de struct qui crée au contraire une copie indépendante."
+      - texte: "Cette syntaxe provoque toujours une erreur de compilation"
+        correcte: false
+        explication: "Cette syntaxe est parfaitement valide en Go ; elle crée une copie indépendante du struct, sans provoquer d'erreur."
+      - texte: "p1 est automatiquement supprimé après cette assignation"
+        correcte: false
+        explication: "p1 continue d'exister normalement après l'assignation, inchangé ; seule une copie de ses valeurs est transmise à p2."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Définir et utiliser un struct
+
+<BlocCode
+  langue="go"
+  code={`type Personne struct {
+    Nom string
+    Age int
+}
+
+p := Personne{Nom: "Alice", Age: 25}
+fmt.Println(p.Nom)  // "Alice"
+fmt.Println(p.Age)  // 25
+
+p.Age = 26 // modifie le champ directement
+fmt.Println(p.Age)  // 26`}
+/>
+
+Un champ commençant par une majuscule (`Nom`, `Age`) est exporté, accessible depuis d'autres packages ; un champ en minuscule resterait privé au package courant, l'équivalent approximatif de `private` en Java.
+
+## Struct copié par valeur
+
+<BlocCode
+  langue="go"
+  code={`p1 := Personne{Nom: "Alice", Age: 25}
+p2 := p1 // copie complete et independante
+
+p2.Age = 99
+fmt.Println(p1.Age) // 25, inchange
+fmt.Println(p2.Age) // 99`}
+/>
+
+<Avertissement type="attention">
+  Contrairement aux objets Java ou Python (manipulés par référence), un struct Go est copié par valeur à chaque assignation ou passage en paramètre de fonction. Modifier la copie n'affecte jamais l'original.
+</Avertissement>
+
+## Passer un struct par référence avec un pointeur
+
+<BlocCode
+  langue="go"
+  code={`func vieillir(p *Personne) {
+    p.Age++ // modifie l'original, via le pointeur
+}
+
+personne := Personne{Nom: "Bob", Age: 30}
+vieillir(&personne)
+fmt.Println(personne.Age) // 31`}
+/>
+
+`&personne` crée un pointeur vers `personne` ; la fonction `vieillir` reçoit ce pointeur (`*Personne`) et peut ainsi modifier l'original, contournant la copie par valeur par défaut.
+
+## Les structs imbriqués
+
+<BlocCode
+  langue="go"
+  code={`type Adresse struct {
+    Ville string
+}
+
+type Employe struct {
+    Nom     string
+    Adresse Adresse
+}
+
+e := Employe{Nom: "Claire", Adresse: Adresse{Ville: "Lyon"}}
+fmt.Println(e.Adresse.Ville) // "Lyon"`}
+/>
+
+## À toi de jouer
+
+<BlocCode
+  langue="go"
+  code={`type Rectangle struct {
+    Largeur int
+    Hauteur int
+}
+
+func aire(r Rectangle) int {
+    return r.Largeur * r.Hauteur
+}
+
+r := Rectangle{Largeur: 4, Hauteur: 5}
+fmt.Println(aire(r))`}
+/>
+
+<Quiz
+  cle="go/les-structs-go/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "20", correcte: true, explication: "aire(r) renvoie r.Largeur * r.Hauteur, soit 4 * 5 = 20 pour ce struct Rectangle." },
+        { texte: "9", correcte: false, explication: "9 correspondrait à Largeur + Hauteur (4 + 5), pas au produit calculé par la fonction aire()." },
+        { texte: "Une erreur de compilation, un struct ne pouvant pas être passé en paramètre", correcte: false, explication: "Un struct peut tout à fait être passé en paramètre d'une fonction (ici par valeur, comme copie) ; ce code compile et s'exécute normalement." },
+        { texte: "0", correcte: false, explication: "Le struct r est initialisé avec Largeur: 4 et Hauteur: 5 dans sa valeur littérale, le résultat n'est donc pas 0." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "type Nom struct { Champ1 type1; Champ2 type2 } définit un nouveau type struct",
+    "Un champ commençant par une majuscule est exporté (accessible depuis d'autres packages)",
+    "Un struct est copié par valeur à chaque assignation ou passage en paramètre de fonction",
+    "Un pointeur (*Personne, créé avec &) permet de modifier l'original plutôt qu'une copie"
+  ]}
+/>

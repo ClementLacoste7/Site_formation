@@ -1,0 +1,61 @@
+---
+titre: "Fiche de révision : Go"
+description: "L'essentiel à retenir : variables, boucles, slices, fonctions à retours multiples, structs, interfaces, maps et gestion des erreurs."
+slug: "go"
+coursLie: "go"
+tags: ["go"]
+questions:
+  - question: "Quelle est la différence entre var age int = 25 et age := 25 ?"
+    reponse: "Les deux déclarent une variable valant 25, mais := déduit automatiquement le type et ne fonctionne qu'à l'intérieur d'une fonction, contrairement à var utilisable aussi au niveau global."
+  - question: "Pourquoi Go n'a-t-il qu'un seul mot-clé de boucle, for ?"
+    reponse: "for peut être utilisé sous plusieurs formes (avec compteur, comme un while avec une seule condition, ou sans condition pour une boucle infinie), rendant un mot-clé while séparé superflu."
+  - question: "Quelle est la différence entre un tableau ([3]int) et un slice ([]int) ?"
+    reponse: "Un tableau a une taille fixe incluse dans son type. Un slice est flexible et redimensionnable avec append(), dont le résultat doit toujours être réassigné."
+  - question: "Pourquoi de nombreuses fonctions Go renvoient-elles deux valeurs, comme (resultat, err) ?"
+    reponse: "Pour signaler la réussite ou l'échec d'une opération sans système d'exceptions : la convention est de vérifier systématiquement err avec if err != nil."
+  - question: "Pourquoi len(\"café\") renvoie-t-il 5, pas 4 ?"
+    reponse: "len() compte des octets, pas des caractères visibles. Le é est encodé sur deux octets en UTF-8. Pour compter les caractères réels (runes), utiliser for range."
+  - question: "Comment un struct implémente-t-il une interface en Go ?"
+    reponse: "De façon implicite : dès qu'un type possède toutes les méthodes requises par l'interface, il l'implémente automatiquement, sans mot-clé implements."
+  - question: "Que renvoie l'accès à une clé absente d'une map ?"
+    reponse: "La valeur zéro du type des valeurs (comme 0 pour int), sans erreur. L'idiome valeur, ok := maMap[cle] permet de distinguer une clé absente d'une clé présente valant zéro."
+  - question: "Quelle est la différence entre une erreur normale (error) et un panic ?"
+    reponse: "Une erreur normale signale un problème attendu, à vérifier avec if err != nil. Un panic signale une situation vraiment exceptionnelle et interrompt le programme, sauf récupération avec recover()."
+maj: 2026-10-03
+---
+
+import BlocCode from '../../components/contenu/BlocCode.astro';
+import Avertissement from '../../components/contenu/Avertissement.astro';
+
+## Une fonction à retour multiple
+
+<BlocCode
+  langue="go"
+  code={`func diviser(a, b float64) (float64, error) {
+    if b == 0 {
+        return 0, fmt.Errorf("division par zero impossible")
+    }
+    return a / b, nil
+}`}
+/>
+
+## Une interface implémentée implicitement
+
+<BlocCode
+  langue="go"
+  code={`type Animal interface {
+    Crier() string
+}
+
+type Chien struct {
+    Nom string
+}
+
+func (c Chien) Crier() string {
+    return c.Nom + " aboie !"
+}`}
+/>
+
+<Avertissement type="astuce">
+  Trois réflexes couvrent une bonne partie des surprises de débutant : vérifier systématiquement err != nil, réassigner le résultat d'append(), et se souvenir qu'un struct est copié par valeur sauf passage par pointeur.
+</Avertissement>

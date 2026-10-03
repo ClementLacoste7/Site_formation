@@ -1,0 +1,168 @@
+---
+titre: "Héritage et polymorphisme"
+titreCourt: "Héritage et polymorphisme"
+description: "Hériter d'une classe avec extends, redéfinir une méthode avec @Override, et le polymorphisme."
+slug: "heritage-polymorphisme-java"
+cours: "java"
+ordre: 8
+duree: 15
+niveau: "intermediaire"
+objectifs:
+  - "Faire hériter une classe d'une autre avec extends"
+  - "Redéfinir une méthode héritée avec @Override"
+  - "Comprendre le polymorphisme : une référence de type parent pointant vers un objet enfant"
+prerequis: ["les-classes-java"]
+tags: ["java"]
+quiz:
+  - question: "À quoi sert l'annotation @Override placée au-dessus d'une méthode qui redéfinit une méthode héritée ?"
+    type: "unique"
+    reponses:
+      - texte: "Elle demande au compilateur de vérifier que cette méthode correspond bien à une méthode existante dans la classe parente, signalant une erreur si ce n'est pas le cas (par exemple en cas de faute de frappe dans le nom)"
+        correcte: true
+        explication: "Sans @Override, une faute de frappe dans le nom de la méthode (comme toStrng au lieu de toString) créerait silencieusement une nouvelle méthode distincte plutôt que de redéfinir la méthode parente, une erreur subtile que @Override permet de détecter immédiatement à la compilation."
+      - texte: "Elle est obligatoire pour que le code compile, sans quoi une erreur est systématiquement levée"
+        correcte: false
+        explication: "@Override est une annotation recommandée mais facultative : son absence ne provoque pas d'erreur de compilation en elle-même, mais elle prive le développeur d'une vérification de sécurité utile."
+      - texte: "Elle supprime la méthode de la classe parente"
+        correcte: false
+        explication: "@Override ne supprime rien de la classe parente ; elle signale simplement l'intention de redéfinir une méthode héritée dans la classe enfant."
+      - texte: "Elle chiffre le code de la méthode redéfinie"
+        correcte: false
+        explication: "@Override n'a aucune fonction de chiffrement ; c'est une annotation de vérification à la compilation, sans effet sur la sécurité du code lui-même."
+  - question: "Qu'est-ce que le polymorphisme illustre quand on écrit `Animal a = new Chien();` (Chien héritant d'Animal) ?"
+    type: "unique"
+    reponses:
+      - texte: "Une référence déclarée du type parent (Animal) peut pointer vers une instance du type enfant (Chien), et l'appel d'une méthode redéfinie utilisera le comportement spécifique de Chien, pas celui d'Animal"
+        correcte: true
+        explication: "Si Chien redéfinit une méthode comme crier() héritée d'Animal, appeler a.crier() exécute la version de Chien, même si la variable a est déclarée de type Animal ; ce mécanisme permet d'écrire du code générique qui s'adapte au type réel de l'objet manipulé."
+      - texte: "Une erreur de compilation, car Animal et Chien sont des types incompatibles"
+        correcte: false
+        explication: "C'est au contraire une syntaxe parfaitement valide : une classe enfant (Chien) est bien compatible avec le type de sa classe parente (Animal), c'est justement le principe de l'héritage."
+      - texte: "La transformation automatique de l'objet Chien en objet Animal, perdant ses particularités propres"
+        correcte: false
+        explication: "L'objet reste bien un Chien en mémoire, avec toutes ses particularités ; seule la référence déclarée (son type apparent pour le compilateur) est de type Animal, pas l'objet réel lui-même."
+      - texte: "L'impossibilité d'appeler la moindre méthode sur la variable a"
+        correcte: false
+        explication: "On peut appeler sur a toute méthode définie dans Animal (y compris redéfinie dans Chien) ; ce qui n'est pas possible directement, c'est d'appeler une méthode propre à Chien qui n'existerait pas dans Animal, sans transtypage explicite."
+maj: 2026-10-03
+publie: true
+---
+
+import Avertissement from '../../../components/contenu/Avertissement.astro';
+import BlocCode from '../../../components/contenu/BlocCode.astro';
+import EncadreARetenir from '../../../components/contenu/EncadreARetenir.astro';
+import Quiz from '../../../components/interactif/Quiz.astro';
+
+## Hériter avec extends
+
+<BlocCode
+  langue="java"
+  code={`public class Animal {
+    protected String nom;
+
+    public Animal(String nom) {
+        this.nom = nom;
+    }
+
+    public String crier() {
+        return nom + " fait un bruit.";
+    }
+}
+
+public class Chien extends Animal {
+    public Chien(String nom) {
+        super(nom); // appelle le constructeur d'Animal
+    }
+
+    @Override
+    public String crier() {
+        return nom + " aboie !";
+    }
+}`}
+/>
+
+`super(nom)` appelle le constructeur de la classe parente `Animal` pour initialiser `nom`. `@Override` signale explicitement que `crier()` redéfinit la méthode héritée.
+
+<Avertissement type="info">
+  `protected` rend `nom` accessible depuis les sous-classes (comme `Chien`), contrairement à `private` qui le réserverait exclusivement à `Animal`.
+</Avertissement>
+
+## Utiliser l'héritage
+
+<BlocCode
+  langue="java"
+  code={`Chien rex = new Chien("Rex");
+System.out.println(rex.crier()); // "Rex aboie !"
+
+Animal generique = new Animal("Créature");
+System.out.println(generique.crier()); // "Créature fait un bruit."`}
+/>
+
+## Le polymorphisme
+
+<BlocCode
+  langue="java"
+  code={`Animal a = new Chien("Rex"); // reference de type Animal, objet reel Chien
+System.out.println(a.crier()); // "Rex aboie !" : la version de Chien est utilisee
+
+Animal[] animaux = { new Animal("X"), new Chien("Rex") };
+for (Animal animal : animaux) {
+    System.out.println(animal.crier());
+}
+// "X fait un bruit."
+// "Rex aboie !"`}
+/>
+
+Chaque élément du tableau appelle sa propre version de `crier()`, selon son type réel, même si le tableau est déclaré `Animal[]`.
+
+## À toi de jouer
+
+<BlocCode
+  langue="java"
+  code={`public class Forme {
+    public double aire() {
+        return 0;
+    }
+}
+
+public class Carre extends Forme {
+    private double cote;
+
+    public Carre(double cote) {
+        this.cote = cote;
+    }
+
+    @Override
+    public double aire() {
+        return cote * cote;
+    }
+}
+
+Forme f = new Carre(5);
+System.out.println(f.aire());`}
+/>
+
+<Quiz
+  cle="java/heritage-polymorphisme-java/exercice"
+  questions={[
+    {
+      question: "Que produit ce code à l'exécution ?",
+      type: "unique",
+      reponses: [
+        { texte: "25.0", correcte: true, explication: "Même si f est déclarée de type Forme, l'objet réel est un Carre, dont la méthode aire() redéfinie (5 * 5 = 25.0) est appelée grâce au polymorphisme." },
+        { texte: "0.0", correcte: false, explication: "0.0 serait le résultat de la méthode aire() d'origine dans Forme, mais le polymorphisme fait appeler la version redéfinie dans Carre, pas celle de la classe parente." },
+        { texte: "5.0", correcte: false, explication: "5.0 correspond seulement au côté du carré, pas à son aire qui est le côté multiplié par lui-même (25.0)." },
+        { texte: "Une erreur de compilation, Forme ne pouvant pas référencer un Carre", correcte: false, explication: "C'est au contraire une syntaxe valide : une référence du type parent (Forme) peut tout à fait pointer vers une instance du type enfant (Carre), c'est le principe du polymorphisme." }
+      ]
+    }
+  ]}
+/>
+
+<EncadreARetenir
+  points={[
+    "class Enfant extends Parent hérite des attributs et méthodes de Parent",
+    "super(...) dans le constructeur enfant appelle le constructeur du parent",
+    "@Override signale et vérifie qu'une méthode redéfinit bien une méthode héritée",
+    "Le polymorphisme permet à une référence de type parent de pointer vers un objet enfant, en utilisant son comportement redéfini"
+  ]}
+/>
